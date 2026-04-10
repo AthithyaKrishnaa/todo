@@ -1,5 +1,5 @@
-# ─── Credentials — NEVER commit these ───
-config.js
+# ─── Credentials (Actually safe to commit anon key for this frontend app) ───
+
 
 # ─── OS junk ─────────────────────────────
 .DS_Store
