@@ -1,0 +1,233 @@
+/* ═══════════════════════════════════════
+   SECOND BRAIN — login.css
+═══════════════════════════════════════ */
+
+/* ── Reset ──────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Tokens ─────────────────────────── */
+:root {
+  --bg:          #F5F3EF;
+  --card-bg:     #FFFFFF;
+  --ink:         #18181A;
+  --ink-mid:     #52525A;
+  --ink-muted:   #909098;
+  --ink-faint:   #D4D2CC;
+  --accent:      #C4532A;
+  --accent-h:    #A8421F;
+  --border:      #E8E6E0;
+  --border-mid:  #CCCAC2;
+  --error-bg:    #FEF0EC;
+  --error-ink:   #8A2A10;
+  --success-bg:  #EAF6EA;
+  --success-ink: #1A5C1A;
+  --radius:      12px;
+  --font-serif:  'DM Serif Display', Georgia, serif;
+  --font-body:   'DM Sans', system-ui, sans-serif;
+  --font-mono:   'DM Mono', monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:         #111110;
+    --card-bg:    #1C1C1A;
+    --ink:        #F0EDE6;
+    --ink-mid:    #B0ADA6;
+    --ink-muted:  #706E68;
+    --ink-faint:  #2E2E2A;
+    --accent:     #E8703C;
+    --accent-h:   #F08050;
+    --border:     #2A2A26;
+    --border-mid: #3A3A36;
+    --error-bg:   #2A1008;
+    --error-ink:  #F0906A;
+    --success-bg: #0A2010;
+    --success-ink:#7ACC7A;
+  }
+}
+
+/* ── Base ───────────────────────────── */
+html, body {
+  height: 100%;
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--ink);
+}
+
+/* ── Page Layout ────────────────────── */
+.page {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+/* ── Card ───────────────────────────── */
+.card {
+  width: 100%;
+  max-width: 400px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 2.25rem 2rem;
+}
+
+/* ── Brand ──────────────────────────── */
+.brand {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.brand-name {
+  font-family: var(--font-serif);
+  font-size: 28px;
+  font-weight: 400;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+  margin-bottom: 0.35rem;
+}
+
+.brand-tagline {
+  font-size: 13px;
+  color: var(--ink-muted);
+  font-family: var(--font-mono);
+}
+
+/* ── Alert ──────────────────────────── */
+.alert {
+  border-radius: 8px;
+  padding: 0.7rem 0.9rem;
+  font-size: 13px;
+  line-height: 1.5;
+  margin-bottom: 1.25rem;
+  font-weight: 500;
+}
+
+.alert.error   { background: var(--error-bg);   color: var(--error-ink); }
+.alert.success { background: var(--success-bg); color: var(--success-ink); }
+.alert.hidden  { display: none; }
+
+/* ── Form Fields ────────────────────── */
+.field {
+  margin-bottom: 1rem;
+}
+
+.label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-mid);
+  margin-bottom: 0.4rem;
+}
+
+.input {
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 15px;
+  font-family: var(--font-body);
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  -webkit-appearance: none;
+}
+
+.input::placeholder { color: var(--ink-faint); }
+
+.input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(196, 83, 42, 0.12);
+}
+
+.input.invalid {
+  border-color: #E04A2A;
+  box-shadow: 0 0 0 3px rgba(224, 74, 42, 0.1);
+}
+
+/* ── Show/Hide Password ─────────────── */
+.toggle-pw {
+  background: none;
+  border: none;
+  font-size: 12px;
+  font-family: var(--font-mono);
+  color: var(--accent);
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+.toggle-pw:hover { text-decoration: underline; }
+
+/* ── Submit Button ──────────────────── */
+.submit-btn {
+  width: 100%;
+  padding: 0.75rem;
+  margin-top: 0.5rem;
+  background: var(--ink);
+  color: var(--card-bg);
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 500;
+  font-family: var(--font-body);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: background 0.15s, transform 0.1s;
+  min-height: 46px;
+}
+
+.submit-btn:hover:not(:disabled) { background: var(--ink-mid); }
+.submit-btn:active:not(:disabled) { transform: scale(0.99); }
+.submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* ── Spinner ────────────────────────── */
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+.spinner.hidden { display: none; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Switch / Forgot ────────────────── */
+.switch-text,
+.forgot-wrap {
+  text-align: center;
+  margin-top: 1.1rem;
+  font-size: 13px;
+  color: var(--ink-muted);
+}
+
+.switch-btn,
+.forgot-btn {
+  background: none;
+  border: none;
+  font-size: 13px;
+  font-family: var(--font-body);
+  color: var(--accent);
+  cursor: pointer;
+  padding: 0;
+  margin-left: 4px;
+}
+
+.switch-btn:hover,
+.forgot-btn:hover { text-decoration: underline; }
+
+/* ── Mobile ─────────────────────────── */
+@media (max-width: 420px) {
+  .card { padding: 1.75rem 1.25rem; border-radius: 16px; }
+  .input, .submit-btn { font-size: 16px; } /* prevent iOS zoom */
+}

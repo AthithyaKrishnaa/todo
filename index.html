@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Second Brain — Sign In</title>
+  <link rel="stylesheet" href="login.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,400;9..40,500&family=DM+Mono:wght@400&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <main class="page">
+    <div class="card">
+
+      <!-- Brand -->
+      <div class="brand">
+        <h1 class="brand-name">Second Brain</h1>
+        <p class="brand-tagline">Your private capture &amp; reminder system</p>
+      </div>
+
+      <!-- Alert banner -->
+      <div class="alert hidden" id="alert" role="alert"></div>
+
+      <!-- Form -->
+      <form id="auth-form" novalidate>
+
+        <div class="field">
+          <label class="label" for="email">Email</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            class="input"
+            placeholder="you@example.com"
+            autocomplete="email"
+            required
+          />
+        </div>
+
+        <div class="field">
+          <label class="label" for="password">
+            Password
+            <button type="button" class="toggle-pw" id="toggle-pw" aria-label="Show password">Show</button>
+          </label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            class="input"
+            placeholder="Enter your password"
+            autocomplete="current-password"
+            minlength="8"
+            required
+          />
+        </div>
+
+        <button type="submit" class="submit-btn" id="submit-btn">
+          <span id="btn-label">Sign in</span>
+          <span class="spinner hidden" id="spinner"></span>
+        </button>
+
+      </form>
+
+      <!-- Mode switcher -->
+      <p class="switch-text">
+        <span id="switch-prompt">Don't have an account?</span>
+        <button type="button" class="switch-btn" id="switch-btn">Create one</button>
+      </p>
+
+      <!-- Forgot password link (only visible in login mode) -->
+      <p class="forgot-wrap" id="forgot-wrap">
+        <button type="button" class="forgot-btn" id="forgot-btn">Forgot password?</button>
+      </p>
+
+    </div>
+  </main>
+
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="config.js"></script>
+  <script src="login.js"></script>
+</body>
+</html>

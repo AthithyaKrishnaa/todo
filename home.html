@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Second Brain</title>
+  <link rel="stylesheet" href="home.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,400;9..40,500&family=DM+Mono:wght@400&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- ── Auth guard overlay (shown while checking session) ── -->
+  <div id="auth-guard" class="auth-guard">
+    <div class="guard-spinner"></div>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       HEADER
+  ════════════════════════════════════════ -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="brand">
+        <span class="brand-name">Second Brain</span>
+        <span class="note-badge" id="note-badge">0</span>
+      </div>
+      <div class="header-actions">
+        <button class="icon-btn" id="theme-btn" title="Toggle theme" aria-label="Toggle dark mode">◐</button>
+        <button class="icon-btn danger" id="logout-btn" title="Sign out" aria-label="Sign out">→</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ════════════════════════════════════════
+       CAPTURE BOX
+  ════════════════════════════════════════ -->
+  <section class="section">
+    <div class="capture-box" id="capture-box">
+
+      <textarea
+        id="note-input"
+        class="note-input"
+        placeholder="Capture a thought, link, or task… (Ctrl+Enter to save)"
+        rows="3"
+        maxlength="2000"
+      ></textarea>
+
+      <!-- Tags -->
+      <div class="row tags-row">
+        <span class="row-label">Tag</span>
+        <div class="tag-group">
+          <button type="button" class="tag-chip" data-tag="idea"      aria-pressed="false">💡 Idea</button>
+          <button type="button" class="tag-chip" data-tag="study"     aria-pressed="false">📚 Study</button>
+          <button type="button" class="tag-chip" data-tag="important" aria-pressed="false">⚡ Important</button>
+          <button type="button" class="tag-chip" data-tag="task"      aria-pressed="false">✅ Task</button>
+        </div>
+      </div>
+
+      <!-- Reminder -->
+      <div class="row reminder-row">
+        <label class="toggle-label">
+          <input type="checkbox" id="remind-check" class="visually-hidden" />
+          <span class="toggle-track"><span class="toggle-thumb"></span></span>
+          <span class="toggle-text">Remind me</span>
+        </label>
+        <input
+          type="datetime-local"
+          id="remind-input"
+          class="date-input hidden"
+          aria-label="Reminder date and time"
+        />
+      </div>
+
+      <!-- Footer -->
+      <div class="capture-footer">
+        <span class="char-count" id="char-count">0 / 2000</span>
+        <button type="button" class="save-btn" id="save-btn">Save note</button>
+      </div>
+
+    </div>
+
+    <!-- Loading/error state for save -->
+    <div class="inline-status hidden" id="save-status"></div>
+  </section>
+
+  <!-- ════════════════════════════════════════
+       DASHBOARD
+  ════════════════════════════════════════ -->
+  <section class="section dashboard">
+
+    <!-- Search -->
+    <div class="search-box">
+      <span class="search-icon" aria-hidden="true">⌕</span>
+      <input
+        type="search"
+        id="search-input"
+        class="search-input"
+        placeholder="Search your notes…"
+        autocomplete="off"
+        autocorrect="off"
+        spellcheck="false"
+      />
+      <button type="button" class="clear-btn hidden" id="clear-search" aria-label="Clear search">✕</button>
+    </div>
+
+    <!-- Filters -->
+    <div class="filter-bar" role="tablist">
+      <button type="button" class="filter-btn active" data-filter="all"       role="tab" aria-selected="true">All</button>
+      <button type="button" class="filter-btn"         data-filter="today"     role="tab" aria-selected="false">Today</button>
+      <button type="button" class="filter-btn"         data-filter="important" role="tab" aria-selected="false">Important</button>
+      <button type="button" class="filter-btn"         data-filter="reminders" role="tab" aria-selected="false">Reminders</button>
+      <button type="button" class="filter-btn"         data-filter="done"      role="tab" aria-selected="false">Done</button>
+    </div>
+
+    <!-- Notes area -->
+    <div id="notes-area">
+
+      <!-- Loading skeleton -->
+      <div id="notes-loading" class="loading-wrap">
+        <div class="skeleton"></div>
+        <div class="skeleton"></div>
+        <div class="skeleton"></div>
+      </div>
+
+      <!-- Notes list -->
+      <div id="notes-list" class="notes-list hidden"></div>
+
+      <!-- Empty state -->
+      <div id="empty-state" class="empty-state hidden">
+        <p class="empty-icon">◎</p>
+        <p class="empty-title" id="empty-title">No notes yet</p>
+        <p class="empty-desc" id="empty-desc">Write something above to get started.</p>
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- ════════════════════════════════════════
+       TOAST
+  ════════════════════════════════════════ -->
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <!-- ════════════════════════════════════════
+       CONFIRM DIALOG
+  ════════════════════════════════════════ -->
+  <div id="confirm-overlay" class="overlay hidden" aria-modal="true" role="dialog">
+    <div class="confirm-box">
+      <p class="confirm-msg" id="confirm-msg">Delete this note?</p>
+      <div class="confirm-actions">
+        <button type="button" class="confirm-cancel" id="confirm-cancel">Cancel</button>
+        <button type="button" class="confirm-ok danger" id="confirm-ok">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="config.js"></script>
+  <script src="home.js"></script>
+</body>
+</html>
