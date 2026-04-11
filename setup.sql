@@ -145,7 +145,8 @@ CREATE POLICY "delete_own_documents" ON documents FOR DELETE USING (auth.uid() =
 
 
 -- ── 9. Profile table ──────────────────────────────────────────
-CREATE TABLE IF NOT EXISTS profile (
+DROP TABLE IF EXISTS profile CASCADE;
+CREATE TABLE profile (
   user_id             UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   name                TEXT,
   phone               TEXT,
