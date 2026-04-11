@@ -8,7 +8,7 @@
  * See setup.sql for the security rules applied to your database.
  */
 
-const CONFIG = {
+window.CONFIG = {
   SUPABASE_URL:      'https://oakrpspkjsfwhysuaxbm.supabase.co',
   SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9ha3Jwc3BranNmd2h5c3VheGJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4MDk5OTAsImV4cCI6MjA5MTM4NTk5MH0.JbKhPxH9_kjjksSI1W9GXtCQnJ68KkefNHONv1vQO7g',
 };
