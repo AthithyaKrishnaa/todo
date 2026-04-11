@@ -74,6 +74,8 @@ const profSaveStatus = document.getElementById('prof-save-status');
 const saveProfBtn    = document.getElementById('save-prof-btn');
 const shareOptions   = document.getElementById('share-options');
 const copyProfBtn    = document.getElementById('copy-prof-btn');
+const copyCardBtn    = document.getElementById('copy-card-btn');
+const cardCanvas     = document.getElementById('card-canvas');
 
 /* ── Sidebar DOM ────────────────────────────────────────────── */
 const sidebarItems   = document.querySelectorAll('.side-nav-item');
@@ -341,7 +343,7 @@ function buildCard(note) {
     note.done ? 'action-btn is-done' : 'action-btn'
   );
 
-  const delBtn = makeActionBtn('✕', 'Delete note', 'action-btn delete-btn');
+  const delBtn = makeActionBtn('—', 'Delete note', 'action-btn delete-btn');
 
   actionsDiv.append(pinBtn, doneBtn, delBtn);
   header.append(tagsDiv, actionsDiv);
@@ -631,12 +633,24 @@ function initURLCleaners() {
       const cleaned = cleanURL(original);
       if (original !== cleaned) {
         input.value = cleaned;
-        showToast('Link cleaned & shortened! 🧹');
+        showToast('Cleaned! 🧹');
       }
     };
     input.addEventListener('paste', () => setTimeout(handleClean, 10));
     input.addEventListener('blur', handleClean);
   });
+}
+
+/** Shorten URL using is.gd API */
+async function shortenURL(url) {
+  if (!url || url.length < 25) return url;
+  try {
+    const res = await fetch(`https://is.gd/create.php?format=json&url=${encodeURIComponent(url)}`);
+    const data = await res.json();
+    return data.shorturl || url;
+  } catch {
+    return url;
+  }
 }
 
 /** Relative time string */
@@ -1014,43 +1028,180 @@ if (copyProfBtn && shareOptions) {
       
       // Header
       if (keys.includes('name') && userProfile.name) {
-        output += `👤 *${userProfile.name.toUpperCase()}*\n`;
+        output += `${userProfile.name.toUpperCase()}\n`;
         output += `━━━━━━━━━━━━━━━━━━━━\n`;
       } else {
-        output += `📋 *PROFILE DETAILS*\n━━━━━━━━━━━━━━━━━━━━\n`;
+        output += `PROFILE DETAILS\n━━━━━━━━━━━━━━━━━━━━\n`;
       }
 
+      // Shortening Links for Premium Look
+      const pData = {...userProfile};
+      const shorteningTasks = [];
+      if (keys.includes('resume') && pData.resume_link) shorteningTasks.push(shortenURL(pData.resume_link).then(s => pData.resume_link = s));
+      if (keys.includes('github') && pData.github) shorteningTasks.push(shortenURL(pData.github).then(s => pData.github = s));
+      if (keys.includes('linkedin') && pData.linkedin) shorteningTasks.push(shortenURL(pData.linkedin).then(s => pData.linkedin = s));
+      if (keys.includes('internship') && pData.internship_link) shorteningTasks.push(shortenURL(pData.internship_link).then(s => pData.internship_link = s));
+      if (keys.includes('project') && pData.project_link) shorteningTasks.push(shortenURL(pData.project_link).then(s => pData.project_link = s));
+      if (keys.includes('certs') && pData.certifications_link) shorteningTasks.push(shortenURL(pData.certifications_link).then(s => pData.certifications_link = s));
+      
+      if (shorteningTasks.length > 0) await Promise.all(shorteningTasks);
+
       // Contact Group
-      let hasContact = false;
-      if (keys.includes('phone') && userProfile.phone) { output += `📞 *Phone:* ${userProfile.phone}\n`; hasContact = true; }
-      if (keys.includes('email') && userProfile.email) { output += `📧 *Email:* ${userProfile.email}\n`; hasContact = true; }
+      if (keys.includes('phone') && pData.phone) output += `■ PHONE: ${pData.phone}\n`;
+      if (keys.includes('email') && pData.email) output += `■ EMAIL: ${pData.email}\n`;
       
       // Portfolio Group
       let hasPortfolio = false;
-      let portfolioStr = "\n🔗 *PORTFOLIO & LINKS*\n";
-      if (keys.includes('github') && userProfile.github) { portfolioStr += `🌐 *GitHub:* ${userProfile.github}\n`; hasPortfolio = true; }
-      if (keys.includes('linkedin') && userProfile.linkedin) { portfolioStr += `💼 *LinkedIn:* ${userProfile.linkedin}\n`; hasPortfolio = true; }
+      let portfolioStr = "\nSOCIALS\n";
+      if (keys.includes('github') && pData.github) { portfolioStr += `◆ GITHUB: ${pData.github}\n`; hasPortfolio = true; }
+      if (keys.includes('linkedin') && pData.linkedin) { portfolioStr += `◆ LINKEDIN: ${pData.linkedin}\n`; hasPortfolio = true; }
       if (hasPortfolio) output += portfolioStr;
 
       // Resources Group
       let hasResources = false;
-      let resourceStr = "\n📁 *RESOURCES*\n";
-      if (keys.includes('resume') && userProfile.resume_link) { resourceStr += `📝 *Resume:* ${userProfile.resume_link}\n`; hasResources = true; }
-      if (keys.includes('internship') && userProfile.internship_link) { resourceStr += `🎓 *Internship:* ${userProfile.internship_link}\n`; hasResources = true; }
-      if (keys.includes('project') && userProfile.project_link) { resourceStr += `🚀 *Projects:* ${userProfile.project_link}\n`; hasResources = true; }
-      if (keys.includes('certs') && userProfile.certifications_link) { resourceStr += `📜 *Certifications:* ${userProfile.certifications_link}\n`; hasResources = true; }
+      let resourceStr = "\nRESOURCES\n";
+      if (keys.includes('resume') && pData.resume_link) { resourceStr += `◆ RESUME: ${pData.resume_link}\n`; hasResources = true; }
+      if (keys.includes('internship') && pData.internship_link) { resourceStr += `◆ INTERNSHIP: ${pData.internship_link}\n`; hasResources = true; }
+      if (keys.includes('project') && pData.project_link) { resourceStr += `◆ PROJECTS: ${pData.project_link}\n`; hasResources = true; }
+      if (keys.includes('certs') && pData.certifications_link) { resourceStr += `◆ CERTIFICATIONS: ${pData.certifications_link}\n`; hasResources = true; }
       if (hasResources) output += resourceStr;
 
-      output += `\n━━━━━━━━━━━━━━━━━━━━\n_Sent via Second Brain_`;
+      output += `\n━━━━━━━━━━━━━━━━━━━━\nManaged via Second Brain`;
       
       await navigator.clipboard.writeText(output.trim());
-      showToast('Aesthetic details copied! ✨');
+      showToast('Executive details copied! ✨');
     } catch (e) {
       console.error(e);
       showToast('Failed to copy');
     } finally {
       copyProfBtn.disabled = false;
-      copyProfBtn.textContent = 'Copy Selected';
+      copyProfBtn.textContent = 'Copy Text';
+    }
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   VISUAL BUSINESS CARD GENERATOR
+════════════════════════════════════════════════━━━━━━━━━━━━━━━━━ */
+async function generateBusinessCard() {
+  if (!userProfile || !cardCanvas) return;
+  const ctx = cardCanvas.getContext('2d');
+  const W = cardCanvas.width;
+  const H = cardCanvas.height;
+
+  // Background - Luxury Gradient
+  const grad = ctx.createLinearGradient(0, 0, W, H);
+  grad.addColorStop(0, '#111110');
+  grad.addColorStop(1, '#242420');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, H);
+
+  // Subtle geometric pattern
+  ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+  ctx.lineWidth = 1;
+  for(let i=0; i<W; i+= 50) { ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, H); ctx.stroke(); }
+  for(let i=0; i<H; i+= 50) { ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(W, i); ctx.stroke(); }
+
+  // Accent Line
+  ctx.fillStyle = '#E8703C';
+  ctx.fillRect(50, 50, 4, 100);
+
+  // Name
+  ctx.fillStyle = '#FFFFFF';
+  ctx.font = '600 52px "DM Serif Display", serif';
+  const name = (userProfile.name || 'Your Name').toUpperCase();
+  ctx.fillText(name, 75, 105);
+
+  ctx.fillStyle = 'rgba(255,255,255,0.5)';
+  ctx.font = '500 18px "DM Sans", sans-serif';
+  ctx.fillText('PROFESSIONAL PROFILE', 75, 135);
+
+  // Helper for drawing infographic-style icons
+  const drawIcon = (x, y, type) => {
+    ctx.strokeStyle = '#E8703C';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    if (type === 'phone') {
+      ctx.roundRect(x, y, 14, 22, 2);
+      ctx.moveTo(x+4, y+18); ctx.lineTo(x+10, y+18);
+    } else if (type === 'mail') {
+      ctx.rect(x, y+4, 20, 14);
+      ctx.moveTo(x, y+4); ctx.lineTo(x+10, y+12); ctx.lineTo(x+20, y+4);
+    } else if (type === 'web') {
+      ctx.arc(x+10, y+10, 9, 0, Math.PI*2);
+      ctx.moveTo(x, y+10); ctx.lineTo(x+20, y+10);
+      ctx.moveTo(x+10, y+1); ctx.lineTo(x+10, y+19);
+    }
+    ctx.stroke();
+  };
+
+  // Details
+  ctx.fillStyle = '#FFFFFF';
+  ctx.font = '500 22px "DM Sans", sans-serif';
+  
+  let y = 220;
+  const drawDetail = (label, value, iconType) => {
+    if (!value) return;
+    drawIcon(75, y-18, iconType);
+    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+    ctx.font = '500 14px "DM Mono", monospace';
+    ctx.fillText(label.toUpperCase(), 110, y-5);
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = '500 20px "DM Sans", sans-serif';
+    ctx.fillText(value, 110, y + 20);
+    y += 75;
+  };
+
+  drawDetail('Phone', userProfile.phone, 'phone');
+  drawDetail('Email', userProfile.email, 'mail');
+  
+  // Reset Y for second column
+  let y2 = 220;
+  const drawDetailRight = (label, value, iconType) => {
+    if (!value) return;
+    drawIcon(W/2 + 25, y2-18, iconType);
+    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+    ctx.font = '500 14px "DM Mono", monospace';
+    ctx.fillText(label.toUpperCase(), W/2 + 60, y2-5);
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = '500 20px "DM Sans", sans-serif';
+    // Trim long URLs for card display
+    const displayVal = value.length > 35 ? value.substring(0, 32) + '...' : value;
+    ctx.fillText(displayVal, W/2 + 60, y2 + 20);
+    y2 += 75;
+  };
+
+  drawDetailRight('LinkedIn', userProfile.linkedin, 'web');
+  drawDetailRight('Portfolio/Project', userProfile.project_link, 'web');
+
+  // Footer
+  ctx.fillStyle = 'rgba(255,255,255,0.2)';
+  ctx.font = '500 12px "DM Sans", sans-serif';
+  ctx.fillText('GENERATED BY SECOND BRAIN', 75, H - 40);
+  
+  // Return blob
+  return new Promise(resolve => cardCanvas.toBlob(resolve, 'image/png'));
+}
+
+if (copyCardBtn) {
+  copyCardBtn.addEventListener('click', async () => {
+    if (!userProfile) return showToast('Fill profile first');
+    copyCardBtn.disabled = true;
+    copyCardBtn.textContent = 'Generating...';
+    
+    try {
+      const blob = await generateBusinessCard();
+      if (!blob) throw new Error('Failed to generate card');
+      
+      const item = new ClipboardItem({'image/png': blob});
+      await navigator.clipboard.write([item]);
+      showToast('Premium Card copied to clipboard! 🖼️');
+    } catch (err) {
+      console.error(err);
+      showToast('Image copy not supported in this browser');
+    } finally {
+      copyCardBtn.disabled = false;
+      copyCardBtn.textContent = '✨ Copy Card';
     }
   });
 }

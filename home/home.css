@@ -574,13 +574,14 @@ body {
 }
 
 .action-btn {
-  width: 40px; /* Larger hit area for mobile UX */
+  width: 40px;
   height: 40px;
-  border-radius: 50%;
+  border-radius: 6px; /* Squarer, more architectural */
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
+  font-size: 14px;
+  font-weight: 600;
   color: var(--ink-muted);
   transition: all var(--transition);
   background: var(--subtle);
@@ -591,7 +592,7 @@ body {
 .action-btn.is-pinned  { color: var(--accent); background: var(--accent-bg); border-color: var(--accent); }
 .action-btn.is-done    { color: var(--green); background: var(--green-bg); border-color: var(--green); }
 .action-btn.delete-btn { color: var(--ink-muted); }
-.action-btn.delete-btn:hover { background: #fee2e2; color: #ef4444; border-color: #fecaca; }
+.action-btn.delete-btn:hover { background: #111; color: #fff; border-color: #000; } /* Stark black for delete */
 
 /* ── Card Body ──────────────────────────── */
 .card-content {
@@ -860,6 +861,30 @@ body {
 }
 [data-theme="dark"] .share-option input[type="checkbox"] {
   filter: invert(0.8) hue-rotate(180deg) brightness(1.2);
+}
+.share-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  padding: 1rem 1.15rem;
+}
+.btn-copy-card {
+  background: linear-gradient(135deg, #18181A 0%, #3F3F46 100%);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.1);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+.btn-copy-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+}
+.btn-copy-text {
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--border-mid);
+}
+.btn-copy-text:hover {
+  background: var(--subtle);
 }
 .btn-full { width: 100%; }
 
