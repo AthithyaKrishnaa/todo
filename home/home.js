@@ -1,65 +1,52 @@
-/* ═══════════════════════════════════════════════════════════════
-   SECOND BRAIN — home.js
-   Security: auth guard on every load, RLS via Supabase,
-             HTML escaping, input validation
-   Buttons: every button has a direct addEventListener — no
-            event delegation through templates
-═══════════════════════════════════════════════════════════════ */
+/**
+ * SECOND BRAIN — home.js
+ * Supabase client is initialized via <script src="config.js">
+ */
 
-'use strict';
+const sb = supabase.createClient(window.CONFIG.SUPABASE_URL, window.CONFIG.SUPABASE_ANON_KEY);
 
-/* ── Init Supabase ──────────────────────────────────────────── */
-const { createClient } = supabase;
-const sb = createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY, {
-  auth: {
-    persistSession:     true,
-    autoRefreshToken:   true,
-    detectSessionInUrl: false,
-  }
-});
-
-/* ── DOM refs ───────────────────────────────────────────────── */
+/* ── DOM References ─────────────────────────────────────────── */
 const authGuard      = document.getElementById('auth-guard');
+const logoutBtn      = document.getElementById('logout-btn');
+const themeBtn       = document.getElementById('theme-btn');
+const noteBadge      = document.getElementById('note-badge');
+
 const noteInput      = document.getElementById('note-input');
-const charCountEl    = document.getElementById('char-count');
-const saveBtn        = document.getElementById('save-btn');
+const tagChips       = document.querySelectorAll('.tag-chip');
 const remindCheck    = document.getElementById('remind-check');
 const remindInput    = document.getElementById('remind-input');
-const reminderRow    = document.querySelector('.reminder-row');
-const tagChips       = document.querySelectorAll('.tag-chip');
-const notesLoading   = document.getElementById('notes-loading');
-const notesList      = document.getElementById('notes-list');
-const emptyState     = document.getElementById('empty-state');
-const emptyTitle     = document.getElementById('empty-title');
-const emptyDesc      = document.getElementById('empty-desc');
+const saveBtn        = document.getElementById('save-btn');
+const charCount      = document.getElementById('char-count');
+const saveStatus     = document.getElementById('save-status');
+
 const searchInput    = document.getElementById('search-input');
 const clearSearch    = document.getElementById('clear-search');
 const filterBtns     = document.querySelectorAll('.filter-btn');
-const noteBadge      = document.getElementById('note-badge');
-const themeBtn       = document.getElementById('theme-btn');
-const logoutBtn      = document.getElementById('logout-btn');
+const notesLoading   = document.getElementById('notes-loading');
+const notesList      = document.getElementById('notes-list');
+const emptyState     = document.getElementById('empty-state');
+
 const toast          = document.getElementById('toast');
 const confirmOverlay = document.getElementById('confirm-overlay');
 const confirmMsg     = document.getElementById('confirm-msg');
 const confirmCancel  = document.getElementById('confirm-cancel');
 const confirmOk      = document.getElementById('confirm-ok');
 
-/* ── Vault & Profile DOM ────────────────────────────────────── */
 const navItems       = document.querySelectorAll('.nav-item');
 const appSections    = document.querySelectorAll('.app-section');
 
-const linkHeading    = !!document.getElementById('link-heading') ? document.getElementById('link-heading') : null;
+const linksLoading   = document.getElementById('links-loading');
+const linksList      = document.getElementById('links-list');
+const linkHeading    = document.getElementById('link-heading');
 const linkUrl        = document.getElementById('link-url');
 const saveLinkBtn    = document.getElementById('save-link-btn');
-const linksList      = document.getElementById('links-list');
-const linksLoading   = document.getElementById('links-loading');
 
+const docsLoading    = document.getElementById('docs-loading');
+const docsList       = document.getElementById('docs-list');
 const docHeading     = document.getElementById('doc-heading');
 const docFile        = document.getElementById('doc-file');
-const docUploadStatus= document.getElementById('doc-upload-status');
 const saveDocBtn     = document.getElementById('save-doc-btn');
-const docsList       = document.getElementById('docs-list');
-const docsLoading    = document.getElementById('docs-loading');
+const docStatus      = document.getElementById('doc-upload-status');
 
 const profName       = document.getElementById('prof-name');
 const profPhone      = document.getElementById('prof-phone');
@@ -81,237 +68,118 @@ const sidebarItems   = document.querySelectorAll('.side-nav-item');
 /* ── App state ──────────────────────────────────────────────── */
 let currentUser    = null;
 let allNotes       = [];
-let activeFilter   = 'all';
+let currentFilter  = 'all';
 let searchQuery    = '';
-let toastTimer     = null;
-let pendingDeleteId = null;
-let allLinks       = [];
-let allDocuments   = [];
+let pendingDeleteId= null;
 let userProfile    = null;
 
 /* ═══════════════════════════════════════════════════════════════
-   AUTH GUARD
-   Runs before anything is shown to the user.
+   AUTH & INITIALIZATION
 ═══════════════════════════════════════════════════════════════ */
 async function initAuth() {
-  try {
-    const { data: { session }, error } = await sb.auth.getSession();
-    if (error || !session) {
-      window.location.replace('../login/index.html');
-      return;
-    }
-    currentUser = session.user;
-    authGuard.classList.add('hidden');
-    await Promise.all([
-      loadNotes(),
-      loadLinks(),
-      loadDocuments(),
-      loadProfile()
-    ]);
-  } catch (err) {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) {
     window.location.replace('../login/index.html');
-  }
-}
-
-/* Re-check auth whenever the tab becomes visible again */
-document.addEventListener('visibilitychange', async () => {
-  if (document.visibilityState === 'visible') {
-    const { data: { session } } = await sb.auth.getSession();
-    if (!session) window.location.replace('../login/index.html');
-  }
-});
-
-/* ═══════════════════════════════════════════════════════════════
-   SUPABASE CRUD
-═══════════════════════════════════════════════════════════════ */
-
-async function loadNotes() {
-  try {
-    const { data, error } = await sb
-      .from('notes')
-      .select('*')
-      .eq('user_id', currentUser.id)
-      .order('pinned', { ascending: false })
-      .order('created_at', { ascending: false });
-
-    if (error) throw error;
-    allNotes = data || [];
-  } catch (err) {
-    showToast('Failed to load notes');
-    allNotes = [];
-  } finally {
-    notesLoading.classList.add('hidden');
-    renderNotes();
-  }
-}
-
-async function createNote(content, tags, remindAt) {
-  const note = {
-    user_id:    currentUser.id,
-    content:    content.trim(),
-    tags:       tags,
-    remind_at:  remindAt || null,
-    done:       false,
-    pinned:     false,
-  };
-
-  const { data, error } = await sb
-    .from('notes')
-    .insert([note])
-    .select()
-    .single();
-
-  if (error) throw error;
-  return data;
-}
-
-async function updateNote(id, fields) {
-  const { error } = await sb
-    .from('notes')
-    .update(fields)
-    .eq('id', id)
-    .eq('user_id', currentUser.id);  // double-check ownership
-
-  if (error) throw error;
-}
-
-async function deleteNoteById(id) {
-  const { error } = await sb
-    .from('notes')
-    .delete()
-    .eq('id', id)
-    .eq('user_id', currentUser.id);  // double-check ownership
-
-  if (error) throw error;
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   SAVE NOTE
-═══════════════════════════════════════════════════════════════ */
-async function handleSave() {
-  const content = noteInput.value.trim();
-  if (!content) {
-    noteInput.focus();
-    showToast('Write something first');
     return;
   }
-
-  const tags     = getSelectedTags();
-  const remindAt = remindCheck.checked && remindInput.value ? remindInput.value : null;
-
-  saveBtn.disabled    = true;
-  saveBtn.textContent = 'Saving…';
-
-  try {
-    const newNote = await createNote(content, tags, remindAt);
-    allNotes.unshift(newNote);
-    resetCapture();
-    renderNotes();
-    showToast('Note saved ✓');
-  } catch (err) {
-    showToast('Save failed — try again');
-  } finally {
-    saveBtn.disabled    = false;
-    saveBtn.textContent = 'Save note';
-  }
+  currentUser = session.user;
+  if (authGuard) authGuard.classList.add('hidden');
+  
+  loadNotes();
+  loadLinks();
+  loadDocs();
+  loadProfile();
 }
 
-function resetCapture() {
-  noteInput.value      = '';
-  remindCheck.checked  = false;
-  remindInput.value    = '';
-  remindInput.classList.add('hidden');
-  reminderRow.classList.remove('remind-active');
-  charCountEl.textContent = '0 / 2000';
-  charCountEl.classList.remove('warn');
-  tagChips.forEach(c => c.setAttribute('aria-pressed', 'false'));
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   FILTER & SEARCH
-═══════════════════════════════════════════════════════════════ */
-function getFilteredNotes() {
-  const today = new Date().toDateString();
-
-  return allNotes.filter(note => {
-    /* Filter tab */
-    switch (activeFilter) {
-      case 'today':
-        if (new Date(note.created_at).toDateString() !== today) return false;
-        break;
-      case 'important':
-        if (!note.tags.includes('important')) return false;
-        break;
-      case 'reminders':
-        if (!note.remind_at) return false;
-        break;
-      case 'done':
-        if (!note.done) return false;
-        break;
-      default: // 'all' — hide done notes
-        if (note.done) return false;
-    }
-
-    /* Search */
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase();
-      return (
-        note.content.toLowerCase().includes(q) ||
-        note.tags.some(t => t.includes(q))
-      );
-    }
-
-    return true;
+if (logoutBtn) {
+  logoutBtn.addEventListener('click', async () => {
+    await sb.auth.signOut();
+    window.location.replace('../login/index.html');
   });
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   RENDER
+   THEME
 ═══════════════════════════════════════════════════════════════ */
-function renderNotes() {
-  const filtered = getFilteredNotes();
+function initTheme() {
+  const saved = localStorage.getItem('theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+}
+if (themeBtn) {
+  themeBtn.addEventListener('click', () => {
+    const cur = document.documentElement.getAttribute('data-theme');
+    const next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('theme', next);
+  });
+}
 
-  notesList.innerHTML = '';
+/* ═══════════════════════════════════════════════════════════════
+   NOTES: LOAD & RENDER
+═══════════════════════════════════════════════════════════════ */
+async function loadNotes() {
+  if (!currentUser) return;
+  notesLoading.classList.remove('hidden');
+  notesList.classList.add('hidden');
+  emptyState.classList.add('hidden');
 
-  if (filtered.length === 0) {
-    notesList.classList.add('hidden');
-    showEmptyState();
-  } else {
-    notesList.classList.remove('hidden');
-    emptyState.classList.add('hidden');
-    filtered.forEach(note => notesList.appendChild(buildCard(note)));
+  const { data, error } = await sb
+    .from('notes')
+    .select('*')
+    .eq('user_id', currentUser.id)
+    .order('pinned', { ascending: false })
+    .order('created_at', { ascending: false });
+
+  notesLoading.classList.add('hidden');
+
+  if (error) {
+    showToast('Failed to load notes');
+    console.error(error);
+    return;
   }
 
-  /* Badge = active (not done) notes */
-  const active = allNotes.filter(n => !n.done).length;
-  noteBadge.textContent = active;
+  allNotes = data || [];
+  updateNoteBadge();
+  renderNotes();
 }
 
-function showEmptyState() {
-  emptyState.classList.remove('hidden');
-  const messages = {
-    all:       ['Nothing captured yet', 'Write something above to get started.'],
-    today:     ['Nothing today',         'No notes captured today.'],
-    important: ['No important notes',    'Tag a note as Important to see it here.'],
-    reminders: ['No reminders',          'Toggle "Remind me" when saving a note.'],
-    done:      ['Nothing completed',     'Mark a note as done to see it here.'],
-  };
-  const [title, desc] = messages[activeFilter] || messages.all;
-  emptyTitle.textContent = title;
-  emptyDesc.textContent  = desc;
+function updateNoteBadge() {
+  if (noteBadge) noteBadge.textContent = allNotes.length;
 }
 
-/* ── Build a single note card ───────────────────────────────── */
-function buildCard(note) {
-  const card = document.createElement('article');
-  card.className = [
-    'note-card',
-    note.pinned ? 'pinned' : '',
-    note.done   ? 'done'   : '',
-  ].filter(Boolean).join(' ');
-  card.dataset.id = note.id;
+function renderNotes() {
+  notesList.innerHTML = '';
+  const filtered = allNotes.filter(n => {
+    const matchSearch = n.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        n.tags.some(t => t.toLowerCase().includes(searchQuery.toLowerCase()));
+    if (!matchSearch) return false;
 
-  /* ── Header row ── */
+    if (currentFilter === 'today') {
+      const today = new Date().toDateString();
+      return new Date(n.created_at).toDateString() === today;
+    }
+    if (currentFilter === 'important') return n.tags.includes('important');
+    if (currentFilter === 'reminders') return !!n.remind_at;
+    if (currentFilter === 'done')      return n.done;
+    return true; // 'all'
+  });
+
+  if (filtered.length === 0) {
+    emptyState.classList.remove('hidden');
+    return;
+  }
+
+  notesList.classList.remove('hidden');
+  filtered.forEach(n => {
+    notesList.appendChild(renderNote(n));
+  });
+}
+
+function renderNote(note) {
+  const card = document.createElement('div');
+  card.className = note.done ? 'note-card done' : 'note-card';
+
+  /* ── Header ── */
   const header = document.createElement('div');
   header.className = 'card-header';
 
@@ -358,53 +226,28 @@ function buildCard(note) {
   const timeSpan = document.createElement('span');
   timeSpan.className = 'card-time';
   timeSpan.textContent = relativeTime(note.created_at);
-
   footer.appendChild(timeSpan);
 
   if (note.remind_at) {
-    const remSpan = document.createElement('span');
-    remSpan.className = 'card-reminder';
-    remSpan.textContent = '⏰ ' + formatDatetime(note.remind_at);
-    footer.appendChild(remSpan);
+    const remindSpan = document.createElement('span');
+    remindSpan.className = 'card-reminder';
+    const isPast = new Date(note.remind_at) < new Date();
+    remindSpan.textContent = `🔔 ${new Date(note.remind_at).toLocaleString([], {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'})}`;
+    if (isPast) remindSpan.style.opacity = '0.5';
+    footer.appendChild(remindSpan);
   }
 
   card.append(header, contentP, footer);
 
-  /* ── Direct event listeners ── */
+  /* ── Events ── */
   pinBtn.addEventListener('click', async () => {
-    const updated = !note.pinned;
-    pinBtn.disabled = true;
-    try {
-      await updateNote(note.id, { pinned: updated });
-      note.pinned = updated;
-      // Re-sort: pinned notes at top
-      allNotes.sort((a, b) => {
-        if (a.pinned && !b.pinned) return -1;
-        if (!a.pinned && b.pinned) return 1;
-        return new Date(b.created_at) - new Date(a.created_at);
-      });
-      renderNotes();
-      showToast(updated ? 'Note pinned' : 'Unpinned');
-    } catch {
-      showToast('Action failed');
-    } finally {
-      pinBtn.disabled = false;
-    }
+    const { error } = await sb.from('notes').update({ pinned: !note.pinned }).eq('id', note.id);
+    if (!error) loadNotes();
   });
 
   doneBtn.addEventListener('click', async () => {
-    const updated = !note.done;
-    doneBtn.disabled = true;
-    try {
-      await updateNote(note.id, { done: updated });
-      note.done = updated;
-      renderNotes();
-      showToast(updated ? 'Marked as done ✓' : 'Marked as active');
-    } catch {
-      showToast('Action failed');
-    } finally {
-      doneBtn.disabled = false;
-    }
+    const { error } = await sb.from('notes').update({ done: !note.done }).eq('id', note.id);
+    if (!error) loadNotes();
   });
 
   delBtn.addEventListener('click', () => {
@@ -427,179 +270,131 @@ function makeActionBtn(label, ariaLabel, className) {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   CONFIRM DIALOG
+   NOTES: CREATE & DELETE
 ═══════════════════════════════════════════════════════════════ */
-confirmCancel.addEventListener('click', () => {
-  confirmOverlay.classList.add('hidden');
-  pendingDeleteId = null;
-});
+if (saveBtn) {
+  saveBtn.addEventListener('click', saveNote);
+}
+if (noteInput) {
+  noteInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault();
+      saveNote();
+    }
+  });
+  noteInput.addEventListener('input', () => {
+    charCount.textContent = `${noteInput.value.length} / 2000`;
+  });
+}
 
-confirmOk.addEventListener('click', async () => {
-  if (!pendingDeleteId) return;
-  const id = pendingDeleteId;
-  confirmOverlay.classList.add('hidden');
-  pendingDeleteId = null;
+async function saveNote() {
+  const text = noteInput.value.trim();
+  if (!text) return;
 
-  /* Animate card out */
-  const card = notesList.querySelector(`[data-id="${id}"]`);
-  if (card) {
-    card.classList.add('fade-out');
-    await new Promise(r => setTimeout(r, 200));
+  saveBtn.disabled = true;
+  saveStatus.textContent = 'Saving...';
+  saveStatus.classList.remove('hidden');
+
+  const selectedTags = Array.from(tagChips)
+    .filter(c => c.getAttribute('aria-pressed') === 'true')
+    .map(c => c.dataset.tag);
+
+  const payload = {
+    user_id: currentUser.id,
+    content: text,
+    tags: selectedTags,
+    remind_at: (remindCheck.checked && remindInput.value) ? new Date(remindInput.value).toISOString() : null
+  };
+
+  const { error } = await sb.from('notes').insert([payload]);
+
+  saveBtn.disabled = false;
+  saveStatus.classList.add('hidden');
+
+  if (error) {
+    showToast('Failed to save note');
+    console.error(error);
+  } else {
+    noteInput.value = '';
+    charCount.textContent = '0 / 2000';
+    remindCheck.checked = false;
+    remindInput.classList.add('hidden');
+    tagChips.forEach(c => c.setAttribute('aria-pressed', 'false'));
+    loadNotes();
+    showToast('Note captured');
   }
+}
 
-  try {
-    await deleteNoteById(id);
-    allNotes = allNotes.filter(n => n.id !== id);
-    renderNotes();
-    showToast('Note deleted');
-  } catch {
-    showToast('Delete failed');
-    if (card) card.classList.remove('fade-out');
-  }
-});
-
-/* Close overlay on background click */
-confirmOverlay.addEventListener('click', (e) => {
-  if (e.target === confirmOverlay) {
+if (confirmOk) {
+  confirmOk.addEventListener('click', async () => {
+    if (!pendingDeleteId) return;
+    const { error } = await sb.from('notes').delete().eq('id', pendingDeleteId);
     confirmOverlay.classList.add('hidden');
-    pendingDeleteId = null;
-  }
+    if (error) showToast('Failed to delete');
+    else loadNotes();
+  });
+}
+if (confirmCancel) {
+  confirmCancel.addEventListener('click', () => confirmOverlay.classList.add('hidden'));
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SEARCH & FILTERS
+═══════════════════════════════════════════════════════════════ */
+if (searchInput) {
+  searchInput.addEventListener('input', (e) => {
+    searchQuery = e.target.value;
+    clearSearch.classList.toggle('hidden', searchQuery.length === 0);
+    renderNotes();
+  });
+}
+if (clearSearch) {
+  clearSearch.addEventListener('click', () => {
+    searchInput.value = '';
+    searchQuery = '';
+    clearSearch.classList.add('hidden');
+    renderNotes();
+  });
+}
+filterBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    filterBtns.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentFilter = btn.dataset.filter;
+    renderNotes();
+  });
 });
 
 /* ═══════════════════════════════════════════════════════════════
-   CAPTURE EVENT LISTENERS
+   TAG CHIPS
 ═══════════════════════════════════════════════════════════════ */
-
-/* Save button */
-saveBtn.addEventListener('click', handleSave);
-
-/* Ctrl/Cmd + Enter */
-noteInput.addEventListener('keydown', e => {
-  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-    e.preventDefault();
-    handleSave();
-  }
-});
-
-/* Character counter */
-noteInput.addEventListener('input', () => {
-  const len = noteInput.value.length;
-  charCountEl.textContent = `${len} / 2000`;
-  charCountEl.classList.toggle('warn', len > 1700);
-});
-
-/* Tag chips */
 tagChips.forEach(chip => {
   chip.addEventListener('click', () => {
     const pressed = chip.getAttribute('aria-pressed') === 'true';
-    chip.setAttribute('aria-pressed', String(!pressed));
+    chip.setAttribute('aria-pressed', !pressed);
   });
 });
 
-/* Reminder toggle */
-remindCheck.addEventListener('change', () => {
-  const on = remindCheck.checked;
-  remindInput.classList.toggle('hidden', !on);
-  reminderRow.classList.toggle('remind-active', on);
-  if (on) {
-    const d = new Date(Date.now() + 3600000);
-    d.setSeconds(0, 0);
-    remindInput.value = d.toISOString().slice(0, 16);
-    remindInput.focus();
-  }
-});
-
-/* ═══════════════════════════════════════════════════════════════
-   SEARCH & FILTER EVENT LISTENERS
-═══════════════════════════════════════════════════════════════ */
-
-searchInput.addEventListener('input', () => {
-  searchQuery = searchInput.value.trim();
-  clearSearch.classList.toggle('hidden', !searchQuery);
-  renderNotes();
-});
-
-clearSearch.addEventListener('click', () => {
-  searchInput.value = '';
-  searchQuery = '';
-  clearSearch.classList.add('hidden');
-  renderNotes();
-  searchInput.focus();
-});
-
-filterBtns.forEach(btn => {
-  btn.addEventListener('click', () => {
-    filterBtns.forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected', 'false'); });
-    btn.classList.add('active');
-    btn.setAttribute('aria-selected', 'true');
-    activeFilter = btn.dataset.filter;
-    renderNotes();
+if (remindCheck) {
+  remindCheck.addEventListener('change', () => {
+    remindInput.classList.toggle('hidden', !remindCheck.checked);
   });
-});
-
-/* ═══════════════════════════════════════════════════════════════
-   HEADER BUTTONS
-═══════════════════════════════════════════════════════════════ */
-
-/* Logout */
-logoutBtn.addEventListener('click', async () => {
-  logoutBtn.disabled = true;
-  try {
-    await sb.auth.signOut();
-    window.location.replace('../login/index.html');
-  } catch {
-    showToast('Sign out failed');
-    logoutBtn.disabled = false;
-  }
-});
-
-/* Theme toggle */
-const THEME_KEY = 'sb-theme';
-
-function applyTheme(theme) {
-  document.documentElement.dataset.theme = theme;
-  localStorage.setItem(THEME_KEY, theme);
-}
-
-themeBtn.addEventListener('click', () => {
-  const current = document.documentElement.dataset.theme;
-  applyTheme(current === 'dark' ? 'light' : 'dark');
-});
-
-function initTheme() {
-  const saved     = localStorage.getItem(THEME_KEY);
-  const preferred = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-  applyTheme(saved || preferred);
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   TOAST
-═══════════════════════════════════════════════════════════════ */
-function showToast(message, duration = 2400) {
-  toast.textContent = message;
-  toast.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => toast.classList.remove('show'), duration);
 }
 
 /* ═══════════════════════════════════════════════════════════════
    UTILITIES
 ═══════════════════════════════════════════════════════════════ */
-
-function getSelectedTags() {
-  return [...tagChips]
-    .filter(c => c.getAttribute('aria-pressed') === 'true')
-    .map(c => c.dataset.tag);
+function showToast(msg) {
+  if (!toast) return;
+  toast.textContent = msg;
+  toast.classList.add('visible');
+  setTimeout(() => toast.classList.remove('visible'), 3000);
 }
 
-/** Escape HTML to prevent XSS */
 function escapeHTML(str) {
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
+  return str.replace(/[&<>"']/g, m => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  })[m]);
 }
 
 /** Wrap URLs in anchor tags (after escaping) */
@@ -654,38 +449,12 @@ async function shortenURL(url) {
 /** Relative time string */
 function relativeTime(iso) {
   const diff  = Date.now() - new Date(iso).getTime();
-  const min   = Math.floor(diff / 60000);
-  const hr    = Math.floor(diff / 3600000);
-  const day   = Math.floor(diff / 86400000);
-
-  if (min < 1)  return 'just now';
-  if (min < 60) return `${min}m ago`;
-  if (hr  < 24) return `${hr}h ago`;
-  if (day < 7)  return `${day}d ago`;
-
-  return new Date(iso).toLocaleDateString('en-IN', {
-    day: 'numeric', month: 'short',
-    year: day > 365 ? 'numeric' : undefined,
-  });
+  const day   = 86400000, hr = 3600000, min = 60000;
+  if (diff < min) return 'Just now';
+  if (diff < hr)  return Math.floor(diff/min) + 'm ago';
+  if (diff < day) return Math.floor(diff/hr) + 'h ago';
+  return new Date(iso).toLocaleDateString();
 }
-
-/** Format datetime for reminder badge */
-function formatDatetime(iso) {
-  return new Date(iso).toLocaleString('en-IN', {
-    day: 'numeric', month: 'short',
-    hour: '2-digit', minute: '2-digit', hour12: true,
-  });
-}
-
-/* Refresh relative timestamps every minute */
-setInterval(() => {
-  notesList.querySelectorAll('.card-time').forEach(el => {
-    const card = el.closest('.note-card');
-    if (!card) return;
-    const note = allNotes.find(n => n.id === card.dataset.id);
-    if (note) el.textContent = relativeTime(note.created_at);
-  });
-}, 60000);
 
 /* ═══════════════════════════════════════════════════════════════
    NAVIGATION
@@ -715,84 +484,51 @@ if (sidebarItems.length > 0) {
    VAULT: LINKS
 ═══════════════════════════════════════════════════════════════ */
 async function loadLinks() {
-  try {
-    const { data, error } = await sb.from('links').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
-    if (error) throw error;
-    allLinks = data || [];
-  } catch {
-    allLinks = [];
-  } finally {
-    if (linksLoading) linksLoading.classList.add('hidden');
-    renderLinks();
-  }
+  if (!currentUser) return;
+  linksLoading.classList.remove('hidden');
+  const { data, error } = await sb.from('links').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
+  linksLoading.classList.add('hidden');
+  if (!error) renderLinks(data || []);
 }
 
-function renderLinks() {
-  if (linksList) {
-    linksList.innerHTML = '';
+function renderLinks(links) {
+  linksList.innerHTML = '';
+  if (links.length === 0) {
+    linksList.innerHTML = '<p class="empty-desc">No links stored yet.</p>';
     linksList.classList.remove('hidden');
-    allLinks.forEach(link => linksList.appendChild(buildLinkCard(link)));
+    return;
   }
-}
-
-function buildLinkCard(link) {
-  const card = document.createElement('article');
-  card.className = 'note-card';
-  card.innerHTML = `
-    <div class="card-header">
-      <h3 style="font-size: 15px; margin:0;" class="card-content">
-        <a href="${escapeHTML(link.url)}" target="_blank">${escapeHTML(link.heading)}</a>
-      </h3>
-      <div class="card-actions">
-        <button type="button" class="action-btn copy-link-btn" title="Copy Link">📋</button>
-        <button type="button" class="action-btn delete-btn del-link-btn" title="Delete Link">✕</button>
+  linksList.classList.remove('hidden');
+  links.forEach(l => {
+    const card = document.createElement('div');
+    card.className = 'note-card small-card';
+    card.innerHTML = `
+      <div class="card-header"><span class="note-tag idea">Link</span></div>
+      <p class="card-content"><b>${escapeHTML(l.heading)}</b><br/><a href="${l.url}" target="_blank">${l.url}</a></p>
+      <div class="card-footer">
+        <button class="action-btn delete-link" data-id="${l.id}">—</button>
       </div>
-    </div>
-    <div class="card-footer" style="margin-top:0.2rem">
-      <span class="card-time" style="font-size:10px; word-break:break-all;">${escapeHTML(link.url)}</span>
-    </div>
-  `;
-  
-  card.querySelector('.copy-link-btn').addEventListener('click', async () => {
-    try {
-      await navigator.clipboard.writeText(link.url);
-      showToast('Link copied!');
-    } catch {
-      showToast('Copy failed');
-    }
+    `;
+    card.querySelector('.delete-link').addEventListener('click', async () => {
+      const { error } = await sb.from('links').delete().eq('id', l.id);
+      if (!error) loadLinks();
+    });
+    linksList.appendChild(card);
   });
-
-  card.querySelector('.del-link-btn').addEventListener('click', async () => {
-    if (confirm('Delete this link?')) {
-      await sb.from('links').delete().eq('id', link.id);
-      allLinks = allLinks.filter(l => l.id !== link.id);
-      renderLinks();
-      showToast('Link deleted');
-    }
-  });
-
-  return card;
 }
 
-if (saveLinkBtn && linkHeading && linkUrl) {
+if (saveLinkBtn) {
   saveLinkBtn.addEventListener('click', async () => {
     const heading = linkHeading.value.trim();
     const url = linkUrl.value.trim();
-    if (!heading || !url) return showToast('Enter heading and URL');
-    
+    if (!heading || !url) return;
     saveLinkBtn.disabled = true;
-    try {
-      const { data, error } = await sb.from('links').insert([{ user_id: currentUser.id, heading, url }]).select().single();
-      if (error) throw error;
-      allLinks.unshift(data);
+    const { error } = await sb.from('links').insert([{ user_id: currentUser.id, heading, url }]);
+    saveLinkBtn.disabled = false;
+    if (!error) {
       linkHeading.value = '';
       linkUrl.value = '';
-      renderLinks();
-      showToast('Link saved');
-    } catch {
-      showToast('Failed to save link');
-    } finally {
-      saveLinkBtn.disabled = false;
+      loadLinks();
     }
   });
 }
@@ -800,105 +536,78 @@ if (saveLinkBtn && linkHeading && linkUrl) {
 /* ═══════════════════════════════════════════════════════════════
    VAULT: DOCUMENTS
 ═══════════════════════════════════════════════════════════════ */
-async function loadDocuments() {
-  try {
-    const { data, error } = await sb.from('documents').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
-    if (error) throw error;
-    allDocuments = data || [];
-  } catch {
-    allDocuments = [];
-  } finally {
-    if (docsLoading) docsLoading.classList.add('hidden');
-    renderDocuments();
-  }
+async function loadDocs() {
+  if (!currentUser) return;
+  docsLoading.classList.remove('hidden');
+  const { data, error } = await sb.from('documents').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
+  docsLoading.classList.add('hidden');
+  if (!error) renderDocs(data || []);
 }
 
-function renderDocuments() {
-  if (docsList) {
-    docsList.innerHTML = '';
+function renderDocs(docs) {
+  docsList.innerHTML = '';
+  if (docs.length === 0) {
+    docsList.innerHTML = '<p class="empty-desc">No documents uploaded.</p>';
     docsList.classList.remove('hidden');
-    allDocuments.forEach(doc => docsList.appendChild(buildDocCard(doc)));
+    return;
   }
-}
-
-function buildDocCard(doc) {
-  const card = document.createElement('article');
-  card.className = 'note-card';
-  card.innerHTML = `
-    <div class="card-header">
-      <h3 style="font-size: 15px; margin:0;" class="card-content">${escapeHTML(doc.heading)}</h3>
-      <div class="card-actions">
-        <button type="button" class="action-btn download-doc-btn" title="Download">⬇️</button>
-        <button type="button" class="action-btn delete-btn del-doc-btn" title="Delete">✕</button>
+  docsList.classList.remove('hidden');
+  docs.forEach(d => {
+    const card = document.createElement('div');
+    card.className = 'note-card small-card';
+    card.innerHTML = `
+      <div class="card-header"><span class="note-tag study">Doc</span></div>
+      <p class="card-content"><b>${escapeHTML(d.heading)}</b><br/><span class="char-count">${escapeHTML(d.file_name)}</span></p>
+      <div class="card-footer">
+        <button class="action-btn download-doc" data-path="${d.file_path}">↓</button>
+        <button class="action-btn delete-doc" data-id="${d.id}" data-path="${d.file_path}">—</button>
       </div>
-    </div>
-    <div class="card-footer" style="margin-top:0.2rem">
-      <span class="card-time" style="font-size:10px; word-break:break-all;">${escapeHTML(doc.file_name)}</span>
-    </div>
-  `;
-  
-  card.querySelector('.download-doc-btn').addEventListener('click', async () => {
-    try {
-      showToast('Getting download link...');
-      const { data, error } = await sb.storage.from('vault').createSignedUrl(doc.file_path, 60);
-      if (error) throw error;
-      const a = document.createElement('a');
-      a.href = data.signedUrl;
-      a.download = doc.file_name;
-      a.target = '_blank';
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-    } catch {
-      showToast('Download failed');
-    }
+    `;
+    card.querySelector('.download-doc').addEventListener('click', async () => {
+      const { data, error } = await sb.storage.from('vault').createSignedUrl(d.file_path, 60);
+      if (data) window.open(data.signedUrl, '_blank');
+    });
+    card.querySelector('.delete-doc').addEventListener('click', async () => {
+      await sb.storage.from('vault').remove([d.file_path]);
+      const { error } = await sb.from('documents').delete().eq('id', d.id);
+      if (!error) loadDocs();
+    });
+    docsList.appendChild(card);
   });
-
-  card.querySelector('.del-doc-btn').addEventListener('click', async () => {
-    if (confirm('Delete this document?')) {
-      await sb.storage.from('vault').remove([doc.file_path]);
-      await sb.from('documents').delete().eq('id', doc.id);
-      allDocuments = allDocuments.filter(d => d.id !== doc.id);
-      renderDocuments();
-      showToast('Document deleted');
-    }
-  });
-
-  return card;
 }
 
-if (saveDocBtn && docHeading && docFile) {
+if (saveDocBtn) {
   saveDocBtn.addEventListener('click', async () => {
     const heading = docHeading.value.trim();
-    if (!heading) return showToast('Enter document heading');
-    if (!docFile.files[0]) return showToast('Select a file to upload');
-    
     const file = docFile.files[0];
-    const fileName = file.name;
-    const fileExt = fileName.split('.').pop();
-    const filePath = currentUser.id + '/' + Date.now() + '_' + Math.random().toString(36).substring(7) + '.' + fileExt;
-
+    if (!heading || !file) return;
+    
     saveDocBtn.disabled = true;
-    if (docUploadStatus) docUploadStatus.textContent = 'Uploading...';
-    try {
-      const { error: uploadError } = await sb.storage.from('vault').upload(filePath, file);
-      if (uploadError) throw uploadError;
-      
-      const { data, error: dbError } = await sb.from('documents').insert([{ 
-        user_id: currentUser.id, heading, file_path: filePath, file_name: fileName 
-      }]).select().single();
-      if (dbError) throw dbError;
-      
-      allDocuments.unshift(data);
+    docStatus.textContent = 'Uploading...';
+    
+    const filePath = currentUser.id + '/' + Date.now() + '_' + file.name;
+    const { error: uploadError } = await sb.storage.from('vault').upload(filePath, file);
+    
+    if (uploadError) {
+      showToast('Upload failed');
+      saveDocBtn.disabled = false;
+      docStatus.textContent = '';
+      return;
+    }
+
+    const { error } = await sb.from('documents').insert([{
+      user_id: currentUser.id,
+      heading,
+      file_path: filePath,
+      file_name: file.name
+    }]);
+
+    saveDocBtn.disabled = false;
+    docStatus.textContent = '';
+    if (!error) {
       docHeading.value = '';
       docFile.value = '';
-      renderDocuments();
-      showToast('Document uploaded');
-    } catch (err) {
-      showToast('Upload failed');
-    } finally {
-      saveDocBtn.disabled = false;
-      if (docUploadStatus) docUploadStatus.textContent = '';
+      loadDocs();
     }
   });
 }
@@ -1076,133 +785,7 @@ if (copyProfBtn && shareOptions) {
       showToast('Failed to copy');
     } finally {
       copyProfBtn.disabled = false;
-      copyProfBtn.textContent = 'Copy Text';
-    }
-  });
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   VISUAL BUSINESS CARD GENERATOR
-════════════════════════════════════════════════━━━━━━━━━━━━━━━━━ */
-async function generateBusinessCard() {
-  if (!userProfile || !cardCanvas) return;
-  const ctx = cardCanvas.getContext('2d');
-  const W = cardCanvas.width;
-  const H = cardCanvas.height;
-
-  // Background - Luxury Gradient
-  const grad = ctx.createLinearGradient(0, 0, W, H);
-  grad.addColorStop(0, '#111110');
-  grad.addColorStop(1, '#242420');
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, W, H);
-
-  // Subtle geometric pattern
-  ctx.strokeStyle = 'rgba(255,255,255,0.03)';
-  ctx.lineWidth = 1;
-  for(let i=0; i<W; i+= 50) { ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, H); ctx.stroke(); }
-  for(let i=0; i<H; i+= 50) { ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(W, i); ctx.stroke(); }
-
-  // Accent Line
-  ctx.fillStyle = '#E8703C';
-  ctx.fillRect(50, 50, 4, 100);
-
-  // Name
-  ctx.fillStyle = '#FFFFFF';
-  ctx.font = '600 52px "DM Serif Display", serif';
-  const name = (userProfile.name || 'Your Name').toUpperCase();
-  ctx.fillText(name, 75, 105);
-
-  ctx.fillStyle = 'rgba(255,255,255,0.5)';
-  ctx.font = '500 18px "DM Sans", sans-serif';
-  ctx.fillText('PROFESSIONAL PROFILE', 75, 135);
-
-  // Helper for drawing infographic-style icons
-  const drawIcon = (x, y, type) => {
-    ctx.strokeStyle = '#E8703C';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    if (type === 'phone') {
-      ctx.roundRect(x, y, 14, 22, 2);
-      ctx.moveTo(x+4, y+18); ctx.lineTo(x+10, y+18);
-    } else if (type === 'mail') {
-      ctx.rect(x, y+4, 20, 14);
-      ctx.moveTo(x, y+4); ctx.lineTo(x+10, y+12); ctx.lineTo(x+20, y+4);
-    } else if (type === 'web') {
-      ctx.arc(x+10, y+10, 9, 0, Math.PI*2);
-      ctx.moveTo(x, y+10); ctx.lineTo(x+20, y+10);
-      ctx.moveTo(x+10, y+1); ctx.lineTo(x+10, y+19);
-    }
-    ctx.stroke();
-  };
-
-  // Details
-  ctx.fillStyle = '#FFFFFF';
-  ctx.font = '500 22px "DM Sans", sans-serif';
-  
-  let y = 220;
-  const drawDetail = (label, value, iconType) => {
-    if (!value) return;
-    drawIcon(75, y-18, iconType);
-    ctx.fillStyle = 'rgba(255,255,255,0.4)';
-    ctx.font = '500 14px "DM Mono", monospace';
-    ctx.fillText(label.toUpperCase(), 110, y-5);
-    ctx.fillStyle = '#FFFFFF';
-    ctx.font = '500 20px "DM Sans", sans-serif';
-    ctx.fillText(value, 110, y + 20);
-    y += 75;
-  };
-
-  drawDetail('Phone', userProfile.phone, 'phone');
-  drawDetail('Email', userProfile.email, 'mail');
-  
-  // Reset Y for second column
-  let y2 = 220;
-  const drawDetailRight = (label, value, iconType) => {
-    if (!value) return;
-    drawIcon(W/2 + 25, y2-18, iconType);
-    ctx.fillStyle = 'rgba(255,255,255,0.4)';
-    ctx.font = '500 14px "DM Mono", monospace';
-    ctx.fillText(label.toUpperCase(), W/2 + 60, y2-5);
-    ctx.fillStyle = '#FFFFFF';
-    ctx.font = '500 20px "DM Sans", sans-serif';
-    // Trim long URLs for card display
-    const displayVal = value.length > 35 ? value.substring(0, 32) + '...' : value;
-    ctx.fillText(displayVal, W/2 + 60, y2 + 20);
-    y2 += 75;
-  };
-
-  drawDetailRight('LinkedIn', userProfile.linkedin, 'web');
-  drawDetailRight('Portfolio/Project', userProfile.project_link, 'web');
-
-  // Footer
-  ctx.fillStyle = 'rgba(255,255,255,0.2)';
-  ctx.font = '500 12px "DM Sans", sans-serif';
-  ctx.fillText('GENERATED BY SECOND BRAIN', 75, H - 40);
-  
-  // Return blob
-  return new Promise(resolve => cardCanvas.toBlob(resolve, 'image/png'));
-}
-
-if (copyCardBtn) {
-  copyCardBtn.addEventListener('click', async () => {
-    if (!userProfile) return showToast('Fill profile first');
-    copyCardBtn.disabled = true;
-    copyCardBtn.textContent = 'Generating...';
-    
-    try {
-      const blob = await generateBusinessCard();
-      if (!blob) throw new Error('Failed to generate card');
-      
-      const item = new ClipboardItem({'image/png': blob});
-      await navigator.clipboard.write([item]);
-      showToast('Premium Card copied to clipboard! 🖼️');
-    } catch (err) {
-      console.error(err);
-      showToast('Image copy not supported in this browser');
-    } finally {
-      copyCardBtn.disabled = false;
-      copyCardBtn.textContent = '✨ Copy Card';
+      copyProfBtn.textContent = 'Copy Professional Details';
     }
   });
 }
