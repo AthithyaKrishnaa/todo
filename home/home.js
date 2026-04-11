@@ -74,8 +74,6 @@ const profSaveStatus = document.getElementById('prof-save-status');
 const saveProfBtn    = document.getElementById('save-prof-btn');
 const shareOptions   = document.getElementById('share-options');
 const copyProfBtn    = document.getElementById('copy-prof-btn');
-const copyCardBtn    = document.getElementById('copy-card-btn');
-const cardCanvas     = document.getElementById('card-canvas');
 
 /* ── Sidebar DOM ────────────────────────────────────────────── */
 const sidebarItems   = document.querySelectorAll('.side-nav-item');
@@ -1023,18 +1021,9 @@ if (copyProfBtn && shareOptions) {
       
       const keys = checkedBoxes.map(cb => cb.dataset.key);
       
-      // Building a structured, aesthetic output
+      // Building a structured, "Text Infographic" output
       let output = "";
       
-      // Header
-      if (keys.includes('name') && userProfile.name) {
-        output += `${userProfile.name.toUpperCase()}\n`;
-        output += `━━━━━━━━━━━━━━━━━━━━\n`;
-      } else {
-        output += `PROFILE DETAILS\n━━━━━━━━━━━━━━━━━━━━\n`;
-      }
-
-      // Shortening Links for Premium Look
       const pData = {...userProfile};
       const shorteningTasks = [];
       if (keys.includes('resume') && pData.resume_link) shorteningTasks.push(shortenURL(pData.resume_link).then(s => pData.resume_link = s));
@@ -1046,27 +1035,39 @@ if (copyProfBtn && shareOptions) {
       
       if (shorteningTasks.length > 0) await Promise.all(shorteningTasks);
 
-      // Contact Group
-      if (keys.includes('phone') && pData.phone) output += `■ PHONE: ${pData.phone}\n`;
-      if (keys.includes('email') && pData.email) output += `■ EMAIL: ${pData.email}\n`;
+      const line = "▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰";
+      const sep = "──────────────────────────";
       
-      // Portfolio Group
-      let hasPortfolio = false;
-      let portfolioStr = "\nSOCIALS\n";
-      if (keys.includes('github') && pData.github) { portfolioStr += `◆ GITHUB: ${pData.github}\n`; hasPortfolio = true; }
-      if (keys.includes('linkedin') && pData.linkedin) { portfolioStr += `◆ LINKEDIN: ${pData.linkedin}\n`; hasPortfolio = true; }
-      if (hasPortfolio) output += portfolioStr;
+      output += `${line}\n`;
+      if (keys.includes('name') && pData.name) {
+        output += `   ${pData.name.toUpperCase()}\n`;
+      } else {
+        output += `   PROFILE DETAILS\n`;
+      }
+      output += `${line}\n\n`;
 
-      // Resources Group
+      // Contact
+      output += `   CONTACT\n   ${sep}\n`;
+      if (keys.includes('phone') && pData.phone) output += `   PHONE    |  ${pData.phone}\n`;
+      if (keys.includes('email') && pData.email) output += `   EMAIL    |  ${pData.email}\n`;
+      
+      // Network
+      let hasNetwork = false;
+      let networkStr = `\n   NETWORK\n   ${sep}\n`;
+      if (keys.includes('github') && pData.github) { networkStr += `   GITHUB   |  ${pData.github}\n`; hasNetwork = true; }
+      if (keys.includes('linkedin') && pData.linkedin) { networkStr += `   LINKEDIN |  ${pData.linkedin}\n`; hasNetwork = true; }
+      if (hasNetwork) output += networkStr;
+
+      // Resources
       let hasResources = false;
-      let resourceStr = "\nRESOURCES\n";
-      if (keys.includes('resume') && pData.resume_link) { resourceStr += `◆ RESUME: ${pData.resume_link}\n`; hasResources = true; }
-      if (keys.includes('internship') && pData.internship_link) { resourceStr += `◆ INTERNSHIP: ${pData.internship_link}\n`; hasResources = true; }
-      if (keys.includes('project') && pData.project_link) { resourceStr += `◆ PROJECTS: ${pData.project_link}\n`; hasResources = true; }
-      if (keys.includes('certs') && pData.certifications_link) { resourceStr += `◆ CERTIFICATIONS: ${pData.certifications_link}\n`; hasResources = true; }
+      let resourceStr = `\n   RESOURCES\n   ${sep}\n`;
+      if (keys.includes('resume') && pData.resume_link) { resourceStr += `   RESUME   |  ${pData.resume_link}\n`; hasResources = true; }
+      if (keys.includes('internship') && pData.internship_link) { resourceStr += `   INTERN   |  ${pData.internship_link}\n`; hasResources = true; }
+      if (keys.includes('project') && pData.project_link) { resourceStr += `   PROJECT  |  ${pData.project_link}\n`; hasResources = true; }
+      if (keys.includes('certs') && pData.certifications_link) { resourceStr += `   CERTS    |  ${pData.certifications_link}\n`; hasResources = true; }
       if (hasResources) output += resourceStr;
 
-      output += `\n━━━━━━━━━━━━━━━━━━━━\nManaged via Second Brain`;
+      output += `\n${line}\nGenerated via Second Brain`;
       
       await navigator.clipboard.writeText(output.trim());
       showToast('Executive details copied! ✨');
