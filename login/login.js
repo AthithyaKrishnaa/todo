@@ -40,7 +40,7 @@ let isLoading   = false;
   try {
     const { data: { session } } = await sb.auth.getSession();
     if (session) {
-      window.location.replace('home.html');
+      window.location.replace('../home/home.html');
     }
   } catch (err) {
     // silently ignore — just show the login form
@@ -134,7 +134,7 @@ form.addEventListener('submit', async (e) => {
   try {
     if (mode === 'login') {
       await handleSignIn(email, password);
-      window.location.replace('home.html');
+      window.location.replace('../home/home.html');
     } else {
       const data = await handleSignUp(email, password);
       // Check if email confirmation is required
@@ -142,7 +142,7 @@ form.addEventListener('submit', async (e) => {
         showAlert('Account created! Check your email to confirm before signing in.', 'success');
         setMode('login');
       } else if (data.session) {
-        window.location.replace('home.html');
+        window.location.replace('../home/home.html');
       }
     }
   } catch (err) {
@@ -195,7 +195,7 @@ forgotBtn.addEventListener('click', async () => {
   setLoading(true);
   try {
     const { error } = await sb.auth.resetPasswordForEmail(email, {
-      redirectTo: window.location.origin + '/index.html',
+      redirectTo: window.location.origin + '/login/index.html',
     });
     if (error) throw error;
     showAlert('Password reset email sent. Check your inbox.', 'success');

@@ -34,6 +34,14 @@
   </header>
 
   <!-- ════════════════════════════════════════
+       MAIN SECTIONS CONTAINER
+  ════════════════════════════════════════ -->
+  <main class="main-content">
+  
+    <!-- === NOTES SECTION === -->
+    <div id="section-notes" class="app-section active">
+
+  <!-- ════════════════════════════════════════
        CAPTURE BOX
   ════════════════════════════════════════ -->
   <section class="section">
@@ -138,6 +146,134 @@
 
   </section>
 
+  </section>
+    </div> <!-- /section-notes -->
+
+    <!-- === VAULT SECTION === -->
+    <div id="section-vault" class="app-section hidden">
+      <section class="section">
+        <div class="section-header">
+          <h2 class="section-title">Vault</h2>
+          <p class="section-subtitle">Your links & documents</p>
+        </div>
+
+        <div class="vault-grid">
+          <!-- Links Column -->
+          <div class="vault-col">
+            <div class="col-header"><h3>Links</h3></div>
+            <div class="capture-box small-capture">
+              <input type="text" id="link-heading" class="note-input single-line" placeholder="Link Heading..." maxlength="255" />
+              <input type="url" id="link-url" class="note-input single-line" placeholder="https://..." />
+              <div class="capture-footer">
+                <button type="button" class="save-btn" id="save-link-btn">Save Link</button>
+              </div>
+            </div>
+            
+            <!-- Links Loading Skeleton -->
+            <div id="links-loading" class="loading-wrap">
+              <div class="skeleton small"></div>
+            </div>
+            <div id="links-list" class="notes-list hidden"></div>
+          </div>
+
+          <!-- Documents Column -->
+          <div class="vault-col">
+            <div class="col-header"><h3>Documents</h3></div>
+            <div class="capture-box small-capture">
+              <input type="text" id="doc-heading" class="note-input single-line" placeholder="Document Heading..." maxlength="255" />
+              <div class="file-input-row">
+                <input type="file" id="doc-file" class="file-input-native" />
+              </div>
+              <div class="capture-footer">
+                <span id="doc-upload-status" class="char-count"></span>
+                <button type="button" class="save-btn" id="save-doc-btn">Upload</button>
+              </div>
+            </div>
+
+            <!-- Docs Loading Skeleton -->
+            <div id="docs-loading" class="loading-wrap">
+              <div class="skeleton small"></div>
+            </div>
+            <div id="docs-list" class="notes-list hidden"></div>
+          </div>
+        </div>
+      </section>
+    </div> <!-- /section-vault -->
+
+    <!-- === PROFILE SECTION === -->
+    <div id="section-profile" class="app-section hidden">
+      <section class="section">
+        <div class="section-header">
+          <h2 class="section-title">Profile</h2>
+          <p class="section-subtitle">Manage & share your details</p>
+        </div>
+
+        <div class="profile-grid">
+          <div class="capture-box profile-form">
+            <div class="col-header"><h3>Your Details</h3></div>
+            <div class="form-group">
+              <label>Name</label><input type="text" id="prof-name" class="profile-input" placeholder="Your full name" />
+            </div>
+            <div class="form-group">
+              <label>Phone</label><input type="text" id="prof-phone" class="profile-input" placeholder="+1..." />
+            </div>
+            <div class="form-group">
+              <label>GitHub Link</label><input type="url" id="prof-github" class="profile-input" placeholder="https://github.com/..." />
+            </div>
+            <div class="form-group">
+              <label>LinkedIn Link</label><input type="url" id="prof-linkedin" class="profile-input" placeholder="https://linkedin.com/..." />
+            </div>
+            <div class="form-group">
+              <label>Project Link (Drive)</label><input type="url" id="prof-project" class="profile-input" placeholder="https://drive.google.com/..." />
+            </div>
+            <div class="form-group">
+              <label>Resume</label>
+              <input type="file" id="prof-resume" class="file-input-native" />
+              <div class="resume-status" id="prof-resume-status" class="char-count"></div>
+            </div>
+            <div class="capture-footer">
+               <span id="prof-save-status" class="char-count"></span>
+               <button type="button" class="save-btn" id="save-prof-btn">Save Profile</button>
+            </div>
+          </div>
+
+          <div class="profile-share">
+             <div class="col-header"><h3>Share Details</h3></div>
+             <p class="share-desc">Select details to include, then copy to clipboard.</p>
+             
+             <div class="capture-box share-box">
+               <div class="share-options" id="share-options">
+                 <!-- Filled via JS -->
+               </div>
+               <div class="capture-footer">
+                 <button type="button" class="save-btn btn-full" id="copy-prof-btn">Copy Selected</button>
+               </div>
+             </div>
+          </div>
+        </div>
+      </section>
+    </div> <!-- /section-profile -->
+
+  </main>
+
+  <!-- ════════════════════════════════════════
+       BOTTOM NAVIGATION
+  ════════════════════════════════════════ -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" data-target="section-notes" aria-label="Notes">
+      <span class="nav-icon">M</span>
+      <span class="nav-label">Notes</span>
+    </button>
+    <button class="nav-item" data-target="section-vault" aria-label="Vault">
+      <span class="nav-icon">V</span>
+      <span class="nav-label">Vault</span>
+    </button>
+    <button class="nav-item" data-target="section-profile" aria-label="Profile">
+      <span class="nav-icon">P</span>
+      <span class="nav-label">Profile</span>
+    </button>
+  </nav>
+
   <!-- ════════════════════════════════════════
        TOAST
   ════════════════════════════════════════ -->
@@ -158,7 +294,7 @@
 
   <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-  <script src="config.js"></script>
+  <script src="../config.js"></script>
   <script src="home.js"></script>
 </body>
 </html>

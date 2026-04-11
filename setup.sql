@@ -83,3 +83,78 @@ CREATE POLICY "delete_own_notes"
 -- ================================================================
 -- Done. Your database is secure and ready.
 -- ================================================================
+
+
+-- ================================================================
+-- SECOND BRAIN — Phase 2: Vault & Profile
+-- ================================================================
+
+-- ── 7. Links table ────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS links (
+  id         UUID         PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id    UUID         NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  heading    TEXT         NOT NULL CHECK (char_length(heading) BETWEEN 1 AND 255),
+  url        TEXT         NOT NULL,
+  created_at TIMESTAMPTZ  NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS links_user_id_idx ON links(user_id);
+ALTER TABLE links ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "select_own_links" ON links FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "insert_own_links" ON links FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "update_own_links" ON links FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "delete_own_links" ON links FOR DELETE USING (auth.uid() = user_id);
+
+
+-- ── 8. Documents table ────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS documents (
+  id         UUID         PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id    UUID         NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  heading    TEXT         NOT NULL CHECK (char_length(heading) BETWEEN 1 AND 255),
+  file_path  TEXT         NOT NULL,
+  file_name  TEXT         NOT NULL,
+  created_at TIMESTAMPTZ  NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS documents_user_id_idx ON documents(user_id);
+ALTER TABLE documents ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "select_own_documents" ON documents FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "insert_own_documents" ON documents FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "update_own_documents" ON documents FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "delete_own_documents" ON documents FOR DELETE USING (auth.uid() = user_id);
+
+
+-- ── 9. Profile table ──────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS profile (
+  user_id      UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  name         TEXT,
+  phone        TEXT,
+  github       TEXT,
+  linkedin     TEXT,
+  project_link TEXT,
+  resume_path  TEXT,
+  resume_name  TEXT,
+  updated_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+ALTER TABLE profile ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "select_own_profile" ON profile FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "insert_own_profile" ON profile FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "update_own_profile" ON profile FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "delete_own_profile" ON profile FOR DELETE USING (auth.uid() = user_id);
+
+
+-- ── 10. Storage Bucket Setup ──────────────────────────────────
+-- Create a private bucket called "vault" if it doesn't exist
+INSERT INTO storage.buckets (id, name, public) 
+VALUES ('vault', 'vault', false)
+ON CONFLICT (id) DO NOTHING;
+
+-- Storage RLS: Users can only upload, read, update, delete their own files via folder path or ownership
+CREATE POLICY "vault_select" ON storage.objects FOR SELECT USING (bucket_id = 'vault' AND auth.uid() = owner);
+CREATE POLICY "vault_insert" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'vault' AND auth.uid() = owner);
+CREATE POLICY "vault_update" ON storage.objects FOR UPDATE USING (bucket_id = 'vault' AND auth.uid() = owner) WITH CHECK (bucket_id = 'vault' AND auth.uid() = owner);
+CREATE POLICY "vault_delete" ON storage.objects FOR DELETE USING (bucket_id = 'vault' AND auth.uid() = owner);

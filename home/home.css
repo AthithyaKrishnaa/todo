@@ -69,7 +69,7 @@ body {
   background: var(--bg);
   color: var(--ink);
   min-height: 100dvh;
-  padding-bottom: 3rem;
+  padding-bottom: 6rem;
   transition: background var(--transition), color var(--transition);
 }
 
@@ -682,8 +682,178 @@ body {
 /* ── Utility ────────────────────────────── */
 .hidden { display: none !important; }
 
+/* ── App Sections ───────────────────────── */
+.app-section {
+  animation: fadeIn 0.3s ease forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Section Headers ────────────────────── */
+.section-header {
+  margin-bottom: 1.5rem;
+}
+.section-title {
+  font-family: var(--font-serif);
+  font-size: 24px;
+  font-weight: 400;
+  margin-bottom: 0.2rem;
+}
+.section-subtitle {
+  font-size: 14px;
+  color: var(--ink-muted);
+}
+
+/* ── Vault & Profile Grids (Desktop First) ─ */
+.vault-grid, .profile-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.col-header h3 {
+  font-size: 14px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ink-mid);
+  margin-bottom: 0.8rem;
+}
+
+/* ── Inputs & Forms ─────────────────────── */
+.single-line { min-height: 44px; padding-bottom: 1rem; }
+.small-capture { margin-bottom: 1rem; }
+
+.file-input-native {
+  width: 100%;
+  padding: 0.5rem 1.15rem;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--ink-mid);
+}
+
+.profile-input {
+  width: 100%;
+  padding: 0.65rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 14px;
+  outline: none;
+  transition: all var(--transition);
+}
+.profile-input:focus { border-color: var(--border-mid); background: var(--card); }
+
+.form-group {
+  padding: 0.75rem 1.15rem;
+  border-bottom: 1px solid var(--subtle);
+}
+.form-group:last-of-type { border-bottom: none; }
+.form-group label {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink-muted);
+  margin-bottom: 0.4rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.profile-form { padding-top: 0; }
+.profile-form .col-header { padding: 1.15rem 1.15rem 0.25rem; margin: 0; }
+
+.resume-status {
+  font-size: 12px;
+  color: var(--green);
+  margin-top: 0.4rem;
+}
+
+/* ── Share Options ──────────────────────── */
+.share-desc {
+  font-size: 13px;
+  color: var(--ink-muted);
+  margin-bottom: 1rem;
+}
+.share-box { padding: 0; }
+.share-options {
+  padding: 1rem 1.15rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+.share-option {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 14px;
+  color: var(--ink);
+}
+.btn-full { width: 100%; }
+
+/* ── Bottom Navigation ──────────────────── */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  background: var(--card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  z-index: 900;
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.04);
+}
+
+[data-theme="dark"] .bottom-nav {
+  background: rgba(28, 28, 26, 0.85); /* Slightly transparent for blur */
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  color: var(--ink-muted);
+  flex: 1;
+  height: 100%;
+  transition: all var(--transition);
+}
+
+.nav-icon {
+  font-size: 20px;
+  line-height: 1;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.nav-label {
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.nav-item:hover { color: var(--ink-mid); }
+.nav-item.active { color: var(--accent); }
+.nav-item.active .nav-icon { transform: scale(1.15); }
+
 /* ── Responsive ─────────────────────────── */
+@media (max-width: 768px) {
+  .vault-grid, .profile-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
+
 @media (max-width: 480px) {
   .header-inner, .section { padding-left: 1rem; padding-right: 1rem; }
   .note-input, .search-input { font-size: 16px; }
+  .bottom-nav { height: 70px; padding-bottom: 8px; } /* For iPhone Home Bar */
 }

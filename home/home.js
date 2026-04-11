@@ -44,6 +44,35 @@ const confirmMsg     = document.getElementById('confirm-msg');
 const confirmCancel  = document.getElementById('confirm-cancel');
 const confirmOk      = document.getElementById('confirm-ok');
 
+/* ── Vault & Profile DOM ────────────────────────────────────── */
+const navItems       = document.querySelectorAll('.nav-item');
+const appSections    = document.querySelectorAll('.app-section');
+
+const linkHeading    = !!document.getElementById('link-heading') ? document.getElementById('link-heading') : null;
+const linkUrl        = document.getElementById('link-url');
+const saveLinkBtn    = document.getElementById('save-link-btn');
+const linksList      = document.getElementById('links-list');
+const linksLoading   = document.getElementById('links-loading');
+
+const docHeading     = document.getElementById('doc-heading');
+const docFile        = document.getElementById('doc-file');
+const docUploadStatus= document.getElementById('doc-upload-status');
+const saveDocBtn     = document.getElementById('save-doc-btn');
+const docsList       = document.getElementById('docs-list');
+const docsLoading    = document.getElementById('docs-loading');
+
+const profName       = document.getElementById('prof-name');
+const profPhone      = document.getElementById('prof-phone');
+const profGithub     = document.getElementById('prof-github');
+const profLinkedin   = document.getElementById('prof-linkedin');
+const profProject    = document.getElementById('prof-project');
+const profResume     = document.getElementById('prof-resume');
+const profResumeStatus= document.getElementById('prof-resume-status');
+const profSaveStatus = document.getElementById('prof-save-status');
+const saveProfBtn    = document.getElementById('save-prof-btn');
+const shareOptions   = document.getElementById('share-options');
+const copyProfBtn    = document.getElementById('copy-prof-btn');
+
 /* ── App state ──────────────────────────────────────────────── */
 let currentUser    = null;
 let allNotes       = [];
@@ -51,6 +80,9 @@ let activeFilter   = 'all';
 let searchQuery    = '';
 let toastTimer     = null;
 let pendingDeleteId = null;
+let allLinks       = [];
+let allDocuments   = [];
+let userProfile    = null;
 
 /* ═══════════════════════════════════════════════════════════════
    AUTH GUARD
@@ -60,14 +92,19 @@ async function initAuth() {
   try {
     const { data: { session }, error } = await sb.auth.getSession();
     if (error || !session) {
-      window.location.replace('index.html');
+      window.location.replace('../login/index.html');
       return;
     }
     currentUser = session.user;
     authGuard.classList.add('hidden');
-    await loadNotes();
+    await Promise.all([
+      loadNotes(),
+      loadLinks(),
+      loadDocuments(),
+      loadProfile()
+    ]);
   } catch (err) {
-    window.location.replace('index.html');
+    window.location.replace('../login/index.html');
   }
 }
 
@@ -75,7 +112,7 @@ async function initAuth() {
 document.addEventListener('visibilitychange', async () => {
   if (document.visibilityState === 'visible') {
     const { data: { session } } = await sb.auth.getSession();
-    if (!session) window.location.replace('index.html');
+    if (!session) window.location.replace('../login/index.html');
   }
 });
 
@@ -504,7 +541,7 @@ logoutBtn.addEventListener('click', async () => {
   logoutBtn.disabled = true;
   try {
     await sb.auth.signOut();
-    window.location.replace('index.html');
+    window.location.replace('../login/index.html');
   } catch {
     showToast('Sign out failed');
     logoutBtn.disabled = false;
@@ -603,6 +640,372 @@ setInterval(() => {
     if (note) el.textContent = relativeTime(note.created_at);
   });
 }, 60000);
+
+/* ═══════════════════════════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════════════════════════ */
+if (navItems.length > 0) {
+  navItems.forEach(btn => {
+    btn.addEventListener('click', () => {
+      // UI update
+      navItems.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      
+      // Switch section
+      appSections.forEach(sec => sec.classList.add('hidden'));
+      const target = document.getElementById(btn.dataset.target);
+      if (target) target.classList.remove('hidden');
+    });
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   VAULT: LINKS
+═══════════════════════════════════════════════════════════════ */
+async function loadLinks() {
+  try {
+    const { data, error } = await sb.from('links').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
+    if (error) throw error;
+    allLinks = data || [];
+  } catch {
+    allLinks = [];
+  } finally {
+    if (linksLoading) linksLoading.classList.add('hidden');
+    renderLinks();
+  }
+}
+
+function renderLinks() {
+  if (linksList) {
+    linksList.innerHTML = '';
+    linksList.classList.remove('hidden');
+    allLinks.forEach(link => linksList.appendChild(buildLinkCard(link)));
+  }
+}
+
+function buildLinkCard(link) {
+  const card = document.createElement('article');
+  card.className = 'note-card';
+  card.innerHTML = `
+    <div class="card-header">
+      <h3 style="font-size: 15px; margin:0;" class="card-content">
+        <a href="${escapeHTML(link.url)}" target="_blank">${escapeHTML(link.heading)}</a>
+      </h3>
+      <div class="card-actions">
+        <button type="button" class="action-btn copy-link-btn" title="Copy Link">📋</button>
+        <button type="button" class="action-btn delete-btn del-link-btn" title="Delete Link">✕</button>
+      </div>
+    </div>
+    <div class="card-footer" style="margin-top:0.2rem">
+      <span class="card-time" style="font-size:10px; word-break:break-all;">${escapeHTML(link.url)}</span>
+    </div>
+  `;
+  
+  card.querySelector('.copy-link-btn').addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(link.url);
+      showToast('Link copied!');
+    } catch {
+      showToast('Copy failed');
+    }
+  });
+
+  card.querySelector('.del-link-btn').addEventListener('click', async () => {
+    if (confirm('Delete this link?')) {
+      await sb.from('links').delete().eq('id', link.id);
+      allLinks = allLinks.filter(l => l.id !== link.id);
+      renderLinks();
+      showToast('Link deleted');
+    }
+  });
+
+  return card;
+}
+
+if (saveLinkBtn && linkHeading && linkUrl) {
+  saveLinkBtn.addEventListener('click', async () => {
+    const heading = linkHeading.value.trim();
+    const url = linkUrl.value.trim();
+    if (!heading || !url) return showToast('Enter heading and URL');
+    
+    saveLinkBtn.disabled = true;
+    try {
+      const { data, error } = await sb.from('links').insert([{ user_id: currentUser.id, heading, url }]).select().single();
+      if (error) throw error;
+      allLinks.unshift(data);
+      linkHeading.value = '';
+      linkUrl.value = '';
+      renderLinks();
+      showToast('Link saved');
+    } catch {
+      showToast('Failed to save link');
+    } finally {
+      saveLinkBtn.disabled = false;
+    }
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   VAULT: DOCUMENTS
+═══════════════════════════════════════════════════════════════ */
+async function loadDocuments() {
+  try {
+    const { data, error } = await sb.from('documents').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
+    if (error) throw error;
+    allDocuments = data || [];
+  } catch {
+    allDocuments = [];
+  } finally {
+    if (docsLoading) docsLoading.classList.add('hidden');
+    renderDocuments();
+  }
+}
+
+function renderDocuments() {
+  if (docsList) {
+    docsList.innerHTML = '';
+    docsList.classList.remove('hidden');
+    allDocuments.forEach(doc => docsList.appendChild(buildDocCard(doc)));
+  }
+}
+
+function buildDocCard(doc) {
+  const card = document.createElement('article');
+  card.className = 'note-card';
+  card.innerHTML = `
+    <div class="card-header">
+      <h3 style="font-size: 15px; margin:0;" class="card-content">${escapeHTML(doc.heading)}</h3>
+      <div class="card-actions">
+        <button type="button" class="action-btn download-doc-btn" title="Download">⬇️</button>
+        <button type="button" class="action-btn delete-btn del-doc-btn" title="Delete">✕</button>
+      </div>
+    </div>
+    <div class="card-footer" style="margin-top:0.2rem">
+      <span class="card-time" style="font-size:10px; word-break:break-all;">${escapeHTML(doc.file_name)}</span>
+    </div>
+  `;
+  
+  card.querySelector('.download-doc-btn').addEventListener('click', async () => {
+    try {
+      showToast('Getting download link...');
+      const { data, error } = await sb.storage.from('vault').createSignedUrl(doc.file_path, 60);
+      if (error) throw error;
+      const a = document.createElement('a');
+      a.href = data.signedUrl;
+      a.download = doc.file_name;
+      a.target = '_blank';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    } catch {
+      showToast('Download failed');
+    }
+  });
+
+  card.querySelector('.del-doc-btn').addEventListener('click', async () => {
+    if (confirm('Delete this document?')) {
+      await sb.storage.from('vault').remove([doc.file_path]);
+      await sb.from('documents').delete().eq('id', doc.id);
+      allDocuments = allDocuments.filter(d => d.id !== doc.id);
+      renderDocuments();
+      showToast('Document deleted');
+    }
+  });
+
+  return card;
+}
+
+if (saveDocBtn && docHeading && docFile) {
+  saveDocBtn.addEventListener('click', async () => {
+    const heading = docHeading.value.trim();
+    if (!heading) return showToast('Enter document heading');
+    if (!docFile.files[0]) return showToast('Select a file to upload');
+    
+    const file = docFile.files[0];
+    const fileName = file.name;
+    const fileExt = fileName.split('.').pop();
+    const filePath = currentUser.id + '/' + Date.now() + '_' + Math.random().toString(36).substring(7) + '.' + fileExt;
+
+    saveDocBtn.disabled = true;
+    if (docUploadStatus) docUploadStatus.textContent = 'Uploading...';
+    try {
+      const { error: uploadError } = await sb.storage.from('vault').upload(filePath, file);
+      if (uploadError) throw uploadError;
+      
+      const { data, error: dbError } = await sb.from('documents').insert([{ 
+        user_id: currentUser.id, heading, file_path: filePath, file_name: fileName 
+      }]).select().single();
+      if (dbError) throw dbError;
+      
+      allDocuments.unshift(data);
+      docHeading.value = '';
+      docFile.value = '';
+      renderDocuments();
+      showToast('Document uploaded');
+    } catch (err) {
+      showToast('Upload failed');
+    } finally {
+      saveDocBtn.disabled = false;
+      if (docUploadStatus) docUploadStatus.textContent = '';
+    }
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   PROFILE
+═══════════════════════════════════════════════════════════════ */
+async function loadProfile() {
+  try {
+    const { data, error } = await sb.from('profile').select('*').eq('user_id', currentUser.id).maybeSingle();
+    if (error && error.code !== 'PGRST116') throw error; // PGRST116 is multiple/no rows issue. maybeSingle prevents it but just in case
+    userProfile = data;
+    
+    if (userProfile && profName) {
+      profName.value = userProfile.name || '';
+      profPhone.value = userProfile.phone || '';
+      profGithub.value = userProfile.github || '';
+      profLinkedin.value = userProfile.linkedin || '';
+      profProject.value = userProfile.project_link || '';
+      if (userProfile.resume_name && profResumeStatus) {
+        profResumeStatus.textContent = "Current: " + userProfile.resume_name;
+      }
+    }
+  } catch (err) {
+    console.error(err);
+  } finally {
+    buildShareOptions();
+  }
+}
+
+if (saveProfBtn && profName) {
+  saveProfBtn.addEventListener('click', async () => {
+    saveProfBtn.disabled = true;
+    if (profSaveStatus) profSaveStatus.textContent = 'Saving...';
+    
+    let resumePath = userProfile ? userProfile.resume_path : null;
+    let resumeName = userProfile ? userProfile.resume_name : null;
+    
+    try {
+      if (profResume && profResume.files[0]) {
+        const file = profResume.files[0];
+        resumeName = file.name;
+        const fileExt = resumeName.split('.').pop();
+        resumePath = currentUser.id + '/resume_' + Date.now() + '.' + fileExt;
+        
+        const { error: uploadError } = await sb.storage.from('vault').upload(resumePath, file);
+        if (uploadError) throw uploadError;
+      }
+      
+      const payload = {
+        user_id: currentUser.id,
+        name: profName.value.trim(),
+        phone: profPhone.value.trim(),
+        github: profGithub.value.trim(),
+        linkedin: profLinkedin.value.trim(),
+        project_link: profProject.value.trim(),
+        resume_path: resumePath,
+        resume_name: resumeName,
+        updated_at: new Date().toISOString()
+      };
+      
+      const { error } = await sb.from('profile').upsert(payload, { onConflict: 'user_id' });
+      if (error) throw error;
+      
+      userProfile = payload;
+      if (resumeName && profResumeStatus) profResumeStatus.textContent = "Current: " + resumeName;
+      if (profResume) profResume.value = '';
+      
+      showToast('Profile saved');
+      buildShareOptions();
+    } catch (e) {
+      console.error(e);
+      showToast('Failed to save profile');
+    } finally {
+      saveProfBtn.disabled = false;
+      if (profSaveStatus) profSaveStatus.textContent = '';
+    }
+  });
+}
+
+function buildShareOptions() {
+  if (!shareOptions) return;
+  shareOptions.innerHTML = '';
+  if (!userProfile) {
+    shareOptions.innerHTML = '<span class="share-desc">Fill out your profile first.</span>';
+    return;
+  }
+  
+  const fields = [
+    { key: 'name', label: 'Name', val: userProfile.name },
+    { key: 'phone', label: 'Phone', val: userProfile.phone },
+    { key: 'github', label: 'GitHub', val: userProfile.github },
+    { key: 'linkedin', label: 'LinkedIn', val: userProfile.linkedin },
+    { key: 'project', label: 'Project', val: userProfile.project_link },
+    { key: 'resume', label: 'Resume', val: userProfile.resume_path ? '(Link will be attached)' : '' }
+  ];
+  
+  let hasData = false;
+  fields.forEach(f => {
+    if (f.val) {
+      hasData = true;
+      const wrap = document.createElement('label');
+      wrap.className = 'share-option';
+      wrap.innerHTML = `<input type="checkbox" checked data-key="${f.key}" style="accent-color: var(--ink);" /> <span><b>${f.label}</b></span>`;
+      shareOptions.appendChild(wrap);
+    }
+  });
+  
+  if (!hasData) {
+    shareOptions.innerHTML = '<span class="share-desc">No details saved yet.</span>';
+  }
+}
+
+if (copyProfBtn && shareOptions) {
+  copyProfBtn.addEventListener('click', async () => {
+    if (!userProfile) return;
+    copyProfBtn.disabled = true;
+    copyProfBtn.textContent = 'Preparing...';
+    
+    try {
+      const allCheckboxes = shareOptions.querySelectorAll('input[type="checkbox"]');
+      let checkedBoxes = Array.from(allCheckboxes).filter(cb => cb.checked);
+      
+      // If none selected, default to all
+      if (checkedBoxes.length === 0 && allCheckboxes.length > 0) {
+        checkedBoxes = Array.from(allCheckboxes);
+      } else if (checkedBoxes.length === 0) {
+        showToast('Nothing to copy');
+        return;
+      }
+      
+      const keys = checkedBoxes.map(cb => cb.dataset.key);
+      let output = "📋 DETAILS:\n\n";
+      
+      if (keys.includes('name') && userProfile.name) output += `- Name: ${userProfile.name}\n`;
+      if (keys.includes('phone') && userProfile.phone) output += `- Phone: ${userProfile.phone}\n`;
+      if (keys.includes('github') && userProfile.github) output += `- GitHub: ${userProfile.github}\n`;
+      if (keys.includes('linkedin') && userProfile.linkedin) output += `- LinkedIn: ${userProfile.linkedin}\n`;
+      if (keys.includes('project') && userProfile.project_link) output += `- Project Link: ${userProfile.project_link}\n`;
+      
+      if (keys.includes('resume') && userProfile.resume_path) {
+        showToast('Generating resume link...');
+        const { data, error } = await sb.storage.from('vault').createSignedUrl(userProfile.resume_path, 604800); // 7 days
+        if (!error && data) {
+          output += `- Resume: ${data.signedUrl}\n`;
+        }
+      }
+      
+      await navigator.clipboard.writeText(output);
+      showToast('Details copied to clipboard!');
+    } catch (e) {
+      console.error(e);
+      showToast('Failed to copy');
+    } finally {
+      copyProfBtn.disabled = false;
+      copyProfBtn.textContent = 'Copy Selected';
+    }
+  });
+}
 
 /* ═══════════════════════════════════════════════════════════════
    INIT
