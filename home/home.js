@@ -610,6 +610,35 @@ function linkify(escaped) {
   );
 }
 
+/** Clean URLs by removing tracking parameters */
+function cleanURL(url) {
+  try {
+    const u = new URL(url);
+    const paramsToRemove = ['usp', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'si', 'fbclid', 'igsh'];
+    paramsToRemove.forEach(p => u.searchParams.delete(p));
+    return u.toString().replace(/\/$/, ""); // Remove trailing slash if any
+  } catch {
+    return url; // Return as-is if not a valid URL
+  }
+}
+
+/** Handle URL field input/paste for cleaning */
+function initURLCleaners() {
+  const urlInputs = document.querySelectorAll('input[type="url"]');
+  urlInputs.forEach(input => {
+    const handleClean = () => {
+      const original = input.value.trim();
+      const cleaned = cleanURL(original);
+      if (original !== cleaned) {
+        input.value = cleaned;
+        showToast('Link cleaned & shortened! 🧹');
+      }
+    };
+    input.addEventListener('paste', () => setTimeout(handleClean, 10));
+    input.addEventListener('blur', handleClean);
+  });
+}
+
 /** Relative time string */
 function relativeTime(iso) {
   const diff  = Date.now() - new Date(iso).getTime();
@@ -979,20 +1008,43 @@ if (copyProfBtn && shareOptions) {
       }
       
       const keys = checkedBoxes.map(cb => cb.dataset.key);
-      let output = "📋 DETAILS:\n\n";
       
-      if (keys.includes('name') && userProfile.name) output += `- Name: ${userProfile.name}\n`;
-      if (keys.includes('phone') && userProfile.phone) output += `- Phone: ${userProfile.phone}\n`;
-      if (keys.includes('email') && userProfile.email) output += `- Mail id: ${userProfile.email}\n`;
-      if (keys.includes('resume') && userProfile.resume_link) output += `- Resume Link: ${userProfile.resume_link}\n`;
-      if (keys.includes('github') && userProfile.github) output += `- GitHub: ${userProfile.github}\n`;
-      if (keys.includes('linkedin') && userProfile.linkedin) output += `- LinkedIn: ${userProfile.linkedin}\n`;
-      if (keys.includes('internship') && userProfile.internship_link) output += `- Internship Details: ${userProfile.internship_link}\n`;
-      if (keys.includes('project') && userProfile.project_link) output += `- Project Details: ${userProfile.project_link}\n`;
-      if (keys.includes('certs') && userProfile.certifications_link) output += `- Certifications Details: ${userProfile.certifications_link}\n`;
+      // Building a structured, aesthetic output
+      let output = "";
       
-      await navigator.clipboard.writeText(output);
-      showToast('Details copied to clipboard!');
+      // Header
+      if (keys.includes('name') && userProfile.name) {
+        output += `👤 *${userProfile.name.toUpperCase()}*\n`;
+        output += `━━━━━━━━━━━━━━━━━━━━\n`;
+      } else {
+        output += `📋 *PROFILE DETAILS*\n━━━━━━━━━━━━━━━━━━━━\n`;
+      }
+
+      // Contact Group
+      let hasContact = false;
+      if (keys.includes('phone') && userProfile.phone) { output += `📞 *Phone:* ${userProfile.phone}\n`; hasContact = true; }
+      if (keys.includes('email') && userProfile.email) { output += `📧 *Email:* ${userProfile.email}\n`; hasContact = true; }
+      
+      // Portfolio Group
+      let hasPortfolio = false;
+      let portfolioStr = "\n🔗 *PORTFOLIO & LINKS*\n";
+      if (keys.includes('github') && userProfile.github) { portfolioStr += `🌐 *GitHub:* ${userProfile.github}\n`; hasPortfolio = true; }
+      if (keys.includes('linkedin') && userProfile.linkedin) { portfolioStr += `💼 *LinkedIn:* ${userProfile.linkedin}\n`; hasPortfolio = true; }
+      if (hasPortfolio) output += portfolioStr;
+
+      // Resources Group
+      let hasResources = false;
+      let resourceStr = "\n📁 *RESOURCES*\n";
+      if (keys.includes('resume') && userProfile.resume_link) { resourceStr += `📝 *Resume:* ${userProfile.resume_link}\n`; hasResources = true; }
+      if (keys.includes('internship') && userProfile.internship_link) { resourceStr += `🎓 *Internship:* ${userProfile.internship_link}\n`; hasResources = true; }
+      if (keys.includes('project') && userProfile.project_link) { resourceStr += `🚀 *Projects:* ${userProfile.project_link}\n`; hasResources = true; }
+      if (keys.includes('certs') && userProfile.certifications_link) { resourceStr += `📜 *Certifications:* ${userProfile.certifications_link}\n`; hasResources = true; }
+      if (hasResources) output += resourceStr;
+
+      output += `\n━━━━━━━━━━━━━━━━━━━━\n_Sent via Second Brain_`;
+      
+      await navigator.clipboard.writeText(output.trim());
+      showToast('Aesthetic details copied! ✨');
     } catch (e) {
       console.error(e);
       showToast('Failed to copy');
@@ -1008,3 +1060,4 @@ if (copyProfBtn && shareOptions) {
 ═══════════════════════════════════════════════════════════════ */
 initTheme();
 initAuth();   // runs auth guard, then loads notes
+initURLCleaners();
