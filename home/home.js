@@ -712,14 +712,13 @@ function buildShareOptions() {
 }
 
 if (copyProfBtn && shareOptions) {
-  copyProfBtn.addEventListener('click', async () => {
+  copyProfBtn.addEventListener('click', () => {
     if (!userProfile) return;
-    copyProfBtn.disabled = true;
-    copyProfBtn.textContent = 'Preparing...';
     
     try {
       const allCheckboxes = shareOptions.querySelectorAll('input[type="checkbox"]');
       let checkedBoxes = Array.from(allCheckboxes).filter(cb => cb.checked);
+      const includeWatermark = document.getElementById('include-watermark')?.checked ?? true;
       
       if (checkedBoxes.length === 0 && allCheckboxes.length > 0) {
         checkedBoxes = Array.from(allCheckboxes);
@@ -729,63 +728,59 @@ if (copyProfBtn && shareOptions) {
       }
       
       const keys = checkedBoxes.map(cb => cb.dataset.key);
+      const p = userProfile;
       
-      // Building a structured, "Text Infographic" output
+      // Immediate, Grouped Text Format
       let output = "";
       
-      const pData = {...userProfile};
-      const shorteningTasks = [];
-      if (keys.includes('resume') && pData.resume_link) shorteningTasks.push(shortenURL(pData.resume_link).then(s => pData.resume_link = s));
-      if (keys.includes('github') && pData.github) shorteningTasks.push(shortenURL(pData.github).then(s => pData.github = s));
-      if (keys.includes('linkedin') && pData.linkedin) shorteningTasks.push(shortenURL(pData.linkedin).then(s => pData.linkedin = s));
-      if (keys.includes('internship') && pData.internship_link) shorteningTasks.push(shortenURL(pData.internship_link).then(s => pData.internship_link = s));
-      if (keys.includes('project') && pData.project_link) shorteningTasks.push(shortenURL(pData.project_link).then(s => pData.project_link = s));
-      if (keys.includes('certs') && pData.certifications_link) shorteningTasks.push(shortenURL(pData.certifications_link).then(s => pData.certifications_link = s));
-      
-      if (shorteningTasks.length > 0) await Promise.all(shorteningTasks);
-
-      const line = "▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰";
-      const sep = "──────────────────────────";
-      
-      output += `${line}\n`;
-      if (keys.includes('name') && pData.name) {
-        output += `   ${pData.name.toUpperCase()}\n`;
-      } else {
-        output += `   PROFILE DETAILS\n`;
+      // 1. Name
+      if (keys.includes('name') && p.name) {
+        output += `${p.name.toUpperCase()}\n\n`;
       }
-      output += `${line}\n\n`;
 
-      // Contact
-      output += `   CONTACT\n   ${sep}\n`;
-      if (keys.includes('phone') && pData.phone) output += `   PHONE    |  ${pData.phone}\n`;
-      if (keys.includes('email') && pData.email) output += `   EMAIL    |  ${pData.email}\n`;
+      // 2. Contact Information
+      const contactKeys = ['phone', 'email'];
+      if (contactKeys.some(k => keys.includes(k) && p[k])) {
+        output += `Contact Information\n`;
+        if (keys.includes('phone') && p.phone) output += `Phone: ${p.phone}\n`;
+        if (keys.includes('email') && p.email) output += `Email: [${p.email}](mailto:${p.email})\n`;
+        output += `\n`;
+      }
+
+      // 3. Resume
+      if (keys.includes('resume') && p.resume_link) {
+        output += `Resume: ${p.resume_link}\n\n`;
+      }
+
+      // 4. Professional Profiles
+      const socialKeys = ['github', 'linkedin'];
+      if (socialKeys.some(k => keys.includes(k) && p[k])) {
+        output += `Professional Profiles\n`;
+        if (keys.includes('github') && p.github) output += `GitHub: ${p.github}\n`;
+        if (keys.includes('linkedin') && p.linkedin) output += `LinkedIn: ${p.linkedin}\n`;
+        output += `\n`;
+      }
+
+      // 5. Documents & Resources
+      const docKeys = ['internship', 'project', 'certs'];
+      const docLabels = { internship: 'Internships', project: 'Projects', certs: 'Certifications' };
+      if (docKeys.some(k => keys.includes(k) && p[`${k}_link`])) {
+        output += `Documents & Resources\n`;
+        if (keys.includes('internship') && p.internship_link) output += `Internships: ${p.internship_link}\n`;
+        if (keys.includes('project') && p.project_link) output += `Projects: ${p.project_link}\n`;
+        if (keys.includes('certs') && p.certifications_link) output += `Certifications: ${p.certifications_link}\n`;
+        output += `\n`;
+      }
+
+      if (includeWatermark) {
+        output += `──────────────────────────\nGenerated via Second Brain`;
+      }
       
-      // Network
-      let hasNetwork = false;
-      let networkStr = `\n   NETWORK\n   ${sep}\n`;
-      if (keys.includes('github') && pData.github) { networkStr += `   GITHUB   |  ${pData.github}\n`; hasNetwork = true; }
-      if (keys.includes('linkedin') && pData.linkedin) { networkStr += `   LINKEDIN |  ${pData.linkedin}\n`; hasNetwork = true; }
-      if (hasNetwork) output += networkStr;
-
-      // Resources
-      let hasResources = false;
-      let resourceStr = `\n   RESOURCES\n   ${sep}\n`;
-      if (keys.includes('resume') && pData.resume_link) { resourceStr += `   RESUME   |  ${pData.resume_link}\n`; hasResources = true; }
-      if (keys.includes('internship') && pData.internship_link) { resourceStr += `   INTERN   |  ${pData.internship_link}\n`; hasResources = true; }
-      if (keys.includes('project') && pData.project_link) { resourceStr += `   PROJECT  |  ${pData.project_link}\n`; hasResources = true; }
-      if (keys.includes('certs') && pData.certifications_link) { resourceStr += `   CERTS    |  ${pData.certifications_link}\n`; hasResources = true; }
-      if (hasResources) output += resourceStr;
-
-      output += `\n${line}\nGenerated via Second Brain`;
-      
-      await navigator.clipboard.writeText(output.trim());
-      showToast('Executive details copied! ✨');
+      navigator.clipboard.writeText(output.trim());
+      showToast('Details copied immediately! ✨');
     } catch (e) {
       console.error(e);
       showToast('Failed to copy');
-    } finally {
-      copyProfBtn.disabled = false;
-      copyProfBtn.textContent = 'Copy Professional Details';
     }
   });
 }

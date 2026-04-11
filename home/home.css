@@ -951,8 +951,13 @@ body {
   .sidebar { transform: translateX(-100%); display: none; }
   .has-sidebar { padding-left: 0; }
   .header { left: 0; }
-  .vault-grid, .profile-grid {
+  .vault-grid {
     grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  .profile-grid {
+    display: flex;
+    flex-direction: column-reverse;
     gap: 2rem;
   }
 }
