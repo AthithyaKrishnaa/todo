@@ -63,15 +63,20 @@ const docsLoading    = document.getElementById('docs-loading');
 
 const profName       = document.getElementById('prof-name');
 const profPhone      = document.getElementById('prof-phone');
+const profEmail      = document.getElementById('prof-email');
+const profResumeLink = document.getElementById('prof-resume-link');
 const profGithub     = document.getElementById('prof-github');
 const profLinkedin   = document.getElementById('prof-linkedin');
+const profInternship = document.getElementById('prof-internship');
 const profProject    = document.getElementById('prof-project');
-const profResume     = document.getElementById('prof-resume');
-const profResumeStatus= document.getElementById('prof-resume-status');
+const profCerts      = document.getElementById('prof-certs');
 const profSaveStatus = document.getElementById('prof-save-status');
 const saveProfBtn    = document.getElementById('save-prof-btn');
 const shareOptions   = document.getElementById('share-options');
 const copyProfBtn    = document.getElementById('copy-prof-btn');
+
+/* ── Sidebar DOM ────────────────────────────────────────────── */
+const sidebarItems   = document.querySelectorAll('.side-nav-item');
 
 /* ── App state ──────────────────────────────────────────────── */
 let currentUser    = null;
@@ -644,18 +649,24 @@ setInterval(() => {
 /* ═══════════════════════════════════════════════════════════════
    NAVIGATION
 ═══════════════════════════════════════════════════════════════ */
+function switchTab(targetId) {
+  // Update state
+  navItems.forEach(b => b.classList.toggle('active', b.dataset.target === targetId));
+  sidebarItems.forEach(b => b.classList.toggle('active', b.dataset.target === targetId));
+  
+  // Switch section
+  appSections.forEach(sec => sec.classList.toggle('hidden', sec.id !== targetId));
+}
+
 if (navItems.length > 0) {
   navItems.forEach(btn => {
-    btn.addEventListener('click', () => {
-      // UI update
-      navItems.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      
-      // Switch section
-      appSections.forEach(sec => sec.classList.add('hidden'));
-      const target = document.getElementById(btn.dataset.target);
-      if (target) target.classList.remove('hidden');
-    });
+    btn.addEventListener('click', () => switchTab(btn.dataset.target));
+  });
+}
+
+if (sidebarItems.length > 0) {
+  sidebarItems.forEach(btn => {
+    btn.addEventListener('click', () => switchTab(btn.dataset.target));
   });
 }
 
@@ -857,18 +868,19 @@ if (saveDocBtn && docHeading && docFile) {
 async function loadProfile() {
   try {
     const { data, error } = await sb.from('profile').select('*').eq('user_id', currentUser.id).maybeSingle();
-    if (error && error.code !== 'PGRST116') throw error; // PGRST116 is multiple/no rows issue. maybeSingle prevents it but just in case
+    if (error && error.code !== 'PGRST116') throw error;
     userProfile = data;
     
-    if (userProfile && profName) {
-      profName.value = userProfile.name || '';
-      profPhone.value = userProfile.phone || '';
-      profGithub.value = userProfile.github || '';
-      profLinkedin.value = userProfile.linkedin || '';
-      profProject.value = userProfile.project_link || '';
-      if (userProfile.resume_name && profResumeStatus) {
-        profResumeStatus.textContent = "Current: " + userProfile.resume_name;
-      }
+    if (userProfile) {
+      if (profName)       profName.value = userProfile.name || '';
+      if (profPhone)      profPhone.value = userProfile.phone || '';
+      if (profEmail)      profEmail.value = userProfile.email || '';
+      if (profResumeLink) profResumeLink.value = userProfile.resume_link || '';
+      if (profGithub)     profGithub.value = userProfile.github || '';
+      if (profLinkedin)   profLinkedin.value = userProfile.linkedin || '';
+      if (profInternship) profInternship.value = userProfile.internship_link || '';
+      if (profProject)    profProject.value = userProfile.project_link || '';
+      if (profCerts)      profCerts.value = userProfile.certifications_link || '';
     }
   } catch (err) {
     console.error(err);
@@ -882,29 +894,18 @@ if (saveProfBtn && profName) {
     saveProfBtn.disabled = true;
     if (profSaveStatus) profSaveStatus.textContent = 'Saving...';
     
-    let resumePath = userProfile ? userProfile.resume_path : null;
-    let resumeName = userProfile ? userProfile.resume_name : null;
-    
     try {
-      if (profResume && profResume.files[0]) {
-        const file = profResume.files[0];
-        resumeName = file.name;
-        const fileExt = resumeName.split('.').pop();
-        resumePath = currentUser.id + '/resume_' + Date.now() + '.' + fileExt;
-        
-        const { error: uploadError } = await sb.storage.from('vault').upload(resumePath, file);
-        if (uploadError) throw uploadError;
-      }
-      
       const payload = {
         user_id: currentUser.id,
         name: profName.value.trim(),
         phone: profPhone.value.trim(),
+        email: profEmail.value.trim(),
+        resume_link: profResumeLink.value.trim(),
         github: profGithub.value.trim(),
         linkedin: profLinkedin.value.trim(),
+        internship_link: profInternship.value.trim(),
         project_link: profProject.value.trim(),
-        resume_path: resumePath,
-        resume_name: resumeName,
+        certifications_link: profCerts.value.trim(),
         updated_at: new Date().toISOString()
       };
       
@@ -912,9 +913,6 @@ if (saveProfBtn && profName) {
       if (error) throw error;
       
       userProfile = payload;
-      if (resumeName && profResumeStatus) profResumeStatus.textContent = "Current: " + resumeName;
-      if (profResume) profResume.value = '';
-      
       showToast('Profile saved');
       buildShareOptions();
     } catch (e) {
@@ -938,10 +936,13 @@ function buildShareOptions() {
   const fields = [
     { key: 'name', label: 'Name', val: userProfile.name },
     { key: 'phone', label: 'Phone', val: userProfile.phone },
+    { key: 'email', label: 'Mail id', val: userProfile.email },
+    { key: 'resume', label: 'Resume Link', val: userProfile.resume_link },
     { key: 'github', label: 'GitHub', val: userProfile.github },
     { key: 'linkedin', label: 'LinkedIn', val: userProfile.linkedin },
-    { key: 'project', label: 'Project', val: userProfile.project_link },
-    { key: 'resume', label: 'Resume', val: userProfile.resume_path ? '(Link will be attached)' : '' }
+    { key: 'internship', label: 'Internship Details', val: userProfile.internship_link },
+    { key: 'project', label: 'Project Details', val: userProfile.project_link },
+    { key: 'certs', label: 'Certifications Details', val: userProfile.certifications_link }
   ];
   
   let hasData = false;
@@ -950,7 +951,7 @@ function buildShareOptions() {
       hasData = true;
       const wrap = document.createElement('label');
       wrap.className = 'share-option';
-      wrap.innerHTML = `<input type="checkbox" checked data-key="${f.key}" style="accent-color: var(--ink);" /> <span><b>${f.label}</b></span>`;
+      wrap.innerHTML = `<input type="checkbox" checked data-key="${f.key}" /> <span><b>${f.label}</b></span>`;
       shareOptions.appendChild(wrap);
     }
   });
@@ -970,7 +971,6 @@ if (copyProfBtn && shareOptions) {
       const allCheckboxes = shareOptions.querySelectorAll('input[type="checkbox"]');
       let checkedBoxes = Array.from(allCheckboxes).filter(cb => cb.checked);
       
-      // If none selected, default to all
       if (checkedBoxes.length === 0 && allCheckboxes.length > 0) {
         checkedBoxes = Array.from(allCheckboxes);
       } else if (checkedBoxes.length === 0) {
@@ -983,17 +983,13 @@ if (copyProfBtn && shareOptions) {
       
       if (keys.includes('name') && userProfile.name) output += `- Name: ${userProfile.name}\n`;
       if (keys.includes('phone') && userProfile.phone) output += `- Phone: ${userProfile.phone}\n`;
+      if (keys.includes('email') && userProfile.email) output += `- Mail id: ${userProfile.email}\n`;
+      if (keys.includes('resume') && userProfile.resume_link) output += `- Resume Link: ${userProfile.resume_link}\n`;
       if (keys.includes('github') && userProfile.github) output += `- GitHub: ${userProfile.github}\n`;
       if (keys.includes('linkedin') && userProfile.linkedin) output += `- LinkedIn: ${userProfile.linkedin}\n`;
-      if (keys.includes('project') && userProfile.project_link) output += `- Project Link: ${userProfile.project_link}\n`;
-      
-      if (keys.includes('resume') && userProfile.resume_path) {
-        showToast('Generating resume link...');
-        const { data, error } = await sb.storage.from('vault').createSignedUrl(userProfile.resume_path, 604800); // 7 days
-        if (!error && data) {
-          output += `- Resume: ${data.signedUrl}\n`;
-        }
-      }
+      if (keys.includes('internship') && userProfile.internship_link) output += `- Internship Details: ${userProfile.internship_link}\n`;
+      if (keys.includes('project') && userProfile.project_link) output += `- Project Details: ${userProfile.project_link}\n`;
+      if (keys.includes('certs') && userProfile.certifications_link) output += `- Certifications Details: ${userProfile.certifications_link}\n`;
       
       await navigator.clipboard.writeText(output);
       showToast('Details copied to clipboard!');

@@ -146,15 +146,17 @@ CREATE POLICY "delete_own_documents" ON documents FOR DELETE USING (auth.uid() =
 
 -- ── 9. Profile table ──────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS profile (
-  user_id      UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
-  name         TEXT,
-  phone        TEXT,
-  github       TEXT,
-  linkedin     TEXT,
-  project_link TEXT,
-  resume_path  TEXT,
-  resume_name  TEXT,
-  updated_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  user_id             UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  name                TEXT,
+  phone               TEXT,
+  email               TEXT,
+  resume_link         TEXT,
+  github              TEXT,
+  linkedin            TEXT,
+  internship_link     TEXT,
+  project_link        TEXT,
+  certifications_link TEXT,
+  updated_at          TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 ALTER TABLE profile ENABLE ROW LEVEL SECURITY;
@@ -178,15 +180,15 @@ INSERT INTO storage.buckets (id, name, public)
 VALUES ('vault', 'vault', false)
 ON CONFLICT (id) DO NOTHING;
 
--- Storage RLS: Users can only upload, read, update, delete their own files via folder path or ownership
+-- Storage RLS: Users can only access folders named after their auth ID
 DROP POLICY IF EXISTS "vault_select" ON storage.objects;
-CREATE POLICY "vault_select" ON storage.objects FOR SELECT USING (bucket_id = 'vault' AND auth.uid() = owner);
+CREATE POLICY "vault_select" ON storage.objects FOR SELECT USING (bucket_id = 'vault' AND (storage.foldername(name))[1] = auth.uid()::text);
 
 DROP POLICY IF EXISTS "vault_insert" ON storage.objects;
-CREATE POLICY "vault_insert" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'vault' AND auth.uid() = owner);
+CREATE POLICY "vault_insert" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'vault' AND (storage.foldername(name))[1] = auth.uid()::text);
 
 DROP POLICY IF EXISTS "vault_update" ON storage.objects;
-CREATE POLICY "vault_update" ON storage.objects FOR UPDATE USING (bucket_id = 'vault' AND auth.uid() = owner) WITH CHECK (bucket_id = 'vault' AND auth.uid() = owner);
+CREATE POLICY "vault_update" ON storage.objects FOR UPDATE USING (bucket_id = 'vault' AND (storage.foldername(name))[1] = auth.uid()::text) WITH CHECK (bucket_id = 'vault' AND (storage.foldername(name))[1] = auth.uid()::text);
 
 DROP POLICY IF EXISTS "vault_delete" ON storage.objects;
-CREATE POLICY "vault_delete" ON storage.objects FOR DELETE USING (bucket_id = 'vault' AND auth.uid() = owner);
+CREATE POLICY "vault_delete" ON storage.objects FOR DELETE USING (bucket_id = 'vault' AND (storage.foldername(name))[1] = auth.uid()::text);
