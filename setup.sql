@@ -34,22 +34,26 @@ ALTER TABLE notes ENABLE ROW LEVEL SECURITY;
 
 -- ── 5. RLS Policies ───────────────────────────────────────────
 -- SELECT: can only read own notes
+DROP POLICY IF EXISTS "select_own_notes" ON notes;
 CREATE POLICY "select_own_notes"
   ON notes FOR SELECT
   USING (auth.uid() = user_id);
 
 -- INSERT: can only create notes for themselves
+DROP POLICY IF EXISTS "insert_own_notes" ON notes;
 CREATE POLICY "insert_own_notes"
   ON notes FOR INSERT
   WITH CHECK (auth.uid() = user_id);
 
 -- UPDATE: can only update own notes
+DROP POLICY IF EXISTS "update_own_notes" ON notes;
 CREATE POLICY "update_own_notes"
   ON notes FOR UPDATE
   USING (auth.uid() = user_id)
   WITH CHECK (auth.uid() = user_id);
 
 -- DELETE: can only delete own notes
+DROP POLICY IF EXISTS "delete_own_notes" ON notes;
 CREATE POLICY "delete_own_notes"
   ON notes FOR DELETE
   USING (auth.uid() = user_id);
@@ -101,9 +105,16 @@ CREATE TABLE IF NOT EXISTS links (
 CREATE INDEX IF NOT EXISTS links_user_id_idx ON links(user_id);
 ALTER TABLE links ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "select_own_links" ON links;
 CREATE POLICY "select_own_links" ON links FOR SELECT USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "insert_own_links" ON links;
 CREATE POLICY "insert_own_links" ON links FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "update_own_links" ON links;
 CREATE POLICY "update_own_links" ON links FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "delete_own_links" ON links;
 CREATE POLICY "delete_own_links" ON links FOR DELETE USING (auth.uid() = user_id);
 
 
@@ -120,9 +131,16 @@ CREATE TABLE IF NOT EXISTS documents (
 CREATE INDEX IF NOT EXISTS documents_user_id_idx ON documents(user_id);
 ALTER TABLE documents ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "select_own_documents" ON documents;
 CREATE POLICY "select_own_documents" ON documents FOR SELECT USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "insert_own_documents" ON documents;
 CREATE POLICY "insert_own_documents" ON documents FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "update_own_documents" ON documents;
 CREATE POLICY "update_own_documents" ON documents FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "delete_own_documents" ON documents;
 CREATE POLICY "delete_own_documents" ON documents FOR DELETE USING (auth.uid() = user_id);
 
 
@@ -141,9 +159,16 @@ CREATE TABLE IF NOT EXISTS profile (
 
 ALTER TABLE profile ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "select_own_profile" ON profile;
 CREATE POLICY "select_own_profile" ON profile FOR SELECT USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "insert_own_profile" ON profile;
 CREATE POLICY "insert_own_profile" ON profile FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "update_own_profile" ON profile;
 CREATE POLICY "update_own_profile" ON profile FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "delete_own_profile" ON profile;
 CREATE POLICY "delete_own_profile" ON profile FOR DELETE USING (auth.uid() = user_id);
 
 
@@ -154,7 +179,14 @@ VALUES ('vault', 'vault', false)
 ON CONFLICT (id) DO NOTHING;
 
 -- Storage RLS: Users can only upload, read, update, delete their own files via folder path or ownership
+DROP POLICY IF EXISTS "vault_select" ON storage.objects;
 CREATE POLICY "vault_select" ON storage.objects FOR SELECT USING (bucket_id = 'vault' AND auth.uid() = owner);
+
+DROP POLICY IF EXISTS "vault_insert" ON storage.objects;
 CREATE POLICY "vault_insert" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'vault' AND auth.uid() = owner);
+
+DROP POLICY IF EXISTS "vault_update" ON storage.objects;
 CREATE POLICY "vault_update" ON storage.objects FOR UPDATE USING (bucket_id = 'vault' AND auth.uid() = owner) WITH CHECK (bucket_id = 'vault' AND auth.uid() = owner);
+
+DROP POLICY IF EXISTS "vault_delete" ON storage.objects;
 CREATE POLICY "vault_delete" ON storage.objects FOR DELETE USING (bucket_id = 'vault' AND auth.uid() = owner);
