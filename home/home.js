@@ -26,7 +26,10 @@ const notesLoading   = document.getElementById('notes-loading');
 const notesList      = document.getElementById('notes-list');
 const emptyState     = document.getElementById('empty-state');
 
-const toast          = document.getElementById('toast');
+const statusCard     = document.getElementById('status-card');
+const statusMsg      = document.getElementById('status-msg');
+const statusBar     = document.getElementById('status-bar');
+
 const confirmOverlay = document.getElementById('confirm-overlay');
 const confirmMsg     = document.getElementById('confirm-msg');
 const confirmCancel  = document.getElementById('confirm-cancel');
@@ -133,7 +136,7 @@ async function loadNotes() {
   notesLoading.classList.add('hidden');
 
   if (error) {
-    showToast('Failed to load notes');
+    showStatus('Failed to load notes');
     console.error(error);
     return;
   }
@@ -312,7 +315,7 @@ async function saveNote() {
   saveStatus.classList.add('hidden');
 
   if (error) {
-    showToast('Failed to save note');
+    showStatus('Failed to save note');
     console.error(error);
   } else {
     noteInput.value = '';
@@ -321,7 +324,7 @@ async function saveNote() {
     remindInput.classList.add('hidden');
     tagChips.forEach(c => c.setAttribute('aria-pressed', 'false'));
     loadNotes();
-    showToast('Note captured');
+    showStatus('Note captured');
   }
 }
 
@@ -330,7 +333,7 @@ if (confirmOk) {
     if (!pendingDeleteId) return;
     const { error } = await sb.from('notes').delete().eq('id', pendingDeleteId);
     confirmOverlay.classList.add('hidden');
-    if (error) showToast('Failed to delete');
+    if (error) showStatus('Failed to delete');
     else loadNotes();
   });
 }
@@ -384,11 +387,25 @@ if (remindCheck) {
 /* ═══════════════════════════════════════════════════════════════
    UTILITIES
 ═══════════════════════════════════════════════════════════════ */
-function showToast(msg) {
-  if (!toast) return;
-  toast.textContent = msg;
-  toast.classList.add('visible');
-  setTimeout(() => toast.classList.remove('visible'), 3000);
+/** Premium Status Feedback Card */
+function showStatus(msg) {
+  if (!statusCard || !statusMsg || !statusBar) return;
+  
+  // Clear any existing timeout
+  if (statusCard._timer) clearTimeout(statusCard._timer);
+  
+  // Reset
+  statusCard.classList.remove('visible', 'active');
+  void statusCard.offsetWidth; // Trigger reflow
+  
+  // Update & Show
+  statusMsg.textContent = msg;
+  statusCard.classList.add('visible', 'active');
+  
+  // Auto-hide after 3s (matches CSS animation)
+  statusCard._timer = setTimeout(() => {
+    statusCard.classList.remove('visible', 'active');
+  }, 3000);
 }
 
 function escapeHTML(str) {
@@ -426,7 +443,7 @@ function initURLCleaners() {
       const cleaned = cleanURL(original);
       if (original !== cleaned) {
         input.value = cleaned;
-        showToast('Cleaned! 🧹');
+        showStatus('Cleaned! 🧹');
       }
     };
     input.addEventListener('paste', () => setTimeout(handleClean, 10));
@@ -589,7 +606,7 @@ if (saveDocBtn) {
     const { error: uploadError } = await sb.storage.from('vault').upload(filePath, file);
     
     if (uploadError) {
-      showToast('Upload failed');
+      showStatus('Upload failed');
       saveDocBtn.disabled = false;
       docStatus.textContent = '';
       return;
@@ -663,11 +680,11 @@ if (saveProfBtn && profName) {
       if (error) throw error;
       
       userProfile = payload;
-      showToast('Profile saved');
+      showStatus('Profile saved');
       buildShareOptions();
     } catch (e) {
       console.error(e);
-      showToast('Failed to save profile');
+      showStatus('Failed to save profile');
     } finally {
       saveProfBtn.disabled = false;
       if (profSaveStatus) profSaveStatus.textContent = '';
@@ -723,14 +740,14 @@ if (copyProfBtn && shareOptions) {
       if (checkedBoxes.length === 0 && allCheckboxes.length > 0) {
         checkedBoxes = Array.from(allCheckboxes);
       } else if (checkedBoxes.length === 0) {
-        showToast('Nothing to copy');
+        showStatus('Nothing to copy');
         return;
       }
       
       const keys = checkedBoxes.map(cb => cb.dataset.key);
       const p = userProfile;
       
-      // Immediate, Grouped Text Format
+      // FINAL Grouped Text Format
       let output = "";
       
       // 1. Name
@@ -743,16 +760,11 @@ if (copyProfBtn && shareOptions) {
       if (contactKeys.some(k => keys.includes(k) && p[k])) {
         output += `Contact Information\n`;
         if (keys.includes('phone') && p.phone) output += `Phone: ${p.phone}\n`;
-        if (keys.includes('email') && p.email) output += `Email: [${p.email}](mailto:${p.email})\n`;
+        if (keys.includes('email') && p.email) output += `Email: ${p.email}\n`;
         output += `\n`;
       }
 
-      // 3. Resume
-      if (keys.includes('resume') && p.resume_link) {
-        output += `Resume: ${p.resume_link}\n\n`;
-      }
-
-      // 4. Professional Profiles
+      // 3. Professional Profiles
       const socialKeys = ['github', 'linkedin'];
       if (socialKeys.some(k => keys.includes(k) && p[k])) {
         output += `Professional Profiles\n`;
@@ -761,9 +773,13 @@ if (copyProfBtn && shareOptions) {
         output += `\n`;
       }
 
+      // 4. Resume
+      if (keys.includes('resume') && p.resume_link) {
+        output += `Resume\nResume Link: ${p.resume_link}\n\n`;
+      }
+
       // 5. Documents & Resources
       const docKeys = ['internship', 'project', 'certs'];
-      const docLabels = { internship: 'Internships', project: 'Projects', certs: 'Certifications' };
       if (docKeys.some(k => keys.includes(k) && p[`${k}_link`])) {
         output += `Documents & Resources\n`;
         if (keys.includes('internship') && p.internship_link) output += `Internships: ${p.internship_link}\n`;
@@ -777,10 +793,10 @@ if (copyProfBtn && shareOptions) {
       }
       
       navigator.clipboard.writeText(output.trim());
-      showToast('Details copied immediately! ✨');
+      showStatus('Details copied to clipboard ✨');
     } catch (e) {
       console.error(e);
-      showToast('Failed to copy');
+      showStatus('Failed to copy');
     }
   });
 }

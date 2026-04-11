@@ -58,112 +58,97 @@
     <!-- === NOTES SECTION === -->
     <div id="section-notes" class="app-section active">
 
-  <!-- ════════════════════════════════════════
-       CAPTURE BOX
-  ════════════════════════════════════════ -->
-  <section class="section">
-    <div class="capture-box" id="capture-box">
-
-      <textarea
-        id="note-input"
-        class="note-input"
-        placeholder="Capture a thought, link, or task… (Ctrl+Enter to save)"
-        rows="3"
-        maxlength="2000"
-      ></textarea>
-
-      <!-- Tags -->
-      <div class="row tags-row">
-        <span class="row-label">Tag</span>
-        <div class="tag-group">
-          <button type="button" class="tag-chip" data-tag="idea"      aria-pressed="false">💡 Idea</button>
-          <button type="button" class="tag-chip" data-tag="study"     aria-pressed="false">📚 Study</button>
-          <button type="button" class="tag-chip" data-tag="important" aria-pressed="false">⚡ Important</button>
-          <button type="button" class="tag-chip" data-tag="task"      aria-pressed="false">✅ Task</button>
+      <!-- ════════════════════════════════════════
+           DASHBOARD (NOW AT TOP)
+      ════════════════════════════════════════ -->
+      <section class="section dashboard">
+        <!-- Search -->
+        <div class="search-box">
+          <span class="search-icon" aria-hidden="true">⌕</span>
+          <input
+            type="search"
+            id="search-input"
+            class="search-input"
+            placeholder="Search your notes…"
+            autocomplete="off"
+            autocorrect="off"
+            spellcheck="false"
+          />
+          <button type="button" class="clear-btn hidden" id="clear-search" aria-label="Clear search">✕</button>
         </div>
-      </div>
 
-      <!-- Reminder -->
-      <div class="row reminder-row">
-        <label class="toggle-label">
-          <input type="checkbox" id="remind-check" class="visually-hidden" />
-          <span class="toggle-track"><span class="toggle-thumb"></span></span>
-          <span class="toggle-text">Remind me</span>
-        </label>
-        <input
-          type="datetime-local"
-          id="remind-input"
-          class="date-input hidden"
-          aria-label="Reminder date and time"
-        />
-      </div>
+        <!-- Filters -->
+        <div class="filter-bar" role="tablist">
+          <button type="button" class="filter-btn active" data-filter="all"       role="tab" aria-selected="true">All</button>
+          <button type="button" class="filter-btn"         data-filter="today"     role="tab" aria-selected="false">Today</button>
+          <button type="button" class="filter-btn"         data-filter="important" role="tab" aria-selected="false">Important</button>
+          <button type="button" class="filter-btn"         data-filter="reminders" role="tab" aria-selected="false">Reminders</button>
+          <button type="button" class="filter-btn"         data-filter="done"      role="tab" aria-selected="false">Done</button>
+        </div>
 
-      <!-- Footer -->
-      <div class="capture-footer">
-        <span class="char-count" id="char-count">0 / 2000</span>
-        <button type="button" class="save-btn" id="save-btn">Save note</button>
-      </div>
+        <!-- Notes area -->
+        <div id="notes-area">
+          <div id="notes-loading" class="loading-wrap">
+            <div class="skeleton"></div>
+            <div class="skeleton"></div>
+            <div class="skeleton"></div>
+          </div>
+          <div id="notes-list" class="notes-list hidden"></div>
+          <div id="empty-state" class="empty-state hidden">
+            <p class="empty-icon">◎</p>
+            <p class="empty-title" id="empty-title">No notes yet</p>
+            <p class="empty-desc" id="empty-desc">Write something below to get started.</p>
+          </div>
+        </div>
+      </section>
 
-    </div>
+      <!-- ════════════════════════════════════════
+           CAPTURE BOX (NOW AT BOTTOM)
+      ════════════════════════════════════════ -->
+      <section class="section">
+        <div class="capture-box" id="capture-box">
+          <textarea
+            id="note-input"
+            class="note-input"
+            placeholder="Capture a thought, link, or task… (Ctrl+Enter to save)"
+            rows="3"
+            maxlength="2000"
+          ></textarea>
 
-    <!-- Loading/error state for save -->
-    <div class="inline-status hidden" id="save-status"></div>
-  </section>
+          <!-- Tags -->
+          <div class="row tags-row">
+            <span class="row-label">Tag</span>
+            <div class="tag-group">
+              <button type="button" class="tag-chip" data-tag="idea"      aria-pressed="false">💡 Idea</button>
+              <button type="button" class="tag-chip" data-tag="study"     aria-pressed="false">📚 Study</button>
+              <button type="button" class="tag-chip" data-tag="important" aria-pressed="false">⚡ Important</button>
+              <button type="button" class="tag-chip" data-tag="task"      aria-pressed="false">✅ Task</button>
+            </div>
+          </div>
 
-  <!-- ════════════════════════════════════════
-       DASHBOARD
-  ════════════════════════════════════════ -->
-  <section class="section dashboard">
+          <!-- Reminder -->
+          <div class="row reminder-row">
+            <label class="toggle-label">
+              <input type="checkbox" id="remind-check" class="visually-hidden" />
+              <span class="toggle-track"><span class="toggle-thumb"></span></span>
+              <span class="toggle-text">Remind me</span>
+            </label>
+            <input
+              type="datetime-local"
+              id="remind-input"
+              class="date-input hidden"
+              aria-label="Reminder date and time"
+            />
+          </div>
 
-    <!-- Search -->
-    <div class="search-box">
-      <span class="search-icon" aria-hidden="true">⌕</span>
-      <input
-        type="search"
-        id="search-input"
-        class="search-input"
-        placeholder="Search your notes…"
-        autocomplete="off"
-        autocorrect="off"
-        spellcheck="false"
-      />
-      <button type="button" class="clear-btn hidden" id="clear-search" aria-label="Clear search">✕</button>
-    </div>
-
-    <!-- Filters -->
-    <div class="filter-bar" role="tablist">
-      <button type="button" class="filter-btn active" data-filter="all"       role="tab" aria-selected="true">All</button>
-      <button type="button" class="filter-btn"         data-filter="today"     role="tab" aria-selected="false">Today</button>
-      <button type="button" class="filter-btn"         data-filter="important" role="tab" aria-selected="false">Important</button>
-      <button type="button" class="filter-btn"         data-filter="reminders" role="tab" aria-selected="false">Reminders</button>
-      <button type="button" class="filter-btn"         data-filter="done"      role="tab" aria-selected="false">Done</button>
-    </div>
-
-    <!-- Notes area -->
-    <div id="notes-area">
-
-      <!-- Loading skeleton -->
-      <div id="notes-loading" class="loading-wrap">
-        <div class="skeleton"></div>
-        <div class="skeleton"></div>
-        <div class="skeleton"></div>
-      </div>
-
-      <!-- Notes list -->
-      <div id="notes-list" class="notes-list hidden"></div>
-
-      <!-- Empty state -->
-      <div id="empty-state" class="empty-state hidden">
-        <p class="empty-icon">◎</p>
-        <p class="empty-title" id="empty-title">No notes yet</p>
-        <p class="empty-desc" id="empty-desc">Write something above to get started.</p>
-      </div>
-
-    </div>
-
-  </section>
-
-  </section>
+          <!-- Footer -->
+          <div class="capture-footer">
+            <span class="char-count" id="char-count">0 / 2000</span>
+            <button type="button" class="save-btn" id="save-btn">Save note</button>
+          </div>
+        </div>
+        <div class="inline-status hidden" id="save-status"></div>
+      </section>
     </div> <!-- /section-notes -->
 
     <!-- === VAULT SECTION === -->
@@ -307,7 +292,12 @@
   <!-- ════════════════════════════════════════
        TOAST
   ════════════════════════════════════════ -->
-  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <div id="status-card" class="status-card" role="status" aria-live="polite">
+    <div class="status-content" id="status-msg"></div>
+    <div class="status-progress-wrap">
+      <div class="status-progress-bar" id="status-bar"></div>
+    </div>
+  </div>
 
   <!-- ════════════════════════════════════════
        CONFIRM DIALOG
