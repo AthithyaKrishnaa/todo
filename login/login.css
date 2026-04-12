@@ -188,6 +188,18 @@ html, body {
 .submit-btn:active:not(:disabled) { transform: scale(0.99); }
 .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
+/* ── Google Button Override ─────────── */
+.google-btn {
+  background: var(--card-bg);
+  color: var(--ink);
+  border: 1px solid var(--border);
+  margin-top: 1rem;
+}
+
+.google-btn:hover:not(:disabled) { 
+  background: var(--bg); 
+}
+
 /* ── Spinner ────────────────────────── */
 .spinner {
   width: 16px;
