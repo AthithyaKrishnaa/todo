@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="noindex, nofollow" />
   <title>Second Brain</title>
-  <link rel="stylesheet" href="home.css" />
+  <link rel="stylesheet" href="home.css?v=2.0" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,400;9..40,500&family=DM+Mono:wght@400&display=swap" rel="stylesheet" />
@@ -54,6 +54,15 @@
   ════════════════════════════════════════ -->
   <main class="main-content">
   
+    <!-- Desktop Liquid Sidebar Switcher (mimics Pending/Accomplished) -->
+    <div class="nav-liquid-container" id="main-nav-container">
+      <div class="filter-bar main-nav-liquid" id="main-tabs" role="tablist" data-state="section-notes">
+        <div class="filter-glass" id="main-tabs-glass"></div>
+        <button type="button" class="filter-btn active" data-target="section-notes" role="tab">Notes</button>
+        <button type="button" class="filter-btn" data-target="section-profile" role="tab">Profile</button>
+      </div>
+    </div>
+
     <!-- === NOTES SECTION === -->
     <div id="section-notes" class="app-section active">
 
@@ -61,6 +70,12 @@
            DASHBOARD (NOW AT TOP)
       ════════════════════════════════════════ -->
       <section class="section dashboard">
+
+        <!-- Section Title -->
+        <div class="section-header">
+          <h2 class="section-title">Notes</h2>
+          <p class="section-subtitle">Organize your second brain</p>
+        </div>
 
         <!-- Filters -->
         <div class="filter-bar" id="filter-bar" role="tablist" data-state="pending">
@@ -93,8 +108,8 @@
           <textarea
             id="note-input"
             class="note-input"
-            placeholder="Capture a thought, link, or task… (Ctrl+Enter to save)"
-            rows="3"
+            placeholder="Capture a thought..."
+            rows="1"
             maxlength="2000"
           ></textarea>
 

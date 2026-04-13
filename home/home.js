@@ -426,15 +426,29 @@ async function shortenURL(url) {
    NAVIGATION
 ═══════════════════════════════════════════════════════════════ */
 function switchTab(targetId) {
-  // Update state
+  // Navigation highlight
   navItems.forEach(b => b.classList.toggle('active', b.dataset.target === targetId));
   sidebarItems.forEach(b => b.classList.toggle('active', b.dataset.target === targetId));
   
-  // Switch section
-  appSections.forEach(sec => sec.classList.toggle('hidden', sec.id !== targetId));
+  // Update Desktop Liquid Nav State
+  const mainTabs = document.getElementById('main-tabs');
+  if (mainTabs) {
+    mainTabs.setAttribute('data-state', targetId);
+    const mainButtons = mainTabs.querySelectorAll('.filter-btn');
+    mainButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.target === targetId));
+  }
 
-  // HYBRID LAYOUT: Lock body scroll only for Notes section
-  if (targetId === 'section-notes') {
+  const isDesktop = window.innerWidth >= 768;
+  
+  // Section visibility
+  appSections.forEach(sec => {
+    const isActive = sec.id === targetId;
+    sec.classList.toggle('active', isActive);
+    sec.classList.toggle('hidden', !isActive);
+  });
+
+  // Locked mode handling
+  if (targetId === 'section-notes' || isDesktop) {
     document.body.classList.add('locked-mode');
   } else {
     document.body.classList.remove('locked-mode');
@@ -442,15 +456,16 @@ function switchTab(targetId) {
 }
 
 if (navItems.length > 0) {
-  navItems.forEach(btn => {
-    btn.addEventListener('click', () => switchTab(btn.dataset.target));
-  });
+  navItems.forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.target)));
+}
+if (sidebarItems.length > 0) {
+  sidebarItems.forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.target)));
 }
 
-if (sidebarItems.length > 0) {
-  sidebarItems.forEach(btn => {
-    btn.addEventListener('click', () => switchTab(btn.dataset.target));
-  });
+// Desktop Liquid Main Tabs
+const mainTabButtons = document.querySelectorAll('.main-nav-liquid .filter-btn');
+if (mainTabButtons.length > 0) {
+  mainTabButtons.forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.target)));
 }
 
 

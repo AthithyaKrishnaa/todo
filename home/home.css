@@ -3,7 +3,7 @@
 ═══════════════════════════════════════════ */
 
 /* ── Reset ──────────────────────────────── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 html { font-size: 16px; }
 button { cursor: pointer; font-family: inherit; border: none; background: none; }
 input, textarea { font-family: inherit; }
@@ -61,11 +61,12 @@ body.locked-mode {
 
 body {
   font-family: var(--font-body);
-  background: #FAF9F6;
+  background: #FFFFFF;
   background-image: 
-    radial-gradient(circle at 100% 0%, rgba(181, 174, 246, 0.5) 0%, rgba(255, 255, 255, 0) 50%),
-    radial-gradient(circle at 0% 100%, rgba(90, 75, 255, 0.1) 0%, rgba(255, 255, 255, 0) 50%),
-    radial-gradient(circle at 50% 50%, rgba(181, 174, 246, 0.15) 0%, rgba(255, 255, 255, 0) 70%);
+    radial-gradient(circle at 0% 0%, rgba(181, 174, 246, 0.25) 0%, rgba(255, 255, 255, 0) 45%),
+    radial-gradient(circle at 100% 100%, rgba(90, 75, 255, 0.08) 0%, rgba(255, 255, 255, 0) 50%),
+    radial-gradient(circle at 50% 10%, rgba(181, 174, 246, 0.12) 0%, rgba(255, 255, 255, 0) 60%),
+    linear-gradient(135deg, rgba(255, 255, 255, 1) 0%, rgba(245, 243, 255, 0.4) 100%);
   background-attachment: fixed;
   color: var(--ink);
   transition: background var(--transition), color var(--transition);
@@ -169,7 +170,7 @@ body {
 .header-inner {
   max-width: 680px;
   margin: 0 auto;
-  padding: 0.8rem 1.25rem;
+  padding: 0.4rem 1.25rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -275,15 +276,20 @@ body {
 .note-input {
   display: block;
   width: 100%;
-  padding: 1rem 1.15rem 0.5rem;
+  padding: 0.4rem 1.15rem 0.1rem;
   border: none;
   background: transparent;
   color: var(--ink);
   font-size: 15px;
-  line-height: 1.65;
+  line-height: 1.4;
   resize: none;
   outline: none;
-  min-height: 80px;
+  min-height: 24px;
+  transition: min-height 0.3s ease;
+}
+
+.capture-box:focus-within .note-input {
+  min-height: 48px;
 }
 
 .note-input::placeholder { color: var(--ink-faint); }
@@ -294,7 +300,19 @@ body {
   align-items: center;
   flex-wrap: wrap;
   gap: 0.5rem;
+  padding: 0 1.15rem;
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  border-top: 0px solid transparent;
+}
+
+.capture-box:focus-within .row {
+  max-height: 120px;
+  opacity: 1;
   padding: 0.5rem 1.15rem;
+  border-top: 1px solid var(--border-subtle);
 }
 
 .row-label {
@@ -313,10 +331,10 @@ body {
 }
 
 .tag-chip {
-  padding: 4px 14px;
+  padding: 3px 12px;
   border-radius: 999px; /* Pill */
   border: 1px solid rgba(0, 0, 0, 0.3);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
   color: var(--ink-mid);
   background: rgba(255, 255, 255, 0.4);
@@ -405,9 +423,14 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.65rem 1.15rem;
+  padding: 0.15rem 1.15rem;
   border-top: 1px solid var(--border);
   background: var(--subtle);
+  transition: padding 0.3s ease;
+}
+
+.capture-box:focus-within .capture-footer {
+  padding: 0.45rem 1.15rem;
 }
 
 .char-count {
@@ -481,7 +504,7 @@ body {
 .inline-status.hidden { display: none; }
 
 /* ── Dashboard ──────────────────────────── */
-.dashboard { padding-top: 1.5rem; }
+.dashboard { padding-top: 0; }
 
 /* ── Search ─────────────────────────────── */
 .search-box {
@@ -539,7 +562,7 @@ body {
   border-radius: 999px;
   border: 1px solid rgba(0, 0, 0, 0.12);
   width: 300px; /* Fixed robust width */
-  margin: 0 auto 2rem;
+  margin: 0 auto 1.25rem;
   overflow: visible;
   isolation: isolate;
 }
@@ -604,7 +627,7 @@ body {
 .notes-list {
   display: flex;
   flex-direction: column;
-  gap: 0.65rem;
+  gap: 0.45rem;
 }
 
 .notes-list.hidden { display: none; }
@@ -614,7 +637,7 @@ body {
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  padding: 0.9rem 1rem;
+  padding: 0.7rem 0.9rem;
   box-shadow: var(--shadow);
   transition: border-color var(--transition), box-shadow var(--transition);
   animation: slideIn 0.22s ease forwards;
@@ -640,8 +663,8 @@ body {
   align-items: flex-start;
   justify-content: space-between;
   gap: 0.5rem;
-  margin-bottom: 0.5rem;
-  min-height: 22px;
+  margin-bottom: 0.35rem;
+  min-height: 20px;
 }
 
 .card-tags {
@@ -674,18 +697,24 @@ body {
 }
 
 .action-btn {
-  width: 40px;
-  height: 40px;
-  border-radius: 6px; /* Squarer, more architectural */
+  width: 26px;
+  height: 26px;
+  border-radius: 5px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--ink-muted);
   transition: all var(--transition);
   background: var(--subtle);
   border: 1px solid var(--border);
+}
+
+.action-btn svg {
+  width: 14px;
+  height: 14px;
+  stroke-width: 2.5;
 }
 
 .action-btn:hover { background: var(--border); color: var(--ink); }
@@ -1090,7 +1119,7 @@ body {
   height: 100%;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: visible; /* Changed from hidden to allow Cockpit scrolling */
 }
 
 /* When NOT locked (Profile tab): normal page flow */
@@ -1130,17 +1159,12 @@ body:not(.locked-mode) .app-section {
   position: static;
   flex: 0 0 auto;
   /* Add padding to ensure it clears the mobile bottom nav (64px) + a little extra lift */
-  padding-bottom: calc(1rem + 70px); 
+  padding-bottom: calc(0.5rem + 70px); 
 }
 
 
 /* ── Responsive ─────────────────────────── */
-@media (min-width: 1025px) {
-  .bottom-nav { display: none; }
-  .has-sidebar { padding-left: 260px; }
-  .header { left: 260px; }
-  .header-inner, .section { max-width: 1000px; margin-left: 0; }
-}
+/* Replaced by Pro Cockpit below */
 
 @media (max-width: 1024px) {
   .sidebar { transform: translateX(-100%); display: none; }
@@ -1161,15 +1185,25 @@ body:not(.locked-mode) .app-section {
 }
 
 @media (max-width: 480px) {
-  .header-inner, .section { padding-left: 1rem; padding-right: 1rem; }
+  .header-inner, .section { padding-left: 1.25rem; padding-right: 1.25rem; }
+  .section-header { padding-left: 0; padding-right: 0; }
+  .section { padding-top: 0.75rem !important; }
+  .dashboard { padding-top: 0.75rem !important; }
+  .filter-bar { margin-bottom: 0.75rem; }
+  .scrollable-notes { padding: 0.25rem 0.25rem 0; }
   .note-input, .search-input { font-size: 16px; }
-  .bottom-nav { height: 64px; padding-bottom: 8px; } /* Slightly taller for mobile comfort but still compact */
-  .card-actions { gap: 8px; }
-  .nav-label { font-size: 14px; }
-  .nav-icon-svg { width: 24px; height: 24px; }
+  .bottom-nav { height: 60px; padding-bottom: 6px; } 
+  .card-actions { gap: 6px; }
+  .nav-label { font-size: 13px; }
+  .nav-icon-svg { width: 22px; height: 22px; }
   
-  /* Hide clock on very small mobile if it gets too crowded, or just reduce size */
-  .header-clock { font-size: 12px; }
+  /* Shrink capture button even more */
+  .capture-footer .btn-liquid {
+    padding: 0.4rem 1.25rem;
+    font-size: 13px;
+  }
+
+  .header-clock { display: none; }
 }
 
 /* ── Dashboard Spacing ── */
@@ -1284,4 +1318,91 @@ button:active { transform: scale(0.95); }
 .note-card { transition: transform 0.4s var(--transition), box-shadow 0.4s var(--transition), opacity 0.4s var(--transition); cursor: default; }
 .note-card:hover { transform: translateY(-3px) scale(1.01); box-shadow: 0 12px 30px rgba(90, 75, 255, 0.15); }
 .note-card.exit { opacity: 0; transform: scale(0.9); }
+
+/* ── Focused Desktop Design (Liquid Tab Navigation) ── */
+@media (min-width: 768px) {
+  .sidebar, .bottom-nav { 
+    display: none !important; 
+  }
+
+  body.locked-mode {
+    height: auto !important;
+    overflow: auto !important;
+    display: block !important;
+  }
+  
+  .main-content {
+    display: block !important;
+    margin-left: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+    background: transparent;
+    padding-top: 1rem;
+  }
+
+  .nav-liquid-container {
+    display: flex;
+    justify-content: center;
+    padding: 2rem 0 1rem;
+    position: sticky;
+    top: 60px; /* Below header */
+    z-index: 1000;
+    pointer-events: none;
+  }
+
+  .main-nav-liquid {
+    pointer-events: auto;
+    width: 380px !important; /* Larger for desktop */
+    box-shadow: 0 10px 30px rgba(90, 75, 255, 0.12);
+    background: rgba(255, 255, 255, 0.7) !important;
+    backdrop-filter: blur(10px);
+  }
+
+  /* Sync Glass Animation for Main Nav */
+  .main-nav-liquid[data-state="section-notes"] .filter-glass { transform: translateX(0); }
+  .main-nav-liquid[data-state="section-profile"] .filter-glass { transform: translateX(100%); }
+
+  .app-section {
+    max-width: 850px;
+    margin: 0 auto;
+    padding-bottom: 5rem;
+    position: static !important;
+    opacity: 0;
+    visibility: hidden;
+    height: 0;
+    transition: opacity 0.4s var(--transition), transform 0.4s var(--transition);
+  }
+
+  .app-section.active {
+    opacity: 1;
+    visibility: visible;
+    height: auto;
+    display: block !important;
+  }
+
+  /* Headers in single-pane mode */
+  .section-header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+  
+  /* Reset Vertical baseline sync from previous cockpit */
+  .app-section { padding-top: 2rem !important; }
+  .app-section .section { padding-top: 0 !important; }
+
+  /* Premium Scrollbars (Global) */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { 
+    background: var(--accent); 
+    border-radius: 10px; 
+    opacity: 0.3;
+  }
+}
+
+/* Ensure mobile nav-liquid is hidden */
+@media (max-width: 767px) {
+  .nav-liquid-container { display: none !important; }
+}
 
