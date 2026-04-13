@@ -470,6 +470,13 @@ function switchTab(targetId) {
   
   // Switch section
   appSections.forEach(sec => sec.classList.toggle('hidden', sec.id !== targetId));
+
+  // HYBRID LAYOUT: Lock body scroll only for Notes section
+  if (targetId === 'section-notes') {
+    document.body.classList.add('locked-mode');
+  } else {
+    document.body.classList.remove('locked-mode');
+  }
 }
 
 if (navItems.length > 0) {

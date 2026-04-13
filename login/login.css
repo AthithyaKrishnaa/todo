@@ -7,20 +7,20 @@
 
 /* ── Tokens ─────────────────────────── */
 :root {
-  --bg:           #0A0A0B;
-  --card-bg:      #141416;
-  --ink:          #F0EDE6;
-  --ink-mid:      #B0ADA6;
-  --ink-muted:    #706E68;
-  --ink-faint:    #2E2E2A;
-  --accent:       #D4AF37; /* Gold */
-  --accent-h:     #E8B923;
-  --border:       #2A2A2E;
-  --border-mid:   #3A3A36;
-  --error-bg:     #2A1008;
-  --error-ink:    #F0906A;
-  --success-bg:   #0A2010;
-  --success-ink:  #7ACC7A;
+  --bg:           #FAF9F6;
+  --card-bg:      #FFFFFF;
+  --ink:          #1A1A1A;
+  --ink-mid:      #4A4A4A;
+  --ink-muted:    #808080;
+  --ink-faint:    #D0D0D0;
+  --accent:       #5A4BFF; /* Deep Indigo */
+  --accent-h:     #4B3EDD;
+  --border:       #E0E0E0;
+  --border-mid:   #D0D0D0;
+  --error-bg:     #FFF0F0;
+  --error-ink:    #FF4D4D;
+  --success-bg:   #E8F5E9;
+  --success-ink:  #4CAF50;
   --radius:       12px;
   --font-serif:   'DM Serif Display', Georgia, serif;
   --font-body:    'DM Sans', system-ui, sans-serif;
@@ -28,7 +28,7 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  /* Luxury mode is default */
+  /* Site uses light sand theme by default per Excelsior */
 }
 
 /* ── Base ───────────────────────────── */
