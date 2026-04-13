@@ -158,10 +158,10 @@ body {
   position: sticky;
   top: 0;
   z-index: 1000;
-  background: rgba(250, 249, 246, 0.7); /* Translucent Sand */
-  backdrop-filter: blur(15px);
-  -webkit-backdrop-filter: blur(15px);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  background: rgba(238, 237, 255, 0.92); /* Opaque Light Indigo Tint */
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 2px solid rgba(90, 75, 255, 0.15); /* More defined border */
   transition: all var(--transition);
 }
 
@@ -953,10 +953,10 @@ body {
   left: 0;
   right: 0;
   height: 56px; /* Reduced height */
-  background: rgba(250, 249, 246, 0.8);
+  background: rgba(238, 237, 255, 0.92); /* Matching Header */
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  border-top: 2px solid rgba(90, 75, 255, 0.15);
   display: flex;
   align-items: center;
   justify-content: space-around;
