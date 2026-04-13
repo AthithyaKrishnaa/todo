@@ -189,6 +189,20 @@ body {
   letter-spacing: -0.02em;
 }
 
+.brand-logo {
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
+.header-logo {
+  height: 55px;
+}
+
+.sidebar-logo {
+  height: 65px;
+}
+
 .note-badge {
   font-family: var(--font-mono);
   font-size: 11px;

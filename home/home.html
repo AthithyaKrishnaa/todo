@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,13 +9,16 @@
   <link rel="stylesheet" href="home.css?v=2.0" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,400;9..40,500&family=DM+Mono:wght@400&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,400;9..40,500&family=DM+Mono:wght@400&display=swap"
+    rel="stylesheet" />
 </head>
+
 <body class="has-sidebar">
 
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-brand">
-      <span class="brand-name">Second Brain</span>
+      <img src="../public/logo.png" alt="Second Brain" class="brand-logo sidebar-logo" />
     </div>
     <nav class="sidebar-nav">
       <button class="side-nav-item active" data-target="section-notes">
@@ -37,13 +41,18 @@
   <header class="header">
     <div class="header-inner">
       <div class="brand">
-        <span class="brand-name">Second Brain</span>
+        <img src="../public/logo.png" alt="Second Brain" class="brand-logo header-logo" />
         <span class="note-badge" id="note-badge">0</span>
       </div>
       <div class="header-actions">
         <span class="header-clock" id="header-clock"></span>
         <button class="icon-btn" id="logout-btn" title="Sign out" aria-label="Sign out">
-          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
+            stroke="#000000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <polyline points="16 17 21 12 16 7" />
+            <line x1="21" y1="12" x2="9" y2="12" />
+          </svg>
         </button>
       </div>
     </div>
@@ -53,7 +62,7 @@
        MAIN SECTIONS CONTAINER
   ════════════════════════════════════════ -->
   <main class="main-content">
-  
+
     <!-- Desktop Liquid Sidebar Switcher (mimics Pending/Accomplished) -->
     <div class="nav-liquid-container" id="main-nav-container">
       <div class="filter-bar main-nav-liquid" id="main-tabs" role="tablist" data-state="section-notes">
@@ -80,8 +89,10 @@
         <!-- Filters -->
         <div class="filter-bar" id="filter-bar" role="tablist" data-state="pending">
           <div class="filter-glass" id="filter-glass"></div>
-          <button type="button" class="filter-btn active" data-filter="pending" role="tab" aria-selected="true">Pending</button>
-          <button type="button" class="filter-btn" data-filter="accomplished" role="tab" aria-selected="false">Accomplished</button>
+          <button type="button" class="filter-btn active" data-filter="pending" role="tab"
+            aria-selected="true">Pending</button>
+          <button type="button" class="filter-btn" data-filter="accomplished" role="tab"
+            aria-selected="false">Accomplished</button>
         </div>
 
         <!-- Notes area -->
@@ -105,22 +116,17 @@
       ════════════════════════════════════════ -->
       <section class="section">
         <div class="capture-box" id="capture-box">
-          <textarea
-            id="note-input"
-            class="note-input"
-            placeholder="Capture a thought..."
-            rows="1"
-            maxlength="2000"
-          ></textarea>
+          <textarea id="note-input" class="note-input" placeholder="Capture a thought..." rows="1"
+            maxlength="2000"></textarea>
 
           <!-- Tags -->
           <div class="row tags-row">
             <span class="row-label">Tag</span>
             <div class="tag-group">
-              <button type="button" class="tag-chip" data-tag="idea"      aria-pressed="false">💡 Idea</button>
-              <button type="button" class="tag-chip" data-tag="study"     aria-pressed="false">📚 Study</button>
+              <button type="button" class="tag-chip" data-tag="idea" aria-pressed="false">💡 Idea</button>
+              <button type="button" class="tag-chip" data-tag="study" aria-pressed="false">📚 Study</button>
               <button type="button" class="tag-chip" data-tag="important" aria-pressed="false">⚡ Important</button>
-              <button type="button" class="tag-chip" data-tag="task"      aria-pressed="false">✅ Task</button>
+              <button type="button" class="tag-chip" data-tag="task" aria-pressed="false">✅ Task</button>
             </div>
           </div>
 
@@ -147,27 +153,31 @@
 
         <div class="profile-grid">
           <div class="profile-share">
-             <div class="col-header"><h3>Share Details</h3></div>
-             <p class="share-desc">Select details to include, then copy to clipboard.</p>
-             
-             <div class="capture-box share-box">
-               <div class="share-options" id="share-options">
-                 <!-- Filled via JS -->
-               </div>
-               <div class="share-options" style="padding-top: 0;">
-                 <label class="share-option">
-                   <input type="checkbox" id="include-watermark" checked />
-                   <span><b>Include Watermark</b></span>
-                 </label>
-               </div>
-               <div class="capture-footer share-actions">
-                 <button type="button" class="btn-liquid btn-full" id="copy-prof-btn">Copy Professional Details</button>
-               </div>
-             </div>
+            <div class="col-header">
+              <h3>Share Details</h3>
+            </div>
+            <p class="share-desc">Select details to include, then copy to clipboard.</p>
+
+            <div class="capture-box share-box">
+              <div class="share-options" id="share-options">
+                <!-- Filled via JS -->
+              </div>
+              <div class="share-options" style="padding-top: 0;">
+                <label class="share-option">
+                  <input type="checkbox" id="include-watermark" checked />
+                  <span><b>Include Watermark</b></span>
+                </label>
+              </div>
+              <div class="capture-footer share-actions">
+                <button type="button" class="btn-liquid btn-full" id="copy-prof-btn">Copy Professional Details</button>
+              </div>
+            </div>
           </div>
 
           <div class="capture-box profile-form">
-            <div class="col-header"><h3>Your Details</h3></div>
+            <div class="col-header">
+              <h3>Your Details</h3>
+            </div>
             <div class="form-group">
               <label>Name</label><input type="text" id="prof-name" class="profile-input" placeholder="Your full name" />
             </div>
@@ -175,29 +185,36 @@
               <label>Phone</label><input type="text" id="prof-phone" class="profile-input" placeholder="+1..." />
             </div>
             <div class="form-group">
-              <label>Mail id</label><input type="email" id="prof-email" class="profile-input" placeholder="mail@example.com" />
+              <label>Mail id</label><input type="email" id="prof-email" class="profile-input"
+                placeholder="mail@example.com" />
             </div>
             <div class="form-group">
-              <label>Resume Link</label><input type="url" id="prof-resume-link" class="profile-input" placeholder="https://..." />
+              <label>Resume Link</label><input type="url" id="prof-resume-link" class="profile-input"
+                placeholder="https://..." />
             </div>
             <div class="form-group">
-              <label>GitHub Link</label><input type="url" id="prof-github" class="profile-input" placeholder="https://github.com/..." />
+              <label>GitHub Link</label><input type="url" id="prof-github" class="profile-input"
+                placeholder="https://github.com/..." />
             </div>
             <div class="form-group">
-              <label>LinkedIn Link</label><input type="url" id="prof-linkedin" class="profile-input" placeholder="https://linkedin.com/..." />
+              <label>LinkedIn Link</label><input type="url" id="prof-linkedin" class="profile-input"
+                placeholder="https://linkedin.com/..." />
             </div>
             <div class="form-group">
-              <label>Internship Details Link</label><input type="url" id="prof-internship" class="profile-input" placeholder="https://..." />
+              <label>Internship Details Link</label><input type="url" id="prof-internship" class="profile-input"
+                placeholder="https://..." />
             </div>
             <div class="form-group">
-              <label>Project Details Link</label><input type="url" id="prof-project" class="profile-input" placeholder="https://..." />
+              <label>Project Details Link</label><input type="url" id="prof-project" class="profile-input"
+                placeholder="https://..." />
             </div>
             <div class="form-group">
-              <label>Certifications Details Link</label><input type="url" id="prof-certs" class="profile-input" placeholder="https://..." />
+              <label>Certifications Details Link</label><input type="url" id="prof-certs" class="profile-input"
+                placeholder="https://..." />
             </div>
             <div class="capture-footer">
-               <span id="prof-save-status" class="char-count"></span>
-               <button type="button" class="btn-liquid primary" id="save-prof-btn">Update Details</button>
+              <span id="prof-save-status" class="char-count"></span>
+              <button type="button" class="btn-liquid primary" id="save-prof-btn">Update Details</button>
             </div>
           </div>
         </div>
@@ -211,12 +228,20 @@
   ════════════════════════════════════════ -->
   <nav class="bottom-nav">
     <button class="nav-item active" data-target="section-notes" aria-label="Notes">
-       <svg class="nav-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+      <svg class="nav-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+      </svg>
       <span class="nav-label">Notes</span>
     </button>
 
     <button class="nav-item" data-target="section-profile" aria-label="Profile">
-       <svg class="nav-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+      <svg class="nav-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+        <circle cx="12" cy="7" r="4"></circle>
+      </svg>
       <span class="nav-label">Profile</span>
     </button>
   </nav>
@@ -251,4 +276,5 @@
   <script src="../config.js"></script>
   <script src="home.js"></script>
 </body>
+
 </html>
