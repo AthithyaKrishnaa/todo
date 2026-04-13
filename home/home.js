@@ -229,7 +229,8 @@ function renderNote(note) {
     doneBtn.disabled = true;
     
     const { error } = await sb.from('notes').update({ 
-      done: isNowDone
+      done: isNowDone,
+      updated_at: new Date().toISOString()
     }).eq('id', note.id);
     
     if (error) {
