@@ -88,8 +88,9 @@ if (logoutBtn) {
    THEME
 ═══════════════════════════════════════════════════════════════ */
 function initTheme() {
-  const saved = localStorage.getItem('theme') || 'dark';
-  document.documentElement.setAttribute('data-theme', saved);
+  // Always light theme for the Exceldent palette
+  document.documentElement.setAttribute('data-theme', 'light');
+  localStorage.setItem('theme', 'light');
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -226,20 +227,25 @@ function renderNote(note) {
     const isNowDone = !note.done;
     const completedAt = isNowDone ? new Date().toISOString() : null;
     
-    // Add exit animation class
-    card.classList.add('exit');
+    doneBtn.disabled = true;
     
-    setTimeout(async () => {
-      const { error } = await sb.from('notes').update({ 
-        done: isNowDone,
-        completed_at: completedAt
-      }).eq('id', note.id);
-      
-      if (!error) {
+    const { error } = await sb.from('notes').update({ 
+      done: isNowDone,
+      completed_at: completedAt
+    }).eq('id', note.id);
+    
+    if (error) {
+      console.error('Done toggle error:', error);
+      showStatus('Failed to update note');
+      doneBtn.disabled = false;
+    } else {
+      // Animate card exit then reload
+      card.classList.add('exit');
+      setTimeout(() => {
         loadNotes();
         showStatus(isNowDone ? 'Moved to Accomplished 🏆' : 'Moved back to Pending ↻');
-      }
-    }, 400); // Matches CSS exit duration
+      }, 350);
+    }
   });
 
   delBtn.addEventListener('click', () => {
@@ -670,3 +676,6 @@ if (copyProfBtn && shareOptions) {
 initTheme();
 initAuth();   // runs auth guard, then loads notes
 initURLCleaners();
+
+// Apply locked-mode on initial load for the Notes section
+document.body.classList.add('locked-mode');
