@@ -198,7 +198,7 @@ function renderNote(note) {
   
   if (note.done) {
      const start = new Date(note.created_at);
-     const end = note.completed_at ? new Date(note.completed_at) : new Date(note.updated_at || note.created_at);
+     const end = new Date(note.updated_at || note.created_at);
      const diffMs = end - start;
      const diffStr = getDurationString(diffMs);
      const startStr = start.toLocaleString([], {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'});
@@ -225,24 +225,18 @@ function renderNote(note) {
 
   doneBtn.addEventListener('click', async () => {
     const isNowDone = !note.done;
-    const completedAt = isNowDone ? new Date().toISOString() : null;
     
     doneBtn.disabled = true;
     
     const { error } = await sb.from('notes').update({ 
-      done: isNowDone,
-      completed_at: completedAt
+      done: isNowDone
     }).eq('id', note.id);
     
     if (error) {
       console.error('Done toggle error:', JSON.stringify(error));
-      console.error('Error message:', error.message);
-      console.error('Error code:', error.code);
-      console.error('Error details:', error.details);
       showStatus('Failed: ' + (error.message || 'Unknown error'));
       doneBtn.disabled = false;
     } else {
-      // Animate card exit then reload
       card.classList.add('exit');
       setTimeout(() => {
         loadNotes();
