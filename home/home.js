@@ -29,7 +29,7 @@ const statusBar     = document.getElementById('status-bar');
 const confirmOverlay = document.getElementById('confirm-overlay');
 const confirmMsg     = document.getElementById('confirm-msg');
 const confirmCancel  = document.getElementById('confirm-cancel');
-const statusOk       = document.getElementById('status-ok');
+const confirmOk      = document.getElementById('confirm-ok');
 
 const navItems       = document.querySelectorAll('.nav-item');
 const appSections    = document.querySelectorAll('.app-section');
