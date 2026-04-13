@@ -158,10 +158,10 @@ body {
   position: sticky;
   top: 0;
   z-index: 1000;
-  background: rgba(10, 10, 11, 0.85);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(250, 249, 246, 0.7); /* Translucent Sand */
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
   transition: all var(--transition);
 }
 
@@ -952,16 +952,16 @@ body {
   bottom: 0;
   left: 0;
   right: 0;
-  height: 64px;
-  background: rgba(10, 10, 11, 0.75);
-  backdrop-filter: blur(25px);
-  -webkit-backdrop-filter: blur(25px);
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  height: 56px; /* Reduced height */
+  background: rgba(250, 249, 246, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
   display: flex;
   align-items: center;
   justify-content: space-around;
   z-index: 2000;
-  box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
+  box-shadow: 0 -10px 40px rgba(90, 75, 255, 0.05);
 }
 
 [data-theme="dark"] .bottom-nav {
@@ -1108,7 +1108,7 @@ body {
 @media (max-width: 480px) {
   .header-inner, .section { padding-left: 1rem; padding-right: 1rem; }
   .note-input, .search-input { font-size: 16px; }
-  .bottom-nav { height: 75px; padding-bottom: 12px; } /* Enhanced for modern mobile */
+  .bottom-nav { height: 64px; padding-bottom: 8px; } /* Slightly taller for mobile comfort but still compact */
   .card-actions { gap: 8px; }
   .nav-label { font-size: 14px; }
   .nav-icon-svg { width: 24px; height: 24px; }
