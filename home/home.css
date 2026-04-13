@@ -233,10 +233,21 @@ body {
   box-shadow: 0 6px 15px rgba(90, 75, 255, 0.2);
 }
 
-.icon-btn.danger:hover { 
-  background: #C4532A; 
-  color: #fff; 
-  border-color: rgba(0,0,0,0.8);
+#logout-btn {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  border: 1.8px solid #000000;
+  background: #FFFFFF;
+  opacity: 1 !important;
+  visibility: visible !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+#logout-btn:hover {
+  background: #F0F0F0;
+  transform: translateY(-2px);
 }
 
 /* ── Section ────────────────────────────── */
@@ -451,7 +462,7 @@ body {
 
 .btn-liquid.danger {
   color: #ff4d4d;
-  border-color: rgba(255, 77, 77, 0.3);
+  border-color: #000;
 }
 
 .btn-liquid.danger:hover {
@@ -518,43 +529,62 @@ body {
 .clear-btn:hover { background: var(--subtle); color: var(--ink); }
 .clear-btn.hidden { display: none; }
 
-/* ── Filter bar ─────────────────────────── */
+/* ── Filter bar (Liquid) ─────────────────── */
 .filter-bar {
-  display: flex;
-  gap: 0.3rem;
-  overflow-x: auto;
-  scrollbar-width: none;
-  padding-bottom: 3px;
-  margin-bottom: 1rem;
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: rgba(181, 174, 246, 0.15);
+  padding: 4px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  width: 300px; /* Fixed robust width */
+  margin: 0 auto 2rem;
+  overflow: visible;
+  isolation: isolate;
 }
 
-.filter-bar::-webkit-scrollbar { display: none; }
-
-.filter-btn {
-  flex-shrink: 0;
-  padding: 0.5rem 1.8rem;
-  border: 1px solid rgba(0, 0, 0, 0.6);
-  border-radius: 999px; /* Absolute pill */
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--ink-mid);
-  background: rgba(181, 174, 246, 0.3);
-  transition: all 0.4s cubic-bezier(0.19, 1, 0.22, 1);
-  white-space: nowrap;
+.filter-glass {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: calc(50% - 4px);
+  height: calc(100% - 8px);
+  background: #FFFFFF;
+  border-radius: 999px;
+  z-index: 0;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
-.filter-btn:hover { 
-  background: rgba(181, 174, 246, 0.6); 
-  transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+.filter-bar[data-state="pending"] .filter-glass {
+  transform: translateX(0);
+}
+
+.filter-bar[data-state="accomplished"] .filter-glass {
+  transform: translateX(100%);
+}
+
+.filter-btn {
+  position: relative;
+  z-index: 1;
+  padding: 0.85rem 0;
+  border: none !important;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink-muted);
+  background: transparent !important;
+  transition: all 0.4s ease;
+  white-space: nowrap;
+  box-shadow: none !important;
+  text-align: center;
+  cursor: pointer;
 }
 
 .filter-btn.active { 
-  background: linear-gradient(135deg, #A8A1F3 0%, #5A4BFF 100%);
-  color: #FFFFFF; 
-  border-color: rgba(0, 0, 0, 0.8);
-  box-shadow: 0 8px 20px rgba(90, 75, 255, 0.25);
+  color: #000000;
+  font-weight: 700;
 }
 
 /* ── Loading skeleton ───────────────────── */

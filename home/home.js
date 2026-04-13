@@ -320,6 +320,11 @@ filterBtns.forEach(btn => {
     filterBtns.forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     currentFilter = btn.dataset.filter;
+    
+    // Liquid Animation State
+    const filterBar = document.getElementById('filter-bar');
+    if (filterBar) filterBar.dataset.state = currentFilter;
+    
     renderNotes();
   });
 });
