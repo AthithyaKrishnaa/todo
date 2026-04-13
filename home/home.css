@@ -368,30 +368,76 @@ body {
 
 .char-count.warn { color: var(--accent); }
 
-.save-btn {
-  padding: 0.5rem 1.1rem;
-  background: linear-gradient(135deg, #D4AF37 0%, #B8962E 100%);
-  color: #0A0A0B;
-  border-radius: var(--radius-md);
-  font-size: 14px;
-  font-weight: 700;
-  min-width: 100px;
-  transition: all var(--transition);
-  display: flex;
+/* ── Liquid Glass Buttons ────────────────── */
+.btn-liquid {
+  position: relative;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.4rem;
-  border: 1px solid rgba(255,255,255,0.1);
-  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.2);
+  padding: 0.6rem 1.4rem;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 1;
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.1),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.05);
 }
 
-.save-btn:hover { 
-  transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(212, 175, 55, 0.3);
-  background: linear-gradient(135deg, #E8B923 0%, #D4AF37 100%);
+.btn-liquid::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: inherit;
+  filter: url("#container-glass");
+  opacity: 0.8;
+  transition: transform 0.3s ease;
 }
-.save-btn:active { transform: scale(0.96); }
-.save-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+.btn-liquid:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.btn-liquid:active {
+  transform: scale(0.96) translateY(0);
+}
+
+.btn-liquid.primary {
+  background: rgba(212, 175, 55, 0.1);
+  border-color: rgba(212, 175, 55, 0.3);
+  color: var(--accent);
+}
+
+.btn-liquid.primary:hover {
+  background: rgba(212, 175, 55, 0.2);
+  border-color: var(--accent);
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
+}
+
+.btn-liquid.btn-full { width: 100%; }
+
+.btn-liquid.danger {
+  color: #ff4d4d;
+  border-color: rgba(255, 77, 77, 0.3);
+}
+
+.btn-liquid.danger:hover {
+  background: rgba(255, 77, 77, 0.15);
+  border-color: #ff4d4d;
+}
 
 /* ── Status line ────────────────────────── */
 .inline-status {
@@ -974,22 +1020,21 @@ body {
   width: 100%;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
-  padding-bottom: 2rem;
+  min-height: 0; /* Important for flex children scrolling */
+  overflow: visible; /* Allow internal grids to manage their own overflow */
+  padding-bottom: 1rem;
 }
 
 .app-section > .section.dashboard {
-  flex: 1; /* More balanced to allow capture box space */
-  min-height: 0;
+  flex: 1; /* Was 1.5, causing squash */
 }
 
-/* If there is a capture box, make it stay stable */
+/* If there is a capture box, make it stay at its needed height */
 .app-section > .section:has(.capture-box) {
   flex: 0 0 auto;
   padding-bottom: 2rem;
-  z-index: 10;
+  z-index: 5; /* Ensure it stays above background but below nav */
 }
-
 
 
 .scrollable-notes {
@@ -1105,13 +1150,11 @@ body {
 .scrollable-notes {
   flex: 1;
   overflow-y: auto;
-  padding-right: 0.5rem;
-  margin-top: 5px;
+  padding: 1rem;
+  padding-bottom: 160px; /* Increased safe area */
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  padding: 1rem;
-  padding-bottom: 120px; /* Safe area for bottom nav */
   box-shadow: inset 0 2px 8px rgba(0,0,0,0.02);
 }
 
@@ -1119,9 +1162,8 @@ body {
   flex: 1;
   overflow-y: auto;
   padding: 0.5rem;
-  padding-bottom: 180px; /* Increased safe area for bottom nav & floating elements */
+  padding-bottom: 200px; /* Substantial safe area for mobile */
   margin-top: 5px;
-  min-height: 200px; /* Ensure it doesn't squash to zero */
 }
 
 .scrollable-notes::-webkit-scrollbar { width: 4px; }
@@ -1133,115 +1175,8 @@ body {
 .vault-grid::-webkit-scrollbar-track, .profile-grid::-webkit-scrollbar-track { background: transparent; }
 .vault-grid::-webkit-scrollbar-thumb, .profile-grid::-webkit-scrollbar-thumb { background: rgba(212, 175, 55, 0.1); border-radius: 10px; }
 
-/* ── Premium Buttons ─────────────────────── */
-
-/* 1. Metal Gold Primary Button */
-.btn-metal-gold {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2px;
-  border-radius: 10px;
-  background: linear-gradient(to bottom, #917100, #EAD98F);
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
-  transition: transform 0.25s cubic-bezier(0.1, 0.4, 0.2, 1), box-shadow 0.25s ease;
-  cursor: pointer;
-  border: none;
-}
-
-.btn-metal-gold::before {
-  content: "";
-  position: absolute;
-  inset: 1px;
-  border-radius: 8px;
-  background: linear-gradient(to bottom, #FFFDDD, #856807 50%, #FFF1B3);
-  z-index: 1;
-}
-
-.btn-metal-gold .btn-inner {
-  position: relative;
-  z-index: 2;
-  margin: 1px;
-  padding: 0.6rem 1.5rem;
-  border-radius: 6px;
-  background: linear-gradient(to bottom, #FFEBA1, #9B873F);
-  color: #FFFDE5;
-  font-size: 14px;
-  font-weight: 700;
-  text-shadow: 0 -1px 0 rgba(178, 140, 2, 0.8);
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: filter 0.2s ease;
-}
-
-.btn-metal-gold:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
-}
-
-.btn-metal-gold:hover .btn-inner {
-  filter: brightness(1.1);
-}
-
-.btn-metal-gold:active {
-  transform: translateY(2px) scale(0.98);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
-}
-
-/* 2. Liquid Glass Secondary Button */
-.btn-liquid {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.6rem 1.25rem;
-  border-radius: 8px;
-  color: var(--accent);
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  background: transparent;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: none;
-  transition: transform 0.3s ease, color 0.3s ease;
-  overflow: hidden;
-}
-
-.btn-liquid::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  border-radius: inherit;
-  box-shadow: 
-    0 0 6px rgba(0,0,0,0.03),
-    0 2px 6px rgba(0,0,0,0.08),
-    inset 3px 3px 0.5px -3px rgba(0,0,0,0.9),
-    inset -3px -3px 0.5px -3px rgba(0,0,0,0.85),
-    inset 1px 1px 1px -0.5px rgba(255,255,255,0.2),
-    inset 0 0 6px 6px rgba(0,0,0,0.12),
-    0 0 12px rgba(255,255,255,0.05);
-}
-
-/* Apply the SVG Glass Filter */
-.btn-liquid {
-  filter: url("#container-glass");
-}
-
-.btn-liquid:hover {
-  transform: scale(1.05);
-  color: #fff;
-}
-
-.btn-liquid:active {
-  transform: scale(0.97);
-}
-
-/* Micro-interactions Re-implementation */
+/* Micro-interactions */
+button:active { transform: scale(0.97); }
 .note-card { transition: transform 0.2s ease, box-shadow 0.2s ease; cursor: default; }
 .note-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
-
 

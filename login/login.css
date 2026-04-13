@@ -7,43 +7,28 @@
 
 /* ── Tokens ─────────────────────────── */
 :root {
-  --bg:          #F5F3EF;
-  --card-bg:     #FFFFFF;
-  --ink:         #18181A;
-  --ink-mid:     #52525A;
-  --ink-muted:   #909098;
-  --ink-faint:   #D4D2CC;
-  --accent:      #C4532A;
-  --accent-h:    #A8421F;
-  --border:      #E8E6E0;
-  --border-mid:  #CCCAC2;
-  --error-bg:    #FEF0EC;
-  --error-ink:   #8A2A10;
-  --success-bg:  #EAF6EA;
-  --success-ink: #1A5C1A;
-  --radius:      12px;
-  --font-serif:  'DM Serif Display', Georgia, serif;
-  --font-body:   'DM Sans', system-ui, sans-serif;
-  --font-mono:   'DM Mono', monospace;
+  --bg:           #0A0A0B;
+  --card-bg:      #141416;
+  --ink:          #F0EDE6;
+  --ink-mid:      #B0ADA6;
+  --ink-muted:    #706E68;
+  --ink-faint:    #2E2E2A;
+  --accent:       #D4AF37; /* Gold */
+  --accent-h:     #E8B923;
+  --border:       #2A2A2E;
+  --border-mid:   #3A3A36;
+  --error-bg:     #2A1008;
+  --error-ink:    #F0906A;
+  --success-bg:   #0A2010;
+  --success-ink:  #7ACC7A;
+  --radius:       12px;
+  --font-serif:   'DM Serif Display', Georgia, serif;
+  --font-body:    'DM Sans', system-ui, sans-serif;
+  --font-mono:    'DM Mono', monospace;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --bg:         #111110;
-    --card-bg:    #1C1C1A;
-    --ink:        #F0EDE6;
-    --ink-mid:    #B0ADA6;
-    --ink-muted:  #706E68;
-    --ink-faint:  #2E2E2A;
-    --accent:     #E8703C;
-    --accent-h:   #F08050;
-    --border:     #2A2A26;
-    --border-mid: #3A3A36;
-    --error-bg:   #2A1008;
-    --error-ink:  #F0906A;
-    --success-bg: #0A2010;
-    --success-ink:#7ACC7A;
-  }
+  /* Luxury mode is default */
 }
 
 /* ── Base ───────────────────────────── */
@@ -188,16 +173,56 @@ html, body {
 .submit-btn:active:not(:disabled) { transform: scale(0.99); }
 .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
-/* ── Google Button Override ─────────── */
-.google-btn {
-  background: var(--card-bg);
-  color: var(--ink);
-  border: 1px solid var(--border);
+/* ── Liquid Glass Button ───────────── */
+.btn-liquid {
+  position: relative;
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem;
   margin-top: 1rem;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius);
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 1;
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.2),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.05);
 }
 
-.google-btn:hover:not(:disabled) { 
-  background: var(--bg); 
+.btn-liquid::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: inherit;
+  filter: url("#container-glass");
+  opacity: 0.8;
+}
+
+.btn-liquid:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.btn-liquid:active {
+  transform: scale(0.98);
+}
+
+.google-btn svg {
+  margin-right: 0.5rem;
 }
 
 /* ── Spinner ────────────────────────── */
