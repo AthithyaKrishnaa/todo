@@ -8,7 +8,6 @@ const sb = supabase.createClient(window.CONFIG.SUPABASE_URL, window.CONFIG.SUPAB
 /* ── DOM References ─────────────────────────────────────────── */
 const authGuard      = document.getElementById('auth-guard');
 const logoutBtn      = document.getElementById('logout-btn');
-const themeBtn       = document.getElementById('theme-btn');
 const noteBadge      = document.getElementById('note-badge');
 
 const noteInput      = document.getElementById('note-input');
@@ -88,14 +87,6 @@ if (logoutBtn) {
 function initTheme() {
   const saved = localStorage.getItem('theme') || 'dark';
   document.documentElement.setAttribute('data-theme', saved);
-}
-if (themeBtn) {
-  themeBtn.addEventListener('click', () => {
-    const cur = document.documentElement.getAttribute('data-theme');
-    const next = cur === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', next);
-    localStorage.setItem('theme', next);
-  });
 }
 
 /* ═══════════════════════════════════════════════════════════════
