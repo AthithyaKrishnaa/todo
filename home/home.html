@@ -18,13 +18,13 @@
     </div>
     <nav class="sidebar-nav">
       <button class="side-nav-item active" data-target="section-notes">
-        <span class="nav-icon">M</span> Notes
+        Notes
       </button>
       <button class="side-nav-item" data-target="section-vault">
-        <span class="nav-icon">V</span> Vault
+        Vault
       </button>
       <button class="side-nav-item" data-target="section-profile">
-        <span class="nav-icon">P</span> Profile
+        Profile
       </button>
     </nav>
   </aside>
@@ -62,32 +62,15 @@
            DASHBOARD (NOW AT TOP)
       ════════════════════════════════════════ -->
       <section class="section dashboard">
-        <!-- Search -->
-        <div class="search-box">
-          <span class="search-icon" aria-hidden="true">⌕</span>
-          <input
-            type="search"
-            id="search-input"
-            class="search-input"
-            placeholder="Search your notes…"
-            autocomplete="off"
-            autocorrect="off"
-            spellcheck="false"
-          />
-          <button type="button" class="clear-btn hidden" id="clear-search" aria-label="Clear search">✕</button>
-        </div>
 
         <!-- Filters -->
         <div class="filter-bar" role="tablist">
-          <button type="button" class="filter-btn active" data-filter="all"       role="tab" aria-selected="true">All</button>
-          <button type="button" class="filter-btn"         data-filter="today"     role="tab" aria-selected="false">Today</button>
-          <button type="button" class="filter-btn"         data-filter="important" role="tab" aria-selected="false">Important</button>
-          <button type="button" class="filter-btn"         data-filter="reminders" role="tab" aria-selected="false">Reminders</button>
-          <button type="button" class="filter-btn"         data-filter="done"      role="tab" aria-selected="false">Done</button>
+          <button type="button" class="filter-btn active" data-filter="pending" role="tab" aria-selected="true">Pending</button>
+          <button type="button" class="filter-btn" data-filter="accomplished" role="tab" aria-selected="false">Accomplished</button>
         </div>
 
         <!-- Notes area -->
-        <div id="notes-area">
+        <div id="notes-area" class="scrollable-notes">
           <div id="notes-loading" class="loading-wrap">
             <div class="skeleton"></div>
             <div class="skeleton"></div>
@@ -126,20 +109,6 @@
             </div>
           </div>
 
-          <!-- Reminder -->
-          <div class="row reminder-row">
-            <label class="toggle-label">
-              <input type="checkbox" id="remind-check" class="visually-hidden" />
-              <span class="toggle-track"><span class="toggle-thumb"></span></span>
-              <span class="toggle-text">Remind me</span>
-            </label>
-            <input
-              type="datetime-local"
-              id="remind-input"
-              class="date-input hidden"
-              aria-label="Reminder date and time"
-            />
-          </div>
 
           <!-- Footer -->
           <div class="capture-footer">
@@ -276,15 +245,12 @@
   ════════════════════════════════════════ -->
   <nav class="bottom-nav">
     <button class="nav-item active" data-target="section-notes" aria-label="Notes">
-      <span class="nav-icon">M</span>
       <span class="nav-label">Notes</span>
     </button>
     <button class="nav-item" data-target="section-vault" aria-label="Vault">
-      <span class="nav-icon">V</span>
       <span class="nav-label">Vault</span>
     </button>
     <button class="nav-item" data-target="section-profile" aria-label="Profile">
-      <span class="nav-icon">P</span>
       <span class="nav-label">Profile</span>
     </button>
   </nav>

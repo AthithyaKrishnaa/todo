@@ -13,14 +13,10 @@ const noteBadge      = document.getElementById('note-badge');
 
 const noteInput      = document.getElementById('note-input');
 const tagChips       = document.querySelectorAll('.tag-chip');
-const remindCheck    = document.getElementById('remind-check');
-const remindInput    = document.getElementById('remind-input');
 const saveBtn        = document.getElementById('save-btn');
 const charCount      = document.getElementById('char-count');
 const saveStatus     = document.getElementById('save-status');
 
-const searchInput    = document.getElementById('search-input');
-const clearSearch    = document.getElementById('clear-search');
 const filterBtns     = document.querySelectorAll('.filter-btn');
 const notesLoading   = document.getElementById('notes-loading');
 const notesList      = document.getElementById('notes-list');
@@ -71,7 +67,7 @@ const sidebarItems   = document.querySelectorAll('.side-nav-item');
 /* ── App state ──────────────────────────────────────────────── */
 let currentUser    = null;
 let allNotes       = [];
-let currentFilter  = 'all';
+let currentFilter  = 'pending';
 let searchQuery    = '';
 let pendingDeleteId= null;
 let userProfile    = null;
@@ -153,18 +149,9 @@ function updateNoteBadge() {
 function renderNotes() {
   notesList.innerHTML = '';
   const filtered = allNotes.filter(n => {
-    const matchSearch = n.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                        n.tags.some(t => t.toLowerCase().includes(searchQuery.toLowerCase()));
-    if (!matchSearch) return false;
-
-    if (currentFilter === 'today') {
-      const today = new Date().toDateString();
-      return new Date(n.created_at).toDateString() === today;
-    }
-    if (currentFilter === 'important') return n.tags.includes('important');
-    if (currentFilter === 'reminders') return !!n.remind_at;
-    if (currentFilter === 'done')      return n.done;
-    return true; // 'all'
+    if (currentFilter === 'pending')      return !n.done;
+    if (currentFilter === 'accomplished') return n.done;
+    return true; // fallback
   });
 
   if (filtered.length === 0) {
@@ -228,17 +215,21 @@ function renderNote(note) {
 
   const timeSpan = document.createElement('span');
   timeSpan.className = 'card-time';
-  timeSpan.textContent = relativeTime(note.created_at);
-  footer.appendChild(timeSpan);
-
-  if (note.remind_at) {
-    const remindSpan = document.createElement('span');
-    remindSpan.className = 'card-reminder';
-    const isPast = new Date(note.remind_at) < new Date();
-    remindSpan.textContent = `🔔 ${new Date(note.remind_at).toLocaleString([], {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'})}`;
-    if (isPast) remindSpan.style.opacity = '0.5';
-    footer.appendChild(remindSpan);
+  
+  if (note.done) {
+     const start = new Date(note.created_at);
+     const end = note.completed_at ? new Date(note.completed_at) : new Date(note.updated_at || note.created_at);
+     const diffMs = end - start;
+     const diffStr = getDurationString(diffMs);
+     const startStr = start.toLocaleString([], {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'});
+     const endStr = end.toLocaleString([], {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'});
+     timeSpan.innerHTML = `Started: ${startStr}<br>Finished: ${endStr}<br>Elapsed: ${diffStr}`;
+  } else {
+     const startStr = new Date(note.created_at).toLocaleString([], {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'});
+     timeSpan.textContent = `Saved at: ${startStr}`;
   }
+  
+  footer.appendChild(timeSpan);
 
   card.append(header, contentP, footer);
 
@@ -249,7 +240,12 @@ function renderNote(note) {
   });
 
   doneBtn.addEventListener('click', async () => {
-    const { error } = await sb.from('notes').update({ done: !note.done }).eq('id', note.id);
+    const isNowDone = !note.done;
+    const completedAt = isNowDone ? new Date().toISOString() : null;
+    const { error } = await sb.from('notes').update({ 
+      done: isNowDone,
+      completed_at: completedAt
+    }).eq('id', note.id);
     if (!error) loadNotes();
   });
 
@@ -305,8 +301,7 @@ async function saveNote() {
   const payload = {
     user_id: currentUser.id,
     content: text,
-    tags: selectedTags,
-    remind_at: (remindCheck.checked && remindInput.value) ? new Date(remindInput.value).toISOString() : null
+    tags: selectedTags
   };
 
   const { error } = await sb.from('notes').insert([payload]);
@@ -320,8 +315,6 @@ async function saveNote() {
   } else {
     noteInput.value = '';
     charCount.textContent = '0 / 2000';
-    remindCheck.checked = false;
-    remindInput.classList.add('hidden');
     tagChips.forEach(c => c.setAttribute('aria-pressed', 'false'));
     loadNotes();
     showStatus('Note captured');
@@ -344,21 +337,6 @@ if (confirmCancel) {
 /* ═══════════════════════════════════════════════════════════════
    SEARCH & FILTERS
 ═══════════════════════════════════════════════════════════════ */
-if (searchInput) {
-  searchInput.addEventListener('input', (e) => {
-    searchQuery = e.target.value;
-    clearSearch.classList.toggle('hidden', searchQuery.length === 0);
-    renderNotes();
-  });
-}
-if (clearSearch) {
-  clearSearch.addEventListener('click', () => {
-    searchInput.value = '';
-    searchQuery = '';
-    clearSearch.classList.add('hidden');
-    renderNotes();
-  });
-}
 filterBtns.forEach(btn => {
   btn.addEventListener('click', () => {
     filterBtns.forEach(b => b.classList.remove('active'));
@@ -378,11 +356,7 @@ tagChips.forEach(chip => {
   });
 });
 
-if (remindCheck) {
-  remindCheck.addEventListener('change', () => {
-    remindInput.classList.toggle('hidden', !remindCheck.checked);
-  });
-}
+
 
 /* ═══════════════════════════════════════════════════════════════
    UTILITIES
@@ -461,6 +435,19 @@ async function shortenURL(url) {
   } catch {
     return url;
   }
+}
+
+/** Duration string */
+function getDurationString(diffMs) {
+  if (diffMs < 0) return '0 seconds';
+  const sec = Math.floor(diffMs / 1000);
+  if (sec < 60) return `${sec} seconds`;
+  const min = Math.floor(sec / 60);
+  if (min < 60) return `${min} minutes`;
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return `${hr} hours`;
+  const days = Math.floor(hr / 24);
+  return `${days} days`;
 }
 
 /** Relative time string */

@@ -1036,3 +1036,20 @@ body {
   from { transform: scaleX(1); }
   to { transform: scaleX(0); }
 }
+
+/* ── Scrollable Notes ───────────────────── */
+.scrollable-notes {
+  max-height: calc(100vh - 350px);
+  overflow-y: auto;
+  padding-right: 0.5rem;
+  margin-top: 5px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1rem;
+  box-shadow: inset 0 2px 8px rgba(0,0,0,0.02);
+}
+
+.scrollable-notes::-webkit-scrollbar { width: 6px; }
+.scrollable-notes::-webkit-scrollbar-track { background: transparent; }
+.scrollable-notes::-webkit-scrollbar-thumb { background: var(--border-mid); border-radius: 4px; }
