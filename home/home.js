@@ -235,8 +235,11 @@ function renderNote(note) {
     }).eq('id', note.id);
     
     if (error) {
-      console.error('Done toggle error:', error);
-      showStatus('Failed to update note');
+      console.error('Done toggle error:', JSON.stringify(error));
+      console.error('Error message:', error.message);
+      console.error('Error code:', error.code);
+      console.error('Error details:', error.details);
+      showStatus('Failed: ' + (error.message || 'Unknown error'));
       doneBtn.disabled = false;
     } else {
       // Animate card exit then reload
