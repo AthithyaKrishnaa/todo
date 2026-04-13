@@ -45,16 +45,16 @@ input, textarea { font-family: inherit; }
 
 /* ── Base ───────────────────────────────── */
 html, body {
-  height: 100dvh;
-  overflow: hidden;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scroll-behavior: smooth;
 }
 
 body {
   font-family: var(--font-body);
   background: var(--bg);
   color: var(--ink);
-  display: flex;
-  flex-direction: column;
   transition: background var(--transition), color var(--transition);
 }
 
@@ -143,12 +143,13 @@ body {
 
 /* ── Header ─────────────────────────────── */
 .header {
-  flex-shrink: 0;
+  position: sticky;
+  top: 0;
   z-index: 1000;
-  background: rgba(10, 10, 11, 0.7);
+  background: rgba(10, 10, 11, 0.85);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   transition: all var(--transition);
 }
 
@@ -1015,32 +1016,31 @@ body {
   to { opacity: 1; }
 }
 
+.app-section {
+  display: block; 
+  min-height: 0;
+  overflow: visible;
+  animation: sectionSlideIn 0.5s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+}
+
 .app-section > .section {
-  flex: 1;
   width: 100%;
-  display: flex;
-  flex-direction: column;
-  min-height: 0; /* Important for flex children scrolling */
-  overflow: visible; /* Allow internal grids to manage their own overflow */
+  display: block;
   padding-bottom: 1rem;
 }
 
 .app-section > .section.dashboard {
-  flex: 1; /* Was 1.5, causing squash */
+  /* Notes area - natural expansion */
+  margin-bottom: 0;
 }
 
-/* If there is a capture box, make it stay at its needed height */
+/* Capture box - MAKE STICKY on mobile, natural on desktop */
 .app-section > .section:has(.capture-box) {
-  flex: 0 0 auto;
+  position: sticky;
+  bottom: 80px; /* Anchored above mobile bottom nav */
+  z-index: 100;
+  margin-top: 1rem;
   padding-bottom: 2rem;
-  z-index: 5; /* Ensure it stays above background but below nav */
-}
-
-
-.scrollable-notes {
-  flex: 1;
-  overflow-y: auto;
-  /* other properties remain */
 }
 
 
@@ -1146,24 +1146,16 @@ body {
   to { transform: scaleX(0); }
 }
 
-/* ── Scrollable Notes ───────────────────── */
+/* ── Content Containers ───────────────────── */
 .scrollable-notes {
-  flex: 1;
-  overflow-y: auto;
-  padding: 1rem;
-  padding-bottom: 160px; /* Increased safe area */
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  box-shadow: inset 0 2px 8px rgba(0,0,0,0.02);
+  margin-bottom: 1rem;
 }
 
 .vault-grid, .profile-grid {
-  flex: 1;
-  overflow-y: auto;
-  padding: 0.5rem;
-  padding-bottom: 200px; /* Substantial safe area for mobile */
-  margin-top: 5px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  padding-bottom: 160px; /* Large safe space cleared for bottom nav + breathing room */
 }
 
 .scrollable-notes::-webkit-scrollbar { width: 4px; }
