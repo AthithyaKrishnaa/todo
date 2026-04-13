@@ -189,29 +189,7 @@ function renderNote(note) {
   contentP.className = 'card-content';
   contentP.innerHTML = linkify(escapeHTML(note.content));
 
-  /* ── Footer ── */
-  const footer = document.createElement('div');
-  footer.className = 'card-footer';
-
-  const timeSpan = document.createElement('span');
-  timeSpan.className = 'card-time';
-  
-  if (note.done) {
-     const start = new Date(note.created_at);
-     const end = new Date(note.updated_at || note.created_at);
-     const diffMs = end - start;
-     const diffStr = getDurationString(diffMs);
-     const startStr = start.toLocaleString([], {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'});
-     const endStr = end.toLocaleString([], {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'});
-     timeSpan.innerHTML = `Started: ${startStr}<br>Finished: ${endStr}<br>Elapsed: ${diffStr}`;
-  } else {
-     const startStr = new Date(note.created_at).toLocaleString([], {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'});
-     timeSpan.textContent = `Saved at: ${startStr}`;
-  }
-  
-  footer.appendChild(timeSpan);
-
-  card.append(header, contentP, footer);
+  card.append(header, contentP);
 
   /* ── Events ── */
   pinBtn.addEventListener('click', async () => {
@@ -438,28 +416,7 @@ async function shortenURL(url) {
   }
 }
 
-/** Duration string */
-function getDurationString(diffMs) {
-  if (diffMs < 0) return '0 seconds';
-  const sec = Math.floor(diffMs / 1000);
-  if (sec < 60) return `${sec} seconds`;
-  const min = Math.floor(sec / 60);
-  if (min < 60) return `${min} minutes`;
-  const hr = Math.floor(min / 60);
-  if (hr < 24) return `${hr} hours`;
-  const days = Math.floor(hr / 24);
-  return `${days} days`;
-}
 
-/** Relative time string */
-function relativeTime(iso) {
-  const diff  = Date.now() - new Date(iso).getTime();
-  const day   = 86400000, hr = 3600000, min = 60000;
-  if (diff < min) return 'Just now';
-  if (diff < hr)  return Math.floor(diff/min) + 'm ago';
-  if (diff < day) return Math.floor(diff/hr) + 'h ago';
-  return new Date(iso).toLocaleDateString();
-}
 
 /* ═══════════════════════════════════════════════════════════════
    NAVIGATION
@@ -677,3 +634,18 @@ initURLCleaners();
 
 // Apply locked-mode on initial load for the Notes section
 document.body.classList.add('locked-mode');
+
+// Live IST Clock
+function updateClock() {
+  const clockEl = document.getElementById('header-clock');
+  if (!clockEl) return;
+  const now = new Date();
+  const ist = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
+  const h = ist.getHours();
+  const m = String(ist.getMinutes()).padStart(2, '0');
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  const h12 = h % 12 || 12;
+  clockEl.textContent = `${h12}:${m} ${ampm}`;
+}
+updateClock();
+setInterval(updateClock, 1000);

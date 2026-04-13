@@ -200,7 +200,16 @@ body {
 
 .header-actions {
   display: flex;
-  gap: 0.4rem;
+  gap: 1rem;
+  align-items: center;
+}
+
+.header-clock {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink-light);
+  letter-spacing: 0.5px;
 }
 
 .icon-btn {
@@ -1071,6 +1080,7 @@ body:not(.locked-mode) .app-section {
   flex: 1;
   overflow: hidden;
   min-height: 0;
+  padding-bottom: 0.5rem; /* Reduced space between notes box and input */
 }
 
 .app-section > .section.dashboard {
@@ -1082,14 +1092,15 @@ body:not(.locked-mode) .app-section {
   position: sticky;
   bottom: 80px;
   z-index: 100;
-  margin-top: 1rem;
+  margin-top: 0.5rem;
   padding-bottom: 2rem;
 }
 
 .locked-mode .app-section > .section:has(.capture-box) {
   position: static;
   flex: 0 0 auto;
-  padding-bottom: 1.5rem;
+  /* Add padding to ensure it clears the mobile bottom nav (64px) + a little extra lift */
+  padding-bottom: calc(1rem + 70px); 
 }
 
 
@@ -1112,9 +1123,10 @@ body:not(.locked-mode) .app-section {
   }
   .profile-grid {
     display: flex;
-    flex-direction: column-reverse;
+    flex-direction: column;
     gap: 2rem;
     overflow-y: auto;
+    padding-bottom: 100px;
   }
 }
 
@@ -1125,10 +1137,13 @@ body:not(.locked-mode) .app-section {
   .card-actions { gap: 8px; }
   .nav-label { font-size: 14px; }
   .nav-icon-svg { width: 24px; height: 24px; }
+  
+  /* Hide clock on very small mobile if it gets too crowded, or just reduce size */
+  .header-clock { font-size: 12px; }
 }
 
 /* ── Dashboard Spacing ── */
-.dashboard { margin-bottom: 1rem; flex-shrink: 0; }
+.dashboard { margin-bottom: 0.5rem; flex-shrink: 0; }
 
 /* ── Status Card (Premium Feedback) ──────── */
 .status-card {
