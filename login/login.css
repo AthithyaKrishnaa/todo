@@ -46,6 +46,10 @@ html, body {
   align-items: center;
   justify-content: center;
   padding: 1.5rem;
+  background: #FAF9F6;
+  background-image: 
+    radial-gradient(circle at 80% 0%, rgba(181, 174, 246, 0.4) 0%, rgba(255, 255, 255, 0) 40%),
+    radial-gradient(circle at 20% 100%, rgba(181, 174, 246, 0.2) 0%, rgba(255, 255, 255, 0) 40%);
 }
 
 /* ── Card ───────────────────────────── */
@@ -173,52 +177,34 @@ html, body {
 .submit-btn:active:not(:disabled) { transform: scale(0.99); }
 .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
-/* ── Liquid Glass Button ───────────── */
+/* ── Exceldent Pill Button ───────────── */
 .btn-liquid {
   position: relative;
   width: 100%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.75rem;
+  padding: 0.85rem;
   margin-top: 1rem;
   font-size: 15px;
-  font-weight: 600;
-  color: var(--ink);
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: var(--radius);
+  font-weight: 700;
+  color: #FFFFFF;
+  background: linear-gradient(135deg, #A8A1F3 0%, #5A4BFF 100%);
+  border: 1px solid rgba(0, 0, 0, 0.6);
+  border-radius: 999px;
   cursor: pointer;
-  overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  z-index: 1;
-  box-shadow: 
-    0 4px 12px rgba(0, 0, 0, 0.2),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.05);
-}
-
-.btn-liquid::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: inherit;
-  filter: url("#container-glass");
-  opacity: 0.8;
+  transition: all 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+  box-shadow: 0 4px 15px rgba(90, 75, 255, 0.2);
 }
 
 .btn-liquid:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: var(--accent);
-  color: var(--accent);
+  background: linear-gradient(135deg, #B5AEF6 0%, #4B3EDD 100%);
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 8px 25px rgba(90, 75, 255, 0.3);
 }
 
 .btn-liquid:active {
-  transform: scale(0.98);
+  transform: scale(0.96);
 }
 
 .google-btn svg {

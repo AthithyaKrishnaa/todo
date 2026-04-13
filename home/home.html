@@ -20,9 +20,6 @@
       <button class="side-nav-item active" data-target="section-notes">
         Notes
       </button>
-      <button class="side-nav-item" data-target="section-vault">
-        Vault
-      </button>
       <button class="side-nav-item" data-target="section-profile">
         Profile
       </button>
@@ -120,56 +117,7 @@
       </section>
     </div> <!-- /section-notes -->
 
-    <!-- === VAULT SECTION === -->
-    <div id="section-vault" class="app-section hidden">
-      <section class="section">
-        <div class="section-header">
-          <h2 class="section-title">Vault</h2>
-          <p class="section-subtitle">Your links & documents</p>
-        </div>
 
-        <div class="vault-grid">
-          <!-- Links Column -->
-          <div class="vault-col">
-            <div class="col-header"><h3>Links</h3></div>
-            <div class="capture-box small-capture">
-              <input type="text" id="link-heading" class="note-input single-line" placeholder="Link Heading..." maxlength="255" />
-              <input type="url" id="link-url" class="note-input single-line" placeholder="https://..." />
-              <div class="capture-footer">
-                <button type="button" class="btn-liquid" id="save-link-btn">Save Link</button>
-              </div>
-            </div>
-            
-            <!-- Links Loading Skeleton -->
-            <div id="links-loading" class="loading-wrap">
-              <div class="skeleton small"></div>
-            </div>
-            <div id="links-list" class="notes-list hidden"></div>
-          </div>
-
-          <!-- Documents Column -->
-          <div class="vault-col">
-            <div class="col-header"><h3>Documents</h3></div>
-            <div class="capture-box small-capture">
-              <input type="text" id="doc-heading" class="note-input single-line" placeholder="Document Heading..." maxlength="255" />
-              <div class="file-input-row">
-                <input type="file" id="doc-file" class="file-input-native" />
-              </div>
-              <div class="capture-footer">
-                <span id="doc-upload-status" class="char-count"></span>
-                <button type="button" class="btn-liquid" id="save-doc-btn">Upload</button>
-              </div>
-            </div>
-
-            <!-- Docs Loading Skeleton -->
-            <div id="docs-loading" class="loading-wrap">
-              <div class="skeleton small"></div>
-            </div>
-            <div id="docs-list" class="notes-list hidden"></div>
-          </div>
-        </div>
-      </section>
-    </div> <!-- /section-vault -->
 
     <!-- === PROFILE SECTION === -->
     <div id="section-profile" class="app-section hidden">
@@ -248,12 +196,7 @@
        <svg class="nav-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
       <span class="nav-label">Notes</span>
     </button>
-    <div class="nav-divider"></div>
-    <button class="nav-item" data-target="section-vault" aria-label="Vault">
-       <svg class="nav-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-      <span class="nav-label">Vault</span>
-    </button>
-    <div class="nav-divider"></div>
+
     <button class="nav-item" data-target="section-profile" aria-label="Profile">
        <svg class="nav-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
       <span class="nav-label">Profile</span>
@@ -284,21 +227,8 @@
   </div>
 
   <!-- ════════════════════════════════════════
-       SVG FILTERS (For Liquid Glass)
+       MODALS & OVERLAYS
   ════════════════════════════════════════ -->
-  <svg class="hidden" style="position: absolute; width: 0; height: 0;">
-    <defs>
-      <filter id="container-glass" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB">
-        <feTurbulence type="fractalNoise" baseFrequency="0.05 0.05" numOctaves="1" seed="1" result="turbulence" />
-        <feGaussianBlur in="turbulence" stdDeviation="2" result="blurredNoise" />
-        <feDisplacementMap in="SourceGraphic" in2="blurredNoise" scale="20" xChannelSelector="R" yChannelSelector="B" result="displaced" />
-        <feGaussianBlur in="displaced" stdDeviation="1" result="finalBlur" />
-        <feComposite in="finalBlur" in2="finalBlur" operator="over" />
-      </filter>
-    </defs>
-  </svg>
-
-  <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="../config.js"></script>
   <script src="home.js"></script>

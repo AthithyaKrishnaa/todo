@@ -29,23 +29,10 @@ const statusBar     = document.getElementById('status-bar');
 const confirmOverlay = document.getElementById('confirm-overlay');
 const confirmMsg     = document.getElementById('confirm-msg');
 const confirmCancel  = document.getElementById('confirm-cancel');
-const confirmOk      = document.getElementById('confirm-ok');
+const statusOk       = document.getElementById('status-ok');
 
 const navItems       = document.querySelectorAll('.nav-item');
 const appSections    = document.querySelectorAll('.app-section');
-
-const linksLoading   = document.getElementById('links-loading');
-const linksList      = document.getElementById('links-list');
-const linkHeading    = document.getElementById('link-heading');
-const linkUrl        = document.getElementById('link-url');
-const saveLinkBtn    = document.getElementById('save-link-btn');
-
-const docsLoading    = document.getElementById('docs-loading');
-const docsList       = document.getElementById('docs-list');
-const docHeading     = document.getElementById('doc-heading');
-const docFile        = document.getElementById('doc-file');
-const saveDocBtn     = document.getElementById('save-doc-btn');
-const docStatus      = document.getElementById('doc-upload-status');
 
 const profName       = document.getElementById('prof-name');
 const profPhone      = document.getElementById('prof-phone');
@@ -85,8 +72,6 @@ async function initAuth() {
   if (authGuard) authGuard.classList.add('hidden');
   
   loadNotes();
-  loadLinks();
-  loadDocs();
   loadProfile();
 }
 
@@ -491,137 +476,7 @@ if (sidebarItems.length > 0) {
   });
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   VAULT: LINKS
-═══════════════════════════════════════════════════════════════ */
-async function loadLinks() {
-  if (!currentUser) return;
-  linksLoading.classList.remove('hidden');
-  const { data, error } = await sb.from('links').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
-  linksLoading.classList.add('hidden');
-  if (!error) renderLinks(data || []);
-}
 
-function renderLinks(links) {
-  linksList.innerHTML = '';
-  if (links.length === 0) {
-    linksList.innerHTML = '<p class="empty-desc">No links stored yet.</p>';
-    linksList.classList.remove('hidden');
-    return;
-  }
-  linksList.classList.remove('hidden');
-  links.forEach(l => {
-    const card = document.createElement('div');
-    card.className = 'note-card small-card';
-    card.innerHTML = `
-      <div class="card-header"><span class="note-tag idea">Link</span></div>
-      <p class="card-content"><b>${escapeHTML(l.heading)}</b><br/><a href="${l.url}" target="_blank">${l.url}</a></p>
-      <div class="card-footer">
-        <button class="action-btn delete-link" data-id="${l.id}">—</button>
-      </div>
-    `;
-    card.querySelector('.delete-link').addEventListener('click', async () => {
-      const { error } = await sb.from('links').delete().eq('id', l.id);
-      if (!error) loadLinks();
-    });
-    linksList.appendChild(card);
-  });
-}
-
-if (saveLinkBtn) {
-  saveLinkBtn.addEventListener('click', async () => {
-    const heading = linkHeading.value.trim();
-    const url = linkUrl.value.trim();
-    if (!heading || !url) return;
-    saveLinkBtn.disabled = true;
-    const { error } = await sb.from('links').insert([{ user_id: currentUser.id, heading, url }]);
-    saveLinkBtn.disabled = false;
-    if (!error) {
-      linkHeading.value = '';
-      linkUrl.value = '';
-      loadLinks();
-    }
-  });
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   VAULT: DOCUMENTS
-═══════════════════════════════════════════════════════════════ */
-async function loadDocs() {
-  if (!currentUser) return;
-  docsLoading.classList.remove('hidden');
-  const { data, error } = await sb.from('documents').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
-  docsLoading.classList.add('hidden');
-  if (!error) renderDocs(data || []);
-}
-
-function renderDocs(docs) {
-  docsList.innerHTML = '';
-  if (docs.length === 0) {
-    docsList.innerHTML = '<p class="empty-desc">No documents uploaded.</p>';
-    docsList.classList.remove('hidden');
-    return;
-  }
-  docsList.classList.remove('hidden');
-  docs.forEach(d => {
-    const card = document.createElement('div');
-    card.className = 'note-card small-card';
-    card.innerHTML = `
-      <div class="card-header"><span class="note-tag study">Doc</span></div>
-      <p class="card-content"><b>${escapeHTML(d.heading)}</b><br/><span class="char-count">${escapeHTML(d.file_name)}</span></p>
-      <div class="card-footer">
-        <button class="action-btn download-doc" data-path="${d.file_path}">↓</button>
-        <button class="action-btn delete-doc" data-id="${d.id}" data-path="${d.file_path}">—</button>
-      </div>
-    `;
-    card.querySelector('.download-doc').addEventListener('click', async () => {
-      const { data, error } = await sb.storage.from('vault').createSignedUrl(d.file_path, 60);
-      if (data) window.open(data.signedUrl, '_blank');
-    });
-    card.querySelector('.delete-doc').addEventListener('click', async () => {
-      await sb.storage.from('vault').remove([d.file_path]);
-      const { error } = await sb.from('documents').delete().eq('id', d.id);
-      if (!error) loadDocs();
-    });
-    docsList.appendChild(card);
-  });
-}
-
-if (saveDocBtn) {
-  saveDocBtn.addEventListener('click', async () => {
-    const heading = docHeading.value.trim();
-    const file = docFile.files[0];
-    if (!heading || !file) return;
-    
-    saveDocBtn.disabled = true;
-    docStatus.textContent = 'Uploading...';
-    
-    const filePath = currentUser.id + '/' + Date.now() + '_' + file.name;
-    const { error: uploadError } = await sb.storage.from('vault').upload(filePath, file);
-    
-    if (uploadError) {
-      showStatus('Upload failed');
-      saveDocBtn.disabled = false;
-      docStatus.textContent = '';
-      return;
-    }
-
-    const { error } = await sb.from('documents').insert([{
-      user_id: currentUser.id,
-      heading,
-      file_path: filePath,
-      file_name: file.name
-    }]);
-
-    saveDocBtn.disabled = false;
-    docStatus.textContent = '';
-    if (!error) {
-      docHeading.value = '';
-      docFile.value = '';
-      loadDocs();
-    }
-  });
-}
 
 /* ═══════════════════════════════════════════════════════════════
    PROFILE
