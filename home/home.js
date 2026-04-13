@@ -61,6 +61,9 @@ let userProfile    = null;
 /* ═══════════════════════════════════════════════════════════════
    AUTH & INITIALIZATION
 ═══════════════════════════════════════════════════════════════ */
+// Always enforce the light theme for the Exceldent palette
+document.documentElement.setAttribute('data-theme', 'light');
+
 async function initAuth() {
   const { data: { session } } = await sb.auth.getSession();
   if (!session) {
