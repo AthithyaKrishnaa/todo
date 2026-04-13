@@ -32,7 +32,8 @@ input, textarea { font-family: inherit; }
   --font-serif:   'DM Serif Display', Georgia, serif;
   --font-body:    'DM Sans', system-ui, sans-serif;
   --font-mono:    'DM Mono', monospace;
-  --transition:   0.3s cubic-bezier(0.19, 1, 0.22, 1);
+  --transition:   0.5s cubic-bezier(0.19, 1, 0.22, 1);
+  --ease-in-out:  cubic-bezier(0.4, 0, 0.2, 1);
 
   /* Tag colors - refined for Lavender theme */
   --tag-idea:      #E8F5FF; --tag-idea-ink:      #1DA1F2;
@@ -1016,18 +1017,36 @@ body {
 @keyframes sectionSlideIn {
   from { 
     opacity: 0; 
-    transform: translateY(10px) scale(0.99); 
+    transform: translateX(15px) scale(0.98); 
   }
   to { 
     opacity: 1; 
-    transform: translateY(0) scale(1); 
+    transform: translateX(0) scale(1); 
   }
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+@keyframes cardEntrance {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
+
+/* ── Note Card Entrance Stagger ─────────── */
+.note-card {
+  animation: cardEntrance 0.6s cubic-bezier(0.19, 1, 0.22, 1) both;
+}
+
+.note-card:nth-child(1) { animation-delay: 0.05s; }
+.note-card:nth-child(2) { animation-delay: 0.10s; }
+.note-card:nth-child(3) { animation-delay: 0.15s; }
+.note-card:nth-child(4) { animation-delay: 0.20s; }
+.note-card:nth-child(5) { animation-delay: 0.25s; }
+.note-card:nth-child(n+6) { animation-delay: 0.30s; }
 
 .app-section {
   display: block; 
@@ -1206,7 +1225,8 @@ body {
 .vault-grid::-webkit-scrollbar-thumb, .profile-grid::-webkit-scrollbar-thumb { background: rgba(212, 175, 55, 0.1); border-radius: 10px; }
 
 /* Micro-interactions */
-button:active { transform: scale(0.97); }
-.note-card { transition: transform 0.2s ease, box-shadow 0.2s ease; cursor: default; }
-.note-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+button:active { transform: scale(0.95); }
+.note-card { transition: transform 0.4s var(--transition), box-shadow 0.4s var(--transition), opacity 0.4s var(--transition); cursor: default; }
+.note-card:hover { transform: translateY(-3px) scale(1.01); box-shadow: 0 12px 30px rgba(90, 75, 255, 0.15); }
+.note-card.exit { opacity: 0; transform: scale(0.9); }
 

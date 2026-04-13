@@ -214,18 +214,32 @@ function renderNote(note) {
 
   /* ── Events ── */
   pinBtn.addEventListener('click', async () => {
-    const { error } = await sb.from('notes').update({ pinned: !note.pinned }).eq('id', note.id);
-    if (!error) loadNotes();
+    const isPinned = !note.pinned;
+    const { error } = await sb.from('notes').update({ pinned: isPinned }).eq('id', note.id);
+    if (!error) {
+      loadNotes();
+      showStatus(isPinned ? 'Note pinned to top' : 'Note unpinned');
+    }
   });
 
   doneBtn.addEventListener('click', async () => {
     const isNowDone = !note.done;
     const completedAt = isNowDone ? new Date().toISOString() : null;
-    const { error } = await sb.from('notes').update({ 
-      done: isNowDone,
-      completed_at: completedAt
-    }).eq('id', note.id);
-    if (!error) loadNotes();
+    
+    // Add exit animation class
+    card.classList.add('exit');
+    
+    setTimeout(async () => {
+      const { error } = await sb.from('notes').update({ 
+        done: isNowDone,
+        completed_at: completedAt
+      }).eq('id', note.id);
+      
+      if (!error) {
+        loadNotes();
+        showStatus(isNowDone ? 'Moved to Accomplished 🏆' : 'Moved back to Pending ↻');
+      }
+    }, 400); // Matches CSS exit duration
   });
 
   delBtn.addEventListener('click', () => {
@@ -305,8 +319,12 @@ if (confirmOk) {
     if (!pendingDeleteId) return;
     const { error } = await sb.from('notes').delete().eq('id', pendingDeleteId);
     confirmOverlay.classList.add('hidden');
-    if (error) showStatus('Failed to delete');
-    else loadNotes();
+    if (error) {
+      showStatus('Failed to delete');
+    } else {
+      loadNotes();
+      showStatus('Note deleted forever 🗑️');
+    }
   });
 }
 if (confirmCancel) {
@@ -530,7 +548,9 @@ if (saveProfBtn && profName) {
       showStatus('Failed to save profile');
     } finally {
       saveProfBtn.disabled = false;
-      if (profSaveStatus) profSaveStatus.textContent = '';
+      if (profSaveStatus)      profSaveStatus.textContent = '';
+      showStatus('Profile updated successfully ✨');
+      loadProfile();
     }
   });
 }
