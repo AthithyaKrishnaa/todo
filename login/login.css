@@ -155,21 +155,20 @@ html, body {
 /* ── Submit Button ──────────────────── */
 .submit-btn {
   width: 100%;
-  padding: 0.75rem;
-  margin-top: 0.5rem;
-  background: var(--ink);
-  color: var(--card-bg);
-  border: none;
-  border-radius: 8px;
-  font-size: 15px;
-  font-weight: 500;
-  font-family: var(--font-body);
+  padding: 0.85rem;
+  background: linear-gradient(135deg, #A8A1F3 0%, #5A4BFF 100%);
+  color: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.6);
+  border-radius: 999px; /* Pill */
+  font-size: 16px;
+  font-weight: 700;
   cursor: pointer;
+  transition: all var(--transition);
+  box-shadow: 0 4px 12px rgba(90, 75, 255, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  transition: background 0.15s, transform 0.1s;
   min-height: 46px;
 }
 
