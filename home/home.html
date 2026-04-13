@@ -44,8 +44,8 @@
         <span class="note-badge" id="note-badge">0</span>
       </div>
       <div class="header-actions">
-        <button class="icon-btn" id="theme-btn" title="Toggle theme" aria-label="Toggle dark mode">◐</button>
-        <button class="icon-btn danger" id="logout-btn" title="Sign out" aria-label="Sign out">→</button>
+        <button class="btn-liquid" id="theme-btn" title="Toggle theme" aria-label="Toggle dark mode">◐</button>
+        <button class="btn-liquid" id="logout-btn" title="Sign out" aria-label="Sign out">→</button>
       </div>
     </div>
   </header>
@@ -65,8 +65,8 @@
 
         <!-- Filters -->
         <div class="filter-bar" role="tablist">
-          <button type="button" class="filter-btn active" data-filter="pending" role="tab" aria-selected="true">Pending</button>
-          <button type="button" class="filter-btn" data-filter="accomplished" role="tab" aria-selected="false">Accomplished</button>
+          <button type="button" class="btn-liquid active" data-filter="pending" role="tab" aria-selected="true">Pending</button>
+          <button type="button" class="btn-liquid" data-filter="accomplished" role="tab" aria-selected="false">Accomplished</button>
         </div>
 
         <!-- Notes area -->
@@ -113,7 +113,7 @@
           <!-- Footer -->
           <div class="capture-footer">
             <span class="char-count" id="char-count">0 / 2000</span>
-            <button type="button" class="save-btn" id="save-btn">Save note</button>
+            <button type="button" class="btn-metal-gold" id="save-btn"><span class="btn-inner">Save note</span></button>
           </div>
         </div>
         <div class="inline-status hidden" id="save-status"></div>
@@ -136,7 +136,7 @@
               <input type="text" id="link-heading" class="note-input single-line" placeholder="Link Heading..." maxlength="255" />
               <input type="url" id="link-url" class="note-input single-line" placeholder="https://..." />
               <div class="capture-footer">
-                <button type="button" class="save-btn" id="save-link-btn">Save Link</button>
+                <button type="button" class="btn-metal-gold" id="save-link-btn"><span class="btn-inner">Save Link</span></button>
               </div>
             </div>
             
@@ -157,7 +157,7 @@
               </div>
               <div class="capture-footer">
                 <span id="doc-upload-status" class="char-count"></span>
-                <button type="button" class="save-btn" id="save-doc-btn">Upload</button>
+                <button type="button" class="btn-metal-gold" id="save-doc-btn"><span class="btn-inner">Upload</span></button>
               </div>
             </div>
 
@@ -211,7 +211,7 @@
             </div>
             <div class="capture-footer">
                <span id="prof-save-status" class="char-count"></span>
-               <button type="button" class="save-btn" id="save-prof-btn">Update Details</button>
+               <button type="button" class="btn-metal-gold" id="save-prof-btn"><span class="btn-inner">Update Details</span></button>
             </div>
           </div>
 
@@ -230,7 +230,7 @@
                  </label>
                </div>
                <div class="capture-footer share-actions">
-                 <button type="button" class="save-btn btn-copy-text btn-full" id="copy-prof-btn">Copy Professional Details</button>
+                 <button type="button" class="btn-metal-gold btn-full" id="copy-prof-btn"><span class="btn-inner">Copy Professional Details</span></button>
                </div>
              </div>
           </div>
@@ -277,11 +277,24 @@
     <div class="confirm-box">
       <p class="confirm-msg" id="confirm-msg">Delete this note?</p>
       <div class="confirm-actions">
-        <button type="button" class="confirm-cancel" id="confirm-cancel">Cancel</button>
-        <button type="button" class="confirm-ok danger" id="confirm-ok">Delete</button>
+        <button type="button" class="btn-liquid" id="confirm-cancel">Cancel</button>
+        <button type="button" class="btn-metal-gold" id="confirm-ok"><span class="btn-inner">Delete</span></button>
       </div>
     </div>
   </div>
+
+  <!-- SVG Filters for Premium Buttons -->
+  <svg class="hidden" style="position: absolute; width: 0; height: 0;">
+    <defs>
+      <filter id="container-glass" x="-20%" y="-20%" width="140%" height="140%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="1" seed="1" result="turbulence" />
+        <feGaussianBlur in="turbulence" stdDeviation="2" result="blurredNoise" />
+        <feDisplacementMap in="SourceGraphic" in2="blurredNoise" scale="20" xChannelSelector="R" yChannelSelector="B" result="displaced" />
+        <feGaussianBlur in="displaced" stdDeviation="1" result="finalBlur" />
+        <feComposite in="finalBlur" in2="finalBlur" operator="over" />
+      </filter>
+    </defs>
+  </svg>
 
   <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
