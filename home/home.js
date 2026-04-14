@@ -42,6 +42,7 @@ const profLinkedin   = document.getElementById('prof-linkedin');
 const profInternship = document.getElementById('prof-internship');
 const profProject    = document.getElementById('prof-project');
 const profCerts      = document.getElementById('prof-certs');
+const profPortfolio  = document.getElementById('prof-portfolio');
 const profSaveStatus = document.getElementById('prof-save-status');
 const saveProfBtn    = document.getElementById('save-prof-btn');
 const shareOptions   = document.getElementById('share-options');
@@ -183,19 +184,28 @@ function renderNote(note) {
   const actionsDiv = document.createElement('div');
   actionsDiv.className = 'card-actions';
 
+  // Pin SVG
+  const pinSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="17" x2="12" y2="22"></line><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.79-.9A.5.5 0 0 1 16 12.1V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v7.1a.5.5 0 0 1-.1.41l-1.79.9A2 2 0 0 0 5 15.24V17z"></path></svg>`;
+  // Done SVG
+  const doneSvg = note.done 
+    ? `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>`
+    : `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+  // Delete SVG
+  const delSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>`;
+
   const pinBtn = makeActionBtn(
-    note.pinned ? '◈' : '◇',
+    pinSvg,
     note.pinned ? 'Unpin note' : 'Pin note',
-    note.pinned ? 'action-btn is-pinned' : 'action-btn'
+    note.pinned ? 'action-btn pin-btn' + (note.pinned ? ' is-pinned' : '') : 'action-btn pin-btn'
   );
 
   const doneBtn = makeActionBtn(
-    note.done ? '↺' : '✓',
+    doneSvg,
     note.done ? 'Mark active' : 'Mark done',
-    note.done ? 'action-btn is-done' : 'action-btn'
+    note.done ? 'action-btn done-btn is-done' : 'action-btn done-btn'
   );
 
-  const delBtn = makeActionBtn('—', 'Delete note', 'action-btn delete-btn');
+  const delBtn = makeActionBtn(delSvg, 'Delete note', 'action-btn delete-btn');
 
   actionsDiv.append(pinBtn, doneBtn, delBtn);
   header.append(tagsDiv, actionsDiv);
@@ -252,7 +262,7 @@ function makeActionBtn(label, ariaLabel, className) {
   const btn = document.createElement('button');
   btn.type        = 'button';
   btn.className   = className;
-  btn.textContent = label;
+  btn.innerHTML   = label;
   btn.setAttribute('aria-label', ariaLabel);
   btn.title       = ariaLabel;
   return btn;
@@ -468,6 +478,9 @@ async function shortenURL(url) {
    NAVIGATION
 ═══════════════════════════════════════════════════════════════ */
 function switchTab(targetId) {
+  // Persist view
+  localStorage.setItem('activeSection', targetId);
+
   // Navigation highlight
   navItems.forEach(b => b.classList.toggle('active', b.dataset.target === targetId));
   sidebarItems.forEach(b => b.classList.toggle('active', b.dataset.target === targetId));
@@ -539,6 +552,7 @@ async function loadProfile() {
       if (profInternship) profInternship.value = userProfile.internship_link || '';
       if (profProject)    profProject.value = userProfile.project_link || '';
       if (profCerts)      profCerts.value = userProfile.certifications_link || '';
+      if (profPortfolio)  profPortfolio.value = userProfile.portfolio_link || '';
     }
     
     // Manage Avatar Display
@@ -578,6 +592,7 @@ if (saveProfBtn && profName) {
         internship_link: profInternship.value.trim(),
         project_link: profProject.value.trim(),
         certifications_link: profCerts.value.trim(),
+        portfolio_link: profPortfolio.value.trim(),
         updated_at: new Date().toISOString()
       };
       
@@ -616,7 +631,8 @@ function buildShareOptions() {
     { key: 'linkedin', label: 'LinkedIn', val: userProfile.linkedin },
     { key: 'internship', label: 'Internship Details', val: userProfile.internship_link },
     { key: 'project', label: 'Project Details', val: userProfile.project_link },
-    { key: 'certs', label: 'Certifications Details', val: userProfile.certifications_link }
+    { key: 'certs', label: 'Certifications Details', val: userProfile.certifications_link },
+    { key: 'portfolio', label: 'Portfolio Link', val: userProfile.portfolio_link }
   ];
   
   let hasData = false;
@@ -686,12 +702,13 @@ if (copyProfBtn && shareOptions) {
       }
 
       // 5. Documents & Resources
-      const docKeys = ['internship', 'project', 'certs'];
+      const docKeys = ['internship', 'project', 'certs', 'portfolio'];
       if (docKeys.some(k => keys.includes(k) && p[`${k}_link`])) {
         output += `Documents & Resources\n`;
         if (keys.includes('internship') && p.internship_link) output += `Internships: ${p.internship_link}\n`;
         if (keys.includes('project') && p.project_link) output += `Projects: ${p.project_link}\n`;
         if (keys.includes('certs') && p.certifications_link) output += `Certifications: ${p.certifications_link}\n`;
+        if (keys.includes('portfolio') && p.portfolio_link) output += `Portfolio: ${p.portfolio_link}\n`;
         output += `\n`;
       }
 
@@ -841,8 +858,9 @@ initTheme();
 initAuth();   // runs auth guard, then loads notes
 initURLCleaners();
 
-// Apply locked-mode on initial load for the Notes section
-document.body.classList.add('locked-mode');
+// Restore last active section or default to notes
+const savedSection = localStorage.getItem('activeSection') || 'section-notes';
+switchTab(savedSection);
 
 // Live IST Clock
 function updateClock() {

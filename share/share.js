@@ -25,6 +25,7 @@ const resResume     = document.getElementById('res-resume');
 const resInternship = document.getElementById('res-internship');
 const resProject    = document.getElementById('res-project');
 const resCerts      = document.getElementById('res-certs');
+const resPortfolio  = document.getElementById('res-portfolio');
 
 async function init() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -110,7 +111,8 @@ function renderProfile(p) {
     { el: resResume, url: p.resume_link },
     { el: resInternship, url: p.internship_link },
     { el: resProject, url: p.project_link },
-    { el: resCerts, url: p.certifications_link }
+    { el: resCerts, url: p.certifications_link },
+    { el: resPortfolio, url: p.portfolio_link }
   ];
 
   resources.forEach(r => {

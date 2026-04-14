@@ -1,8 +1,8 @@
 -- ================================================================
 -- SECOND BRAIN — setup.sql
--- Run this in your Supabase SQL Editor (once, in order)
+-- Run this in your Supabase SQL Editor
+-- This script is "Safe" — it will NOT delete existing data.
 -- ================================================================
-
 
 -- ── 1. Enable UUID generation ─────────────────────────────────
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
@@ -28,40 +28,28 @@ CREATE INDEX IF NOT EXISTS notes_remind_at_idx  ON notes(remind_at) WHERE remind
 
 
 -- ── 4. Enable Row Level Security ──────────────────────────────
--- This ensures every user can ONLY access their OWN notes.
 ALTER TABLE notes ENABLE ROW LEVEL SECURITY;
 
 
--- ── 5. RLS Policies ───────────────────────────────────────────
--- SELECT: can only read own notes
+-- ── 5. RLS Policies for Notes ─────────────────────────────────
+-- SELECT
 DROP POLICY IF EXISTS "select_own_notes" ON notes;
-CREATE POLICY "select_own_notes"
-  ON notes FOR SELECT
-  USING (auth.uid() = user_id);
+CREATE POLICY "select_own_notes" ON notes FOR SELECT USING (auth.uid() = user_id);
 
--- INSERT: can only create notes for themselves
+-- INSERT
 DROP POLICY IF EXISTS "insert_own_notes" ON notes;
-CREATE POLICY "insert_own_notes"
-  ON notes FOR INSERT
-  WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "insert_own_notes" ON notes FOR INSERT WITH CHECK (auth.uid() = user_id);
 
--- UPDATE: can only update own notes
+-- UPDATE
 DROP POLICY IF EXISTS "update_own_notes" ON notes;
-CREATE POLICY "update_own_notes"
-  ON notes FOR UPDATE
-  USING (auth.uid() = user_id)
-  WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "update_own_notes" ON notes FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
 
--- DELETE: can only delete own notes
+-- DELETE
 DROP POLICY IF EXISTS "delete_own_notes" ON notes;
-CREATE POLICY "delete_own_notes"
-  ON notes FOR DELETE
-  USING (auth.uid() = user_id);
+CREATE POLICY "delete_own_notes" ON notes FOR DELETE USING (auth.uid() = user_id);
 
 
-
--- ── 7. Profile table ──────────────────────────────────────────
-DROP TABLE IF EXISTS profile CASCADE;
+-- ── 6. Profile table ──────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS profile (
   user_id             UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   name                TEXT,
@@ -73,12 +61,17 @@ CREATE TABLE IF NOT EXISTS profile (
   internship_link     TEXT,
   project_link        TEXT,
   certifications_link TEXT,
-  avatar_url          TEXT, -- New field for profile photo
   updated_at          TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+-- Safely add new columns if they don't exist
+ALTER TABLE profile ADD COLUMN IF NOT EXISTS portfolio_link TEXT;
+ALTER TABLE profile ADD COLUMN IF NOT EXISTS avatar_url TEXT;
+
 ALTER TABLE profile ENABLE ROW LEVEL SECURITY;
 
+
+-- ── 7. RLS Policies for Profile ───────────────────────────────
 -- Select own profile
 DROP POLICY IF EXISTS "select_own_profile" ON profile;
 CREATE POLICY "select_own_profile" ON profile FOR SELECT USING (auth.uid() = user_id);
@@ -87,18 +80,20 @@ CREATE POLICY "select_own_profile" ON profile FOR SELECT USING (auth.uid() = use
 DROP POLICY IF EXISTS "Public read profiles" ON profile;
 CREATE POLICY "Public read profiles" ON profile FOR SELECT USING (true);
 
+-- Insert own profile
 DROP POLICY IF EXISTS "insert_own_profile" ON profile;
 CREATE POLICY "insert_own_profile" ON profile FOR INSERT WITH CHECK (auth.uid() = user_id);
 
+-- Update own profile
 DROP POLICY IF EXISTS "update_own_profile" ON profile;
 CREATE POLICY "update_own_profile" ON profile FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
 
+-- Delete own profile
 DROP POLICY IF EXISTS "delete_own_profile" ON profile;
 CREATE POLICY "delete_own_profile" ON profile FOR DELETE USING (auth.uid() = user_id);
 
 
 -- ── 8. Storage Bucket Setup ──────────────────────────────────
--- Create a public bucket called "avatars" for profile photos
 INSERT INTO storage.buckets (id, name, public) 
 VALUES ('avatars', 'avatars', true)
 ON CONFLICT (id) DO NOTHING;

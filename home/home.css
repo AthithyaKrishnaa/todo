@@ -628,14 +628,54 @@ body {
 .loading-wrap { display: flex; flex-direction: column; gap: 0.7rem; }
 
 .skeleton {
-  height: 90px;
-  background: linear-gradient(90deg, #1A1A1C 25%, #242428 50%, #1A1A1C 75%);
-  background-size: 200% 100%;
+  height: 110px;
+  background: #FFFFFF;
+  border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  animation: shimmer 1.4s infinite;
+  padding: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow);
 }
 
-@keyframes shimmer { to { background-position: -200% 0; } }
+/* The Shimmer Effect Overlay */
+.skeleton::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(181, 174, 246, 0.15) 50%,
+    transparent 100%
+  );
+  animation: skeleton-shimmer 2s infinite ease-out;
+}
+
+/* Mimic Card Elements (Tag, Header, Content) */
+.skeleton::after {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: 
+    /* Tag placeholder */
+    linear-gradient(var(--accent-bg) 0 0) 0 0 / 45px 16px,
+    /* Content Line 1 */
+    linear-gradient(var(--bg) 0 0) 0 40px / 90% 12px,
+    /* Content Line 2 */
+    linear-gradient(var(--bg) 0 0) 0 62px / 75% 12px;
+  background-repeat: no-repeat;
+  border-radius: 4px;
+}
+
+@keyframes skeleton-shimmer {
+  100% { transform: translateX(100%); }
+}
 
 /* ── Notes list ─────────────────────────── */
 .notes-list {
@@ -706,23 +746,24 @@ body {
 /* ── Card Actions ───────────────────────── */
 .card-actions {
   display: flex;
-  gap: 2px;
+  gap: 6px;
   flex-shrink: 0;
 }
 
 .action-btn {
-  width: 26px;
-  height: 26px;
-  border-radius: 5px;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px; /* Softer rounded corners */
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 13px;
   font-weight: 600;
   color: var(--ink-muted);
-  transition: all var(--transition);
-  background: var(--subtle);
-  border: 1px solid var(--border);
+  transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+  background: var(--accent-bg); /* Subtle light indigo base */
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
 }
 
 .action-btn svg {
@@ -731,11 +772,55 @@ body {
   stroke-width: 2.5;
 }
 
-.action-btn:hover { background: var(--border); color: var(--ink); }
-.action-btn.is-pinned  { color: var(--accent); background: var(--accent-bg); border-color: var(--accent); }
-.action-btn.is-done    { color: var(--green); background: var(--green-bg); border-color: var(--green); }
-.action-btn.delete-btn { color: var(--ink-muted); }
-.action-btn.delete-btn:hover { background: #111; color: #fff; border-color: #000; } /* Stark black for delete */
+.action-btn:hover { 
+  background: #FFFFFF; 
+  color: var(--ink);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Pin: Permanent Amber theme */
+.action-btn.pin-btn {
+  color: #F59E0B; /* Amber 500 */
+  background: #FFFBEB; /* Amber 50 */
+  border-color: rgba(245, 158, 11, 0.2);
+}
+.action-btn.pin-btn:hover {
+  background: #FEF3C7; /* Amber 100 */
+  color: #D97706; /* Amber 600 */
+  border-color: rgba(245, 158, 11, 0.4);
+}
+
+/* Pin: Active state (extra emphasis) */
+.action-btn.is-pinned { 
+  background: #FEF3C7; 
+  border-color: #F59E0B;
+}
+
+/* Done/Revert: Permanent Emerald Green theme */
+.action-btn.done-btn {
+  color: #10B981; /* Emerald 500 */
+  background: #ECFDF5; /* Emerald 50 */
+  border-color: rgba(16, 185, 129, 0.2);
+}
+.action-btn.done-btn:hover {
+  background: #D1FAE5; /* Emerald 100 */
+  color: #059669; /* Emerald 600 */
+  border-color: rgba(16, 185, 129, 0.4);
+}
+
+/* Delete: Permanent Crimson Red theme */
+.action-btn.delete-btn { 
+  color: #EF4444; /* Red 500 */
+  background: #FEF2F2; /* Red 50 */
+  border-color: rgba(239, 68, 68, 0.15);
+}
+.action-btn.delete-btn:hover { 
+  background: #FEE2E2; /* Red 100 */
+  color: #DC2626; /* Red 600 */
+  border-color: rgba(239, 68, 68, 0.3); 
+}
 
 /* ── Card Body ──────────────────────────── */
 .card-content {
@@ -1297,7 +1382,10 @@ body:not(.locked-mode) .app-section {
     margin-bottom: 0.5rem; 
   }
   .profile-grid {
-    flex-direction: column !important;
+    display: flex !important;
+    flex-direction: column-reverse !important;
+    gap: 1.5rem;
+    width: 100% !important;
   }
   .profile-grid > div {
     width: 100% !important;
