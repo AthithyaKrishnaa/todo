@@ -46,6 +46,21 @@ const profSaveStatus = document.getElementById('prof-save-status');
 const saveProfBtn    = document.getElementById('save-prof-btn');
 const shareOptions   = document.getElementById('share-options');
 const copyProfBtn    = document.getElementById('copy-prof-btn');
+const shareLinkBtn   = document.getElementById('share-link-btn');
+
+/* ── Avatar DOM References ─────────────────── */
+const avatarImg      = document.getElementById('avatar-img');
+const avatarPlaceholder = document.getElementById('avatar-placeholder');
+const avatarUploadBtn = document.getElementById('avatar-upload-btn');
+const avatarDeleteBtn = document.getElementById('avatar-delete-btn');
+const avatarFileInput = document.getElementById('avatar-file-input');
+
+/* ── Cropper DOM References ────────────────── */
+const cropperOverlay     = document.getElementById('cropper-overlay');
+const cropperImage       = document.getElementById('cropper-image');
+const cropperCloseBtn     = document.getElementById('cropper-close-btn');
+const cropperCancelBtn    = document.getElementById('cropper-cancel-btn');
+const cropperConfirmBtn   = document.getElementById('cropper-confirm-btn');
 
 /* ── Sidebar DOM ────────────────────────────────────────────── */
 const sidebarItems   = document.querySelectorAll('.side-nav-item');
@@ -57,6 +72,7 @@ let currentFilter  = 'pending';
 let searchQuery    = '';
 let pendingDeleteId= null;
 let userProfile    = null;
+let cropperInstance = null;
 
 /* ═══════════════════════════════════════════════════════════════
    AUTH & INITIALIZATION
@@ -490,6 +506,20 @@ async function loadProfile() {
       if (profProject)    profProject.value = userProfile.project_link || '';
       if (profCerts)      profCerts.value = userProfile.certifications_link || '';
     }
+    
+    // Manage Avatar Display
+    if (userProfile && userProfile.avatar_url) {
+      avatarImg.src = userProfile.avatar_url;
+      avatarImg.classList.remove('hidden');
+      avatarPlaceholder.classList.add('hidden');
+      avatarDeleteBtn.classList.remove('hidden');
+    } else {
+      avatarImg.src = '';
+      avatarImg.classList.add('hidden');
+      avatarPlaceholder.classList.remove('hidden');
+      avatarDeleteBtn.classList.add('hidden');
+    }
+
   } catch (err) {
     console.error(err);
   } finally {
@@ -640,6 +670,154 @@ if (copyProfBtn && shareOptions) {
     } catch (e) {
       console.error(e);
       showStatus('Failed to copy');
+    }
+  });
+}
+
+if (shareLinkBtn) {
+  shareLinkBtn.addEventListener('click', () => {
+    if (!currentUser) return;
+    const shareUrl = `${window.location.origin}/share?u=${currentUser.id}`;
+    navigator.clipboard.writeText(shareUrl);
+    showStatus('Public Profile Link copied! 🔗');
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   AVATAR & CROPPER LOGIC
+   Uses Cropper.js from CDN
+═══════════════════════════════════════════════════════════════ */
+if (avatarUploadBtn) {
+  avatarUploadBtn.addEventListener('click', () => avatarFileInput.click());
+}
+
+if (avatarFileInput) {
+  avatarFileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      showStatus('Please select an image file');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      cropperImage.src = event.target.result;
+      cropperOverlay.classList.remove('hidden');
+      
+      // Initialize Cropper
+      if (cropperInstance) cropperInstance.destroy();
+      cropperInstance = new Cropper(cropperImage, {
+        aspectRatio: 1,
+        viewMode: 1,
+        guides: true,
+        center: true,
+        highlight: false,
+        cropBoxMovable: true,
+        cropBoxResizable: true,
+        toggleDragModeOnDblclick: false,
+      });
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+cropperCloseBtn?.addEventListener('click', () => {
+  cropperOverlay.classList.add('hidden');
+  avatarFileInput.value = '';
+});
+
+cropperCancelBtn?.addEventListener('click', () => {
+  cropperOverlay.classList.add('hidden');
+  avatarFileInput.value = '';
+});
+
+cropperConfirmBtn?.addEventListener('click', async () => {
+  if (!cropperInstance) return;
+
+  cropperConfirmBtn.disabled = true;
+  cropperConfirmBtn.textContent = 'Uploading...';
+
+  try {
+    const canvas = cropperInstance.getCroppedCanvas({
+      width: 400,
+      height: 400,
+    });
+
+    canvas.toBlob(async (blob) => {
+      if (!blob) throw new Error('Failed to create blob');
+
+      const fileName = `${currentUser.id}/avatar_${Date.now()}.png`;
+      
+      // 1. Upload to Supabase Storage
+      const { data: uploadData, error: uploadError } = await sb.storage
+        .from('avatars')
+        .upload(fileName, blob, {
+          contentType: 'image/png',
+          upsert: true
+        });
+
+      if (uploadError) throw uploadError;
+
+      // 2. Get Public URL
+      const { data: { publicUrl } } = sb.storage
+        .from('avatars')
+        .getPublicUrl(fileName);
+
+      // 3. Update Profile in DB
+      const { error: dbError } = await sb
+        .from('profile')
+        .upsert({ 
+          user_id: currentUser.id, 
+          avatar_url: publicUrl,
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'user_id' });
+
+      if (dbError) throw dbError;
+
+      showStatus('Profile photo updated! ✨');
+      loadProfile();
+      cropperOverlay.classList.add('hidden');
+    }, 'image/png');
+
+  } catch (err) {
+    console.error('Avatar upload error:', err);
+    showStatus('Failed to upload photo');
+  } finally {
+    cropperConfirmBtn.disabled = false;
+    cropperConfirmBtn.textContent = 'Set Profile Photo';
+    avatarFileInput.value = '';
+  }
+});
+
+if (avatarDeleteBtn) {
+  avatarDeleteBtn.addEventListener('click', async () => {
+    if (!confirm('Remove profile photo?')) return;
+
+    avatarDeleteBtn.disabled = true;
+    showStatus('Removing photo...');
+
+    try {
+      // 1. Update Profile in DB (nullify avatar_url)
+      const { error: dbError } = await sb
+        .from('profile')
+        .update({ avatar_url: null })
+        .eq('user_id', currentUser.id);
+
+      if (dbError) throw dbError;
+
+      // Note: We could also delete old files from storage, but for simplicity
+      // and to avoid keeping track of every file path, we just nullify the DB.
+      // If we want to be clean, we can extract the path from the URL.
+
+      showStatus('Photo removed');
+      loadProfile();
+    } catch (err) {
+      console.error('Avatar delete error:', err);
+      showStatus('Failed to remove photo');
+    } finally {
+      avatarDeleteBtn.disabled = false;
     }
   });
 }

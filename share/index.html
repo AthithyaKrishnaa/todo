@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Professional Profile - Second Brain</title>
+  <link rel="stylesheet" href="share.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,400;9..40,500&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="share-container" id="profile-card">
+    <div id="loading" class="loading-overlay">
+      <div class="spinner"></div>
+    </div>
+
+    <div id="content" class="hidden">
+      <div class="profile-header">
+        <div class="avatar-view">
+          <img id="view-avatar" src="" alt="Profile Photo" class="hidden">
+          <div id="view-placeholder" class="placeholder">
+             <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          </div>
+        </div>
+        <h1 id="view-name"></h1>
+        <p class="tagline">Executive Portfolio</p>
+      </div>
+
+      <div class="profile-sections">
+        <div class="view-section" id="sec-contact">
+          <h3>Contact Information</h3>
+          <div class="info-grid">
+            <div class="info-item" id="item-phone">
+              <span class="label">Phone</span>
+              <span class="value" id="val-phone"></span>
+            </div>
+            <div class="info-item" id="item-email">
+              <span class="label">Email</span>
+              <span class="value" id="val-email"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="view-section" id="sec-social">
+          <h3>Professional Profiles</h3>
+          <div class="link-grid">
+            <a href="#" target="_blank" class="profile-link" id="link-github">GitHub</a>
+            <a href="#" target="_blank" class="profile-link" id="link-linkedin">LinkedIn</a>
+          </div>
+        </div>
+
+        <div class="view-section" id="sec-resources">
+          <h3>Documents & Resources</h3>
+          <div class="resource-list">
+            <a href="#" target="_blank" class="resource-item" id="res-resume">
+              <span class="icon">📄</span>
+              <span class="text">Download Resume</span>
+            </a>
+            <a href="#" target="_blank" class="resource-item" id="res-internship">
+              <span class="icon">💼</span>
+              <span class="text">Internship Details</span>
+            </a>
+            <a href="#" target="_blank" class="resource-item" id="res-project">
+              <span class="icon">🚀</span>
+              <span class="text">Project Portfolio</span>
+            </a>
+            <a href="#" target="_blank" class="resource-item" id="res-certs">
+              <span class="icon">🎓</span>
+              <span class="text">Certifications</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer">
+        <p>Built with Second Brain</p>
+      </div>
+    </div>
+
+    <div id="error" class="hidden">
+      <div class="error-view">
+        <span class="error-icon">⚠️</span>
+        <h2>Profile Not Found</h2>
+        <p>The shared link might be invalid or the profile is private.</p>
+        <a href="/" class="back-btn">Go Back Home</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="../config.js"></script>
+  <script src="share.js"></script>
+</body>
+</html>

@@ -20,6 +20,10 @@
       "dest": "/login/index.html"
     },
     {
+      "src": "/share",
+      "dest": "/share/index.html"
+    },
+    {
       "handle": "filesystem"
     }
   ]

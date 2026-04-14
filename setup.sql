@@ -62,26 +62,9 @@ CREATE POLICY "delete_own_notes"
 -- ── 6. (Optional) Restrict signups to invited users only ──────
 -- After creating YOUR account, run this to block new registrations.
 -- This makes it truly private — only your account can ever log in.
---
 -- In Supabase dashboard → Authentication → Settings:
 --   Disable "Enable email confirmations" for dev
 --   OR set "Signup disabled" to block new users
---
--- Alternatively, add a trigger to block extra signups:
---
--- CREATE OR REPLACE FUNCTION block_new_signups()
--- RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER AS $$
--- BEGIN
---   IF (SELECT COUNT(*) FROM auth.users) >= 1 THEN
---     RAISE EXCEPTION 'Signups are closed.';
---   END IF;
---   RETURN NEW;
--- END;
--- $$;
---
--- CREATE TRIGGER enforce_single_user
---   BEFORE INSERT ON auth.users
---   FOR EACH ROW EXECUTE FUNCTION block_new_signups();
 
 
 -- ================================================================
@@ -90,63 +73,12 @@ CREATE POLICY "delete_own_notes"
 
 
 -- ================================================================
--- SECOND BRAIN — Phase 2: Vault & Profile
+-- SECOND BRAIN — Phase 2: Profile & Storage
 -- ================================================================
 
--- ── 7. Links table ────────────────────────────────────────────
-CREATE TABLE IF NOT EXISTS links (
-  id         UUID         PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_id    UUID         NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  heading    TEXT         NOT NULL CHECK (char_length(heading) BETWEEN 1 AND 255),
-  url        TEXT         NOT NULL,
-  created_at TIMESTAMPTZ  NOT NULL DEFAULT NOW()
-);
-
-CREATE INDEX IF NOT EXISTS links_user_id_idx ON links(user_id);
-ALTER TABLE links ENABLE ROW LEVEL SECURITY;
-
-DROP POLICY IF EXISTS "select_own_links" ON links;
-CREATE POLICY "select_own_links" ON links FOR SELECT USING (auth.uid() = user_id);
-
-DROP POLICY IF EXISTS "insert_own_links" ON links;
-CREATE POLICY "insert_own_links" ON links FOR INSERT WITH CHECK (auth.uid() = user_id);
-
-DROP POLICY IF EXISTS "update_own_links" ON links;
-CREATE POLICY "update_own_links" ON links FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
-
-DROP POLICY IF EXISTS "delete_own_links" ON links;
-CREATE POLICY "delete_own_links" ON links FOR DELETE USING (auth.uid() = user_id);
-
-
--- ── 8. Documents table ────────────────────────────────────────
-CREATE TABLE IF NOT EXISTS documents (
-  id         UUID         PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_id    UUID         NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  heading    TEXT         NOT NULL CHECK (char_length(heading) BETWEEN 1 AND 255),
-  file_path  TEXT         NOT NULL,
-  file_name  TEXT         NOT NULL,
-  created_at TIMESTAMPTZ  NOT NULL DEFAULT NOW()
-);
-
-CREATE INDEX IF NOT EXISTS documents_user_id_idx ON documents(user_id);
-ALTER TABLE documents ENABLE ROW LEVEL SECURITY;
-
-DROP POLICY IF EXISTS "select_own_documents" ON documents;
-CREATE POLICY "select_own_documents" ON documents FOR SELECT USING (auth.uid() = user_id);
-
-DROP POLICY IF EXISTS "insert_own_documents" ON documents;
-CREATE POLICY "insert_own_documents" ON documents FOR INSERT WITH CHECK (auth.uid() = user_id);
-
-DROP POLICY IF EXISTS "update_own_documents" ON documents;
-CREATE POLICY "update_own_documents" ON documents FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
-
-DROP POLICY IF EXISTS "delete_own_documents" ON documents;
-CREATE POLICY "delete_own_documents" ON documents FOR DELETE USING (auth.uid() = user_id);
-
-
--- ── 9. Profile table ──────────────────────────────────────────
+-- ── 7. Profile table ──────────────────────────────────────────
 DROP TABLE IF EXISTS profile CASCADE;
-CREATE TABLE profile (
+CREATE TABLE IF NOT EXISTS profile (
   user_id             UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   name                TEXT,
   phone               TEXT,
@@ -157,13 +89,19 @@ CREATE TABLE profile (
   internship_link     TEXT,
   project_link        TEXT,
   certifications_link TEXT,
+  avatar_url          TEXT, -- New field for profile photo
   updated_at          TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 ALTER TABLE profile ENABLE ROW LEVEL SECURITY;
 
+-- Select own profile
 DROP POLICY IF EXISTS "select_own_profile" ON profile;
 CREATE POLICY "select_own_profile" ON profile FOR SELECT USING (auth.uid() = user_id);
+
+-- Select any profile (Public read for shared links)
+DROP POLICY IF EXISTS "Public read profiles" ON profile;
+CREATE POLICY "Public read profiles" ON profile FOR SELECT USING (true);
 
 DROP POLICY IF EXISTS "insert_own_profile" ON profile;
 CREATE POLICY "insert_own_profile" ON profile FOR INSERT WITH CHECK (auth.uid() = user_id);
@@ -175,21 +113,18 @@ DROP POLICY IF EXISTS "delete_own_profile" ON profile;
 CREATE POLICY "delete_own_profile" ON profile FOR DELETE USING (auth.uid() = user_id);
 
 
--- ── 10. Storage Bucket Setup ──────────────────────────────────
--- Create a private bucket called "vault" if it doesn't exist
+-- ── 8. Storage Bucket Setup ──────────────────────────────────
+-- Create a public bucket called "avatars" for profile photos
 INSERT INTO storage.buckets (id, name, public) 
-VALUES ('vault', 'vault', false)
+VALUES ('avatars', 'avatars', true)
 ON CONFLICT (id) DO NOTHING;
 
--- Storage RLS: Users can only access folders named after their auth ID
-DROP POLICY IF EXISTS "vault_select" ON storage.objects;
-CREATE POLICY "vault_select" ON storage.objects FOR SELECT USING (bucket_id = 'vault' AND (storage.foldername(name))[1] = auth.uid()::text);
+-- Avatar Storage RLS: Public read, private manage
+DROP POLICY IF EXISTS "Public View Avatars" ON storage.objects;
+CREATE POLICY "Public View Avatars" ON storage.objects FOR SELECT USING (bucket_id = 'avatars');
 
-DROP POLICY IF EXISTS "vault_insert" ON storage.objects;
-CREATE POLICY "vault_insert" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'vault' AND (storage.foldername(name))[1] = auth.uid()::text);
-
-DROP POLICY IF EXISTS "vault_update" ON storage.objects;
-CREATE POLICY "vault_update" ON storage.objects FOR UPDATE USING (bucket_id = 'vault' AND (storage.foldername(name))[1] = auth.uid()::text) WITH CHECK (bucket_id = 'vault' AND (storage.foldername(name))[1] = auth.uid()::text);
-
-DROP POLICY IF EXISTS "vault_delete" ON storage.objects;
-CREATE POLICY "vault_delete" ON storage.objects FOR DELETE USING (bucket_id = 'vault' AND (storage.foldername(name))[1] = auth.uid()::text);
+DROP POLICY IF EXISTS "Users can manage own avatar" ON storage.objects;
+CREATE POLICY "Users can manage own avatar" 
+ON storage.objects FOR ALL 
+USING (bucket_id = 'avatars' AND (storage.foldername(name))[1] = auth.uid()::text)
+WITH CHECK (bucket_id = 'avatars' AND (storage.foldername(name))[1] = auth.uid()::text);
