@@ -314,8 +314,34 @@ async function saveNote() {
 if (confirmOk) {
   confirmOk.addEventListener('click', async () => {
     if (!pendingDeleteId) return;
+
+    // Handle avatar deletion
+    if (pendingDeleteId === '__AVATAR__') {
+      confirmOverlay.classList.add('hidden');
+      avatarDeleteBtn.disabled = true;
+      showStatus('Removing photo...');
+      try {
+        const { error: dbError } = await sb
+          .from('profile')
+          .update({ avatar_url: null })
+          .eq('user_id', currentUser.id);
+        if (dbError) throw dbError;
+        showStatus('Photo removed');
+        loadProfile();
+      } catch (err) {
+        console.error('Avatar delete error:', err);
+        showStatus('Failed to remove photo');
+      } finally {
+        avatarDeleteBtn.disabled = false;
+        pendingDeleteId = null;
+      }
+      return;
+    }
+
+    // Handle note deletion
     const { error } = await sb.from('notes').delete().eq('id', pendingDeleteId);
     confirmOverlay.classList.add('hidden');
+    pendingDeleteId = null;
     if (error) {
       showStatus('Failed to delete');
     } else {
@@ -792,33 +818,11 @@ cropperConfirmBtn?.addEventListener('click', async () => {
 });
 
 if (avatarDeleteBtn) {
-  avatarDeleteBtn.addEventListener('click', async () => {
-    if (!confirm('Remove profile photo?')) return;
-
-    avatarDeleteBtn.disabled = true;
-    showStatus('Removing photo...');
-
-    try {
-      // 1. Update Profile in DB (nullify avatar_url)
-      const { error: dbError } = await sb
-        .from('profile')
-        .update({ avatar_url: null })
-        .eq('user_id', currentUser.id);
-
-      if (dbError) throw dbError;
-
-      // Note: We could also delete old files from storage, but for simplicity
-      // and to avoid keeping track of every file path, we just nullify the DB.
-      // If we want to be clean, we can extract the path from the URL.
-
-      showStatus('Photo removed');
-      loadProfile();
-    } catch (err) {
-      console.error('Avatar delete error:', err);
-      showStatus('Failed to remove photo');
-    } finally {
-      avatarDeleteBtn.disabled = false;
-    }
+  avatarDeleteBtn.addEventListener('click', () => {
+    pendingDeleteId = '__AVATAR__';
+    confirmMsg.textContent = 'Remove your profile photo?';
+    confirmOk.textContent = 'Remove';
+    confirmOverlay.classList.remove('hidden');
   });
 }
 

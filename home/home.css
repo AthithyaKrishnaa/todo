@@ -269,7 +269,7 @@ body {
 .section {
   max-width: 680px;
   margin: 0 auto;
-  padding: 1.25rem 1.25rem 0;
+  padding: 1rem 1.25rem 0;
 }
 
 /* ── Capture Box ────────────────────────── */
@@ -896,7 +896,7 @@ body {
 
 /* ── Section Headers ────────────────────── */
 .section-header {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 .section-title {
   font-family: var(--font-serif);
@@ -1034,6 +1034,58 @@ body {
   background: var(--subtle);
 }
 .btn-full { width: 100%; }
+
+/* ── App Footer ─────────────────────────── */
+.app-footer {
+  position: relative;
+  z-index: 100;
+  background: rgba(238, 237, 255, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 2px solid rgba(90, 75, 255, 0.15);
+  margin-top: 0.5rem;
+  padding: 0.6rem 0;
+}
+
+.footer-inner {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 0 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.footer-brand {
+  display: flex;
+  align-items: center;
+}
+
+.footer-logo {
+  height: 35px;
+  filter: grayscale(0.4) contrast(0.9);
+  transition: all 0.3s ease;
+}
+
+.footer-logo:hover {
+  filter: grayscale(0) contrast(1);
+}
+
+.footer-tagline {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--ink-mid);
+  font-weight: 500;
+}
+
+.footer-copyright {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--ink-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
 
 /* ── Bottom Navigation ──────────────────── */
 .bottom-nav {
@@ -1174,14 +1226,14 @@ body:not(.locked-mode) .app-section {
   bottom: 80px;
   z-index: 100;
   margin-top: 0.5rem;
-  padding-bottom: 2rem;
+  padding-bottom: 0.5rem;
 }
 
 .locked-mode .app-section > .section:has(.capture-box) {
   position: static;
   flex: 0 0 auto;
-  /* Add padding to ensure it clears the mobile bottom nav (64px) + a little extra lift */
-  padding-bottom: calc(0.5rem + 70px); 
+  /* Reduced padding to remove extra whitespace */
+  padding-bottom: 0.5rem; 
 }
 
 
@@ -1194,38 +1246,54 @@ body:not(.locked-mode) .app-section {
   .header { left: 0; }
   .vault-grid {
     grid-template-columns: 1fr;
-    gap: 2rem;
+    gap: 1.5rem;
     overflow-y: auto;
   }
   .profile-grid {
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: 1.5rem;
     overflow-y: auto;
-    padding-bottom: 100px;
+    padding-bottom: 80px;
   }
 }
 
-@media (max-width: 480px) {
-  .header-inner, .section { padding-left: 1.25rem; padding-right: 1.25rem; }
-  .section-header { padding-left: 0; padding-right: 0; }
-  .section { padding-top: 0.75rem !important; }
-  .dashboard { padding-top: 0.75rem !important; }
-  .filter-bar { margin-bottom: 0.75rem; }
+@media (max-width: 767px) {
+  .header-inner, .section, .footer-inner { 
+    padding-left: 1rem; 
+    padding-right: 1rem; 
+  }
+  .section-header { 
+    padding-left: 0; 
+    padding-right: 0; 
+    text-align: left !important;
+  }
+  .footer-inner {
+    flex-direction: column;
+    gap: 0.5rem;
+    text-align: center;
+    padding: 1rem;
+  }
+  .section { padding-top: 0.5rem !important; }
+  .dashboard { padding-top: 0.5rem !important; }
+  .filter-bar { 
+    width: 100%;
+    margin-bottom: 0.5rem; 
+  }
   .scrollable-notes { padding: 0.25rem 0.25rem 0; }
   .note-input, .search-input { font-size: 16px; }
-  .bottom-nav { height: 60px; padding-bottom: 6px; } 
+  .bottom-nav { height: 60px; padding-bottom: env(safe-area-inset-bottom); } 
   .card-actions { gap: 6px; }
-  .nav-label { font-size: 13px; }
+  .nav-label { font-size: 12px; }
   .nav-icon-svg { width: 22px; height: 22px; }
   
-  /* Shrink capture button even more */
   .capture-footer .btn-liquid {
-    padding: 0.4rem 1.25rem;
-    font-size: 13px;
+    padding: 0.4rem 1rem;
+    font-size: 12px;
   }
-
   .header-clock { display: none; }
+  .footer-tagline { font-size: 11px; }
+  .footer-copyright { font-size: 9px; }
 }
 
 /* ── Dashboard Spacing ── */
@@ -1322,8 +1390,8 @@ body:not(.locked-mode) .app-section {
 .profile-grid {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
-  padding-bottom: 120px;
+  gap: 1.5rem;
+  padding-bottom: 2rem;
 }
 
 .scrollable-notes::-webkit-scrollbar { width: 4px; }
@@ -1360,13 +1428,13 @@ button:active { transform: scale(0.95); }
     height: auto !important;
     overflow: visible !important;
     background: transparent;
-    padding-top: 1rem;
+    padding-top: 0;
   }
 
   .nav-liquid-container {
     display: flex;
     justify-content: center;
-    padding: 2rem 0 1rem;
+    padding: 0.5rem 0;
     position: sticky;
     top: 60px; /* Below header */
     z-index: 1000;
@@ -1388,7 +1456,7 @@ button:active { transform: scale(0.95); }
   .app-section {
     max-width: 850px;
     margin: 0 auto;
-    padding-bottom: 5rem;
+    padding-bottom: 1rem;
     position: static !important;
     opacity: 0;
     visibility: hidden;
@@ -1406,20 +1474,25 @@ button:active { transform: scale(0.95); }
   /* Headers in single-pane mode */
   .section-header {
     text-align: center;
-    margin-bottom: 3rem;
+    margin-bottom: 2rem;
   }
   
   /* Reset Vertical baseline sync from previous cockpit */
-  .app-section { padding-top: 2rem !important; }
+  .app-section { padding-top: 0 !important; }
   .app-section .section { padding-top: 0 !important; }
 
   /* Premium Scrollbars (Global) */
-  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar { width: 8px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { 
-    background: var(--accent); 
+    background: rgba(90, 75, 255, 0.15); 
     border-radius: 10px; 
-    opacity: 0.3;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(90, 75, 255, 0.3);
+    background-clip: content-box;
   }
 }
 
@@ -1428,8 +1501,8 @@ button:active { transform: scale(0.95); }
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.5rem;
-  margin-bottom: 2.5rem;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
   padding: 1rem;
 }
 
@@ -1552,19 +1625,19 @@ button:active { transform: scale(0.95); }
 /* ── Desktop Layout Optimization (2-Column) ────────────────── */
 @media (min-width: 1024px) {
   .main-content {
-    padding-top: 2rem;
+    padding-top: 0.5rem;
   }
 
   /* 1. Notes Section 2-Column Layout (Flipped & Wider) */
-  #section-notes, #section-notes.active {
+  #section-notes.active {
     display: grid !important;
-    grid-template-columns: 1fr 420px;
-    column-gap: 4rem;
+    grid-template-columns: 1fr 380px;
+    column-gap: 3rem;
     row-gap: 0;
     align-items: start;
-    max-width: 1600px;
+    max-width: 1300px;
     margin: 0 auto;
-    padding: 0 3rem;
+    padding: 0 2rem;
   }
 
   .notes-global-header,
@@ -1578,12 +1651,19 @@ button:active { transform: scale(0.95); }
     margin-bottom: 0;
   }
 
-  #section-notes .section:last-child {
+  #section-notes .section:has(.capture-box) {
     /* Capture Box - Now on the RIGHT */
     grid-column: 2;
     position: sticky;
     top: 100px;
     z-index: 10;
+  }
+
+  /* Footer spans full width in grid */
+  #section-notes > .app-footer,
+  #section-profile > .app-footer {
+    grid-column: 1 / -1;
+    margin-top: 1rem;
   }
 
   /* Adjust heights for scrolling list */
@@ -1594,31 +1674,31 @@ button:active { transform: scale(0.95); }
   }
 
   /* 2. Profile Section Refinement (Centered Photo + Flipped Bottom) */
-  #section-profile, #section-profile.active {
+  #section-profile.active {
     display: grid !important;
-    max-width: 1600px;
+    max-width: 1300px;
     margin: 0 auto;
-    padding: 0 3rem;
-    column-gap: 4rem;
+    padding: 0 2rem;
+    column-gap: 3rem;
     row-gap: 0;
     align-items: start;
   }
 
   .profile-global-header {
     grid-column: 1 / -1;
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
   }
 
   .avatar-container {
     grid-column: 1 / -1;
     width: 100%;
-    max-width: 450px;
-    margin: 0 auto 2.5rem;
+    max-width: 400px;
+    margin: 0 auto 1.5rem;
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
-    padding: 2rem;
+    padding: 1.5rem;
     background: var(--card);
     border-radius: var(--radius-xl);
     border: 1px solid var(--border);
@@ -1633,8 +1713,8 @@ button:active { transform: scale(0.95); }
   .profile-grid {
     grid-column: 1 / -1;
     display: grid;
-    grid-template-columns: 360px 1fr;
-    column-gap: 4rem;
+    grid-template-columns: 320px 1fr;
+    column-gap: 3rem;
     row-gap: 0;
     align-items: start;
   }
@@ -1648,7 +1728,12 @@ button:active { transform: scale(0.95); }
   .profile-form {
     grid-column: 2;
     width: 100%;
-    max-width: none; /* Widen the form */
+    max-width: none;
+  }
+
+  /* Footer expands for wide layouts */
+  .app-footer .footer-inner {
+    max-width: 1300px;
+    padding: 0 2rem;
   }
 }
-
