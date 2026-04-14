@@ -128,7 +128,7 @@ body {
   font-weight: 400;
   letter-spacing: -0.02em;
   margin-bottom: 0.25rem;
-  color: var(--accent); /* Name in Lavender/Accent */
+  color: var(--ink); /* Changed from aggressive accent to elegant ink */
 }
 
 .tagline {
@@ -198,13 +198,13 @@ body {
 
 .info-item .value {
   font-size: 17px;
-  color: var(--accent); /* Info in Lavender/Accent */
-  font-weight: 600;
+  color: var(--ink); /* Professional Ink instead of aggressive accent */
+  font-weight: 500;
   text-decoration: none;
-  transition: opacity 0.3s ease;
+  transition: color 0.3s ease;
 }
 
-.info-item .value:hover { opacity: 0.7; }
+.info-item .value:hover { color: var(--accent); }
 
 .link-grid {
   display: grid;
@@ -215,21 +215,26 @@ body {
 .profile-link {
   padding: 1rem;
   border-radius: 16px;
-  background: var(--accent-bg);
-  border: 1px solid transparent;
-  color: var(--accent);
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--ink-mid);
   text-decoration: none;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 13px;
+  font-weight: 500;
   text-align: center;
-  transition: all 0.3s ease;
+  transition: all var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
 .profile-link:hover {
-  background: var(--accent);
-  color: #fff;
-  transform: translateY(-4px);
-  box-shadow: 0 8px 20px rgba(90, 75, 255, 0.2);
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-bg);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(90, 75, 255, 0.08);
 }
 
 .resource-list {

@@ -59,22 +59,6 @@ CREATE POLICY "delete_own_notes"
   USING (auth.uid() = user_id);
 
 
--- ── 6. (Optional) Restrict signups to invited users only ──────
--- After creating YOUR account, run this to block new registrations.
--- This makes it truly private — only your account can ever log in.
--- In Supabase dashboard → Authentication → Settings:
---   Disable "Enable email confirmations" for dev
---   OR set "Signup disabled" to block new users
-
-
--- ================================================================
--- Done. Your database is secure and ready.
--- ================================================================
-
-
--- ================================================================
--- SECOND BRAIN — Phase 2: Profile & Storage
--- ================================================================
 
 -- ── 7. Profile table ──────────────────────────────────────────
 DROP TABLE IF EXISTS profile CASCADE;
