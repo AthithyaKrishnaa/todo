@@ -1,17 +1,17 @@
-/* ── Black & Lavender Premium Dark Theme ── */
+/* ── Design tokens (Synced with home.css) ──────────────────────── */
 :root {
-  --bg:           #0A0A0B; /* Deep Black */
-  --card:         #121214; /* Dark Charcoal */
-  --subtle:       #B5AEF6; /* Lavender */
-  --accent:       #B5AEF6; /* Lavender accent for dark theme */
-  --accent-bg:    #1A182E; /* Deep Indigo / Purple Tint */
-  --border:       rgba(181, 174, 246, 0.15); /* Lavender Glow Border */
-  --border-glow:  rgba(181, 174, 246, 0.3);
+  --bg:           #FAF9F6;
+  --card:         #FFFFFF;
+  --subtle:       #B5AEF6;
+  --accent:       #5A4BFF;
+  --accent-bg:    #EEEDFF;
+  --border:       #E0E0E0;
+  --border-mid:   #D1D1D1;
   --radius-xl:    32px;
-  --shadow-lg:    0 20px 50px rgba(0, 0, 0, 0.5), 0 0 30px rgba(181, 174, 246, 0.05);
-  --ink:          #FFFFFF;
-  --ink-mid:      #B5AEF6; /* Lavender text for main values */
-  --ink-muted:    #8E8E93;
+  --shadow-lg:    0 20px 60px rgba(90, 75, 255, 0.12);
+  --ink:          #1A1A1A;
+  --ink-mid:      #4A4A4A;
+  --ink-muted:    #808080;
   --font-serif:   'DM Serif Display', Georgia, serif;
   --font-body:    'DM Sans', system-ui, sans-serif;
   --font-mono:    'DM Mono', monospace;
@@ -22,18 +22,21 @@
 
 body {
   font-family: var(--font-body);
-  background: var(--bg);
+  background: #FFFFFF;
+  /* Enhanced Visual Blending Background */
   background-image: 
-    radial-gradient(circle at 0% 0%, rgba(181, 174, 246, 0.12) 0%, rgba(0, 0, 0, 0) 45%),
-    radial-gradient(circle at 100% 100%, rgba(90, 75, 255, 0.08) 0%, rgba(0, 0, 0, 0) 50%),
-    radial-gradient(circle at 50% 10%, rgba(181, 174, 246, 0.06) 0%, rgba(0, 0, 0, 0) 60%);
+    radial-gradient(circle at 10% 10%, rgba(181, 174, 246, 0.4) 0%, rgba(255, 255, 255, 0) 50%),
+    radial-gradient(circle at 90% 90%, rgba(90, 75, 255, 0.15) 0%, rgba(255, 255, 255, 0) 50%),
+    radial-gradient(circle at 50% 50%, rgba(181, 174, 246, 0.2) 0%, rgba(255, 255, 255, 0) 70%),
+    radial-gradient(circle at 80% 20%, rgba(181, 174, 246, 0.25) 0%, rgba(255, 255, 255, 0) 40%),
+    linear-gradient(135deg, #FFFFFF 0%, #F5F3FF 100%);
   background-attachment: fixed;
   color: var(--ink);
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1.5rem;
+  padding: 2rem 1.5rem;
 }
 
 .share-container {
@@ -46,6 +49,8 @@ body {
   overflow: hidden;
   position: relative;
   animation: cardEntrance 0.8s cubic-bezier(0.19, 1, 0.22, 1) both;
+  display: flex;
+  flex-direction: column;
 }
 
 @keyframes cardEntrance {
@@ -53,16 +58,23 @@ body {
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
+#content {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
 .loading-overlay {
   padding: 6rem 0;
   display: flex;
   justify-content: center;
+  width: 100%;
 }
 
 .spinner {
   width: 32px;
   height: 32px;
-  border: 3px solid rgba(181, 174, 246, 0.1);
+  border: 3px solid var(--accent-bg);
   border-top-color: var(--accent);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
@@ -72,20 +84,20 @@ body {
 
 .hidden { display: none !important; }
 
+/* ── Mobile Layout ────────────────────── */
 .profile-header {
-  padding: 4.5rem 2rem 3rem;
+  padding: 4rem 2rem 2.5rem;
   text-align: center;
   background: linear-gradient(180deg, var(--accent-bg) 0%, transparent 100%);
-  position: relative;
 }
 
 .avatar-view {
   width: 130px;
   height: 130px;
   border-radius: 50%;
-  background: #000;
-  border: 4px solid var(--card);
-  box-shadow: 0 10px 40px rgba(181, 174, 246, 0.2);
+  background: #fff;
+  border: 4px solid #fff;
+  box-shadow: 0 10px 30px rgba(90, 75, 255, 0.15);
   margin: 0 auto 1.5rem;
   overflow: hidden;
   display: flex;
@@ -107,16 +119,16 @@ body {
 
 .placeholder {
   color: var(--accent);
-  opacity: 0.5;
+  opacity: 0.3;
 }
 
 #view-name {
   font-family: var(--font-serif);
-  font-size: 34px;
+  font-size: 32px;
   font-weight: 400;
   letter-spacing: -0.02em;
   margin-bottom: 0.25rem;
-  color: var(--subtle); /* Main name in Lavender */
+  color: var(--accent); /* Name in Lavender/Accent */
 }
 
 .tagline {
@@ -129,7 +141,7 @@ body {
 }
 
 .profile-sections {
-  padding: 1rem 2.5rem 3.5rem;
+  padding: 1rem 2.5rem 2.5rem;
 }
 
 .view-section {
@@ -147,12 +159,12 @@ body {
 .view-section:nth-child(3) { animation-delay: 0.4s; }
 
 .view-section h3 {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: var(--ink-muted);
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.25rem;
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -163,12 +175,13 @@ body {
   flex: 1;
   height: 1px;
   background: var(--border);
+  opacity: 0.6;
 }
 
 .info-grid {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.25rem;
 }
 
 .info-item {
@@ -180,141 +193,172 @@ body {
   font-size: 11px;
   color: var(--ink-muted);
   text-transform: uppercase;
-  margin-bottom: 6px;
-  letter-spacing: 0.05em;
+  margin-bottom: 2px;
 }
 
 .info-item .value {
   font-size: 17px;
-  color: var(--subtle); /* Main info values in Lavender */
-  font-weight: 500;
+  color: var(--accent); /* Info in Lavender/Accent */
+  font-weight: 600;
   text-decoration: none;
   transition: opacity 0.3s ease;
 }
 
-.info-item .value:hover {
-  opacity: 0.8;
-}
+.info-item .value:hover { opacity: 0.7; }
 
 .link-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1rem;
+  gap: 0.85rem;
 }
 
 .profile-link {
-  padding: 1.15rem;
-  border-radius: 18px;
+  padding: 1rem;
+  border-radius: 16px;
   background: var(--accent-bg);
-  border: 1px solid var(--border);
-  color: var(--subtle);
+  border: 1px solid transparent;
+  color: var(--accent);
   text-decoration: none;
   font-size: 14px;
   font-weight: 600;
   text-align: center;
-  transition: all var(--transition);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
 }
 
 .profile-link:hover {
-  background: var(--subtle);
-  color: #000;
+  background: var(--accent);
+  color: #fff;
   transform: translateY(-4px);
-  box-shadow: 0 10px 25px rgba(181, 174, 246, 0.3);
+  box-shadow: 0 8px 20px rgba(90, 75, 255, 0.2);
 }
 
 .resource-list {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.85rem;
 }
 
 .resource-item {
   display: flex;
   align-items: center;
-  gap: 1.25rem;
-  padding: 1.25rem 1.75rem;
-  background: rgba(255, 255, 255, 0.03);
+  gap: 1rem;
+  padding: 1.15rem 1.5rem;
+  background: #fff;
   border: 1px solid var(--border);
-  border-radius: 20px;
+  border-radius: 18px;
   text-decoration: none;
   color: var(--ink);
-  transition: all var(--transition);
+  transition: all 0.3s ease;
 }
 
 .resource-item:hover {
-  transform: translateX(8px) scale(1.01);
-  background: rgba(181, 174, 246, 0.05);
-  border-color: var(--subtle);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  transform: translateX(6px);
+  border-color: var(--accent);
+  box-shadow: 0 8px 25px rgba(90, 75, 255, 0.08);
 }
 
 .resource-item .icon { font-size: 20px; }
-.resource-item .text { font-size: 14px; font-weight: 600; color: var(--subtle); }
+.resource-item .text { font-size: 14px; font-weight: 600; color: var(--ink-mid); }
 
 .footer {
   text-align: center;
-  padding: 3rem 2rem;
-  background: rgba(0, 0, 0, 0.2);
+  padding: 2.5rem;
+  background: var(--bg);
   border-top: 1px solid var(--border);
 }
 
 .footer p {
-  font-size: 10px;
+  font-size: 11px;
   color: var(--ink-muted);
   text-transform: uppercase;
-  letter-spacing: 0.12em;
-  font-weight: 500;
+  letter-spacing: 0.08em;
 }
 
+/* ── Desktop Optimization ────────────────────── */
+@media (min-width: 1024px) {
+  .share-container {
+    max-width: 900px;
+    flex-direction: row;
+    height: 600px; /* Uniform height for horizontal flow */
+    align-items: stretch;
+  }
+
+  #content {
+    flex-direction: row;
+    height: 100%;
+  }
+
+  .profile-header {
+    width: 360px;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--accent-bg) 0%, #fff 100%);
+    border-right: 1px solid var(--border);
+  }
+
+  .avatar-view {
+    width: 160px;
+    height: 160px;
+    margin-bottom: 2rem;
+  }
+
+  #view-name {
+    font-size: 38px;
+    padding: 0 2rem;
+  }
+
+  .profile-sections {
+    flex: 1;
+    padding: 3.5rem;
+    overflow-y: auto;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+    align-content: start;
+  }
+
+  .view-section {
+    width: 100%;
+  }
+
+  .info-grid {
+    flex-direction: row;
+    gap: 3rem;
+  }
+
+  .link-grid {
+    grid-template-columns: 1fr 1fr;
+    max-width: 400px;
+  }
+
+  .resource-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+  }
+
+  .footer {
+    display: none; /* Hide footer on desktop or merge into header */
+  }
+}
+
+/* ── Error & Loading States ────────────────── */
 .error-view {
-  padding: 8rem 2rem;
+  padding: 6rem 2rem;
   text-align: center;
+  width: 100%;
 }
-
-.error-icon {
-  font-size: 48px;
-  margin-bottom: 1.5rem;
-  display: block;
-  opacity: 0.6;
-}
-
-.error-view h2 {
-  font-family: var(--font-serif);
-  font-size: 28px;
-  margin-bottom: 0.75rem;
-  color: var(--subtle);
-}
-
-.error-view p {
-  font-size: 15px;
-  color: var(--ink-muted);
-  margin-bottom: 3rem;
-}
-
+.error-icon { font-size: 40px; margin-bottom: 1rem; display: block; }
 .back-btn {
   display: inline-block;
-  padding: 1.15rem 2.25rem;
-  background: var(--subtle);
-  color: #000;
+  padding: 0.75rem 1.5rem;
+  background: var(--accent);
+  color: #fff;
   text-decoration: none;
   border-radius: 999px;
   font-size: 14px;
-  font-weight: 700;
-  transition: all var(--transition);
-  box-shadow: 0 8px 25px rgba(181, 174, 246, 0.3);
-}
-
-.back-btn:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 35px rgba(181, 174, 246, 0.4);
-}
-
-@media (max-width: 500px) {
-  .share-container { border-radius: 0; min-height: 100vh; }
-  body { padding: 0; }
-  .profile-header { padding-top: 6rem; }
+  font-weight: 600;
+  margin-top: 1.5rem;
 }
