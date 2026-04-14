@@ -1559,7 +1559,8 @@ button:active { transform: scale(0.95); }
   #section-notes, #section-notes.active {
     display: grid !important;
     grid-template-columns: 1fr 420px;
-    gap: 4rem;
+    column-gap: 4rem;
+    row-gap: 0;
     align-items: start;
     max-width: 1600px;
     margin: 0 auto;
@@ -1622,7 +1623,8 @@ button:active { transform: scale(0.95); }
   .profile-grid {
     display: grid;
     grid-template-columns: 420px 1fr;
-    gap: 4rem;
+    column-gap: 4rem;
+    row-gap: 0;
     align-items: start;
   }
 
