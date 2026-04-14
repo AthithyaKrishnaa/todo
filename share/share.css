@@ -124,11 +124,12 @@ body {
 
 #view-name {
   font-family: var(--font-serif);
-  font-size: 32px;
-  font-weight: 400;
-  letter-spacing: -0.02em;
-  margin-bottom: 0.25rem;
-  color: var(--ink); /* Changed from aggressive accent to elegant ink */
+  font-size: 38px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  margin-bottom: 0.5rem;
+  color: var(--ink) !important; /* Forced Ink Black */
+  line-height: 1.1;
 }
 
 .tagline {
@@ -198,10 +199,10 @@ body {
 
 .info-item .value {
   font-size: 17px;
-  color: var(--ink); /* Professional Ink instead of aggressive accent */
+  color: var(--ink) !important; /* Forced Ink Black */
   font-weight: 500;
   text-decoration: none;
-  transition: color 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .info-item .value:hover { color: var(--accent); }
@@ -262,8 +263,15 @@ body {
   box-shadow: 0 8px 25px rgba(90, 75, 255, 0.08);
 }
 
-.resource-item .icon { font-size: 20px; }
-.resource-item .text { font-size: 14px; font-weight: 600; color: var(--ink-mid); }
+.resource-item .icon { 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  opacity: 0.8;
+}
+
+.resource-item .text { font-size: 14px; font-weight: 600; color: var(--ink); }
 
 .footer {
   text-align: center;
