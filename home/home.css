@@ -1566,17 +1566,20 @@ button:active { transform: scale(0.95); }
     padding: 0 3rem;
   }
 
-  #section-notes .section:first-child {
+  .notes-global-header,
+  .notes-global-filter {
+    grid-column: 1 / -1;
+  }
+
+  #section-notes .section.dashboard {
     /* Notes List (Dashboard) - Now on the LEFT */
     grid-column: 1;
-    grid-row: 1;
     margin-bottom: 0;
   }
 
   #section-notes .section:last-child {
     /* Capture Box - Now on the RIGHT */
     grid-column: 2;
-    grid-row: 1;
     position: sticky;
     top: 100px;
     z-index: 10;

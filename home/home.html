@@ -76,26 +76,25 @@
     <!-- === NOTES SECTION === -->
     <div id="section-notes" class="app-section active">
 
+      <!-- Section Title -->
+      <div class="section-header notes-global-header">
+        <h2 class="section-title">Notes</h2>
+        <p class="section-subtitle">Organize your second brain</p>
+      </div>
+
+      <!-- Filters -->
+      <div class="filter-bar notes-global-filter" id="filter-bar" role="tablist" data-state="pending">
+        <div class="filter-glass" id="filter-glass"></div>
+        <button type="button" class="filter-btn active" data-filter="pending" role="tab"
+          aria-selected="true">Pending</button>
+        <button type="button" class="filter-btn" data-filter="accomplished" role="tab"
+          aria-selected="false">Accomplished</button>
+      </div>
+
       <!-- ════════════════════════════════════════
-           DASHBOARD (NOW AT TOP)
+           DASHBOARD
       ════════════════════════════════════════ -->
       <section class="section dashboard">
-
-        <!-- Section Title -->
-        <div class="section-header">
-          <h2 class="section-title">Notes</h2>
-          <p class="section-subtitle">Organize your second brain</p>
-        </div>
-
-        <!-- Filters -->
-        <div class="filter-bar" id="filter-bar" role="tablist" data-state="pending">
-          <div class="filter-glass" id="filter-glass"></div>
-          <button type="button" class="filter-btn active" data-filter="pending" role="tab"
-            aria-selected="true">Pending</button>
-          <button type="button" class="filter-btn" data-filter="accomplished" role="tab"
-            aria-selected="false">Accomplished</button>
-        </div>
-
         <!-- Notes area -->
         <div id="notes-area" class="scrollable-notes">
           <div id="notes-loading" class="loading-wrap">
