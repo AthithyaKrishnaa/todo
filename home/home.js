@@ -56,6 +56,11 @@ const avatarUploadBtn = document.getElementById('avatar-upload-btn');
 const avatarDeleteBtn = document.getElementById('avatar-delete-btn');
 const avatarFileInput = document.getElementById('avatar-file-input');
 
+/* ── Resume Upload DOM ─────────────────────── */
+const resumeFileInput = document.getElementById('resume-file-input');
+const resumeUploadBtn = document.getElementById('resume-upload-btn');
+const resumeFileName  = document.getElementById('resume-file-name');
+
 /* ── Cropper DOM References ────────────────── */
 const cropperOverlay     = document.getElementById('cropper-overlay');
 const cropperImage       = document.getElementById('cropper-image');
@@ -553,6 +558,15 @@ async function loadProfile() {
       if (profProject)    profProject.value = userProfile.project_link || '';
       if (profCerts)      profCerts.value = userProfile.certifications_link || '';
       if (profPortfolio)  profPortfolio.value = userProfile.portfolio_link || '';
+      
+      if (userProfile.resume_link && resumeFileName && resumeUploadBtn) {
+        resumeFileName.textContent = 'Current Resume Uploaded (PDF)';
+        resumeFileName.style.color = 'var(--ink-mid)';
+        resumeUploadBtn.innerHTML = `
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 0.5rem;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+          Replace PDF
+        `;
+      }
     }
     
     // Manage Avatar Display
@@ -848,6 +862,71 @@ if (avatarDeleteBtn) {
     confirmMsg.textContent = 'Remove your profile photo?';
     confirmOk.textContent = 'Remove';
     confirmOverlay.classList.remove('hidden');
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   RESUME UPLOAD LOGIC
+═══════════════════════════════════════════════════════════════ */
+if (resumeUploadBtn && resumeFileInput) {
+  resumeUploadBtn.addEventListener('click', () => resumeFileInput.click());
+  
+  resumeFileInput.addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (file.type !== 'application/pdf') {
+      showStatus('Please select a PDF file');
+      return;
+    }
+
+    resumeUploadBtn.textContent = 'Uploading...';
+    resumeUploadBtn.disabled = true;
+
+    try {
+      if (!currentUser) throw new Error("Not authenticated");
+      
+      const fileName = `${currentUser.id}/resume_${Date.now()}.pdf`;
+      const { data: uploadData, error: uploadError } = await sb.storage
+        .from('resumes')
+        .upload(fileName, file, {
+          contentType: 'application/pdf',
+          upsert: true
+        });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = sb.storage
+        .from('resumes')
+        .getPublicUrl(fileName);
+
+      // Save directly to profile so user doesn't have to hit "Update"
+      const { error: dbError } = await sb
+        .from('profile')
+        .upsert({ 
+          user_id: currentUser.id, 
+          resume_link: publicUrl,
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'user_id' });
+
+      if (dbError) throw dbError;
+
+      profResumeLink.value = publicUrl;
+      resumeFileName.textContent = `Uploaded: ${file.name}`;
+      resumeFileName.style.color = '#10B981'; // Emerald
+      showStatus('Resume uploaded! ✨');
+
+    } catch (err) {
+      console.error(err);
+      showStatus('Failed to upload Resume');
+    } finally {
+      resumeUploadBtn.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 0.5rem;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+        Replace PDF
+      `;
+      resumeUploadBtn.disabled = false;
+      resumeFileInput.value = '';
+    }
   });
 }
 

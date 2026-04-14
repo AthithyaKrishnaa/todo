@@ -134,8 +134,13 @@ function renderProfile(p) {
         r.el.href = '#';
         r.el.addEventListener('click', (e) => {
           e.preventDefault();
+          let downloadUrl = r.url;
+          // Force download parameter for Supabase hosted files
+          if (r.url.includes('supabase.co/storage/v1/object/public/')) {
+            downloadUrl += (r.url.includes('?') ? '&' : '?') + 'download=';
+          }
           viewResumeBtn.href = r.url;
-          downloadResumeBtn.href = r.url;
+          downloadResumeBtn.href = downloadUrl;
           resumeModal.classList.remove('hidden');
         });
       } else {

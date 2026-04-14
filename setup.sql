@@ -107,3 +107,19 @@ CREATE POLICY "Users can manage own avatar"
 ON storage.objects FOR ALL 
 USING (bucket_id = 'avatars' AND (storage.foldername(name))[1] = auth.uid()::text)
 WITH CHECK (bucket_id = 'avatars' AND (storage.foldername(name))[1] = auth.uid()::text);
+
+
+-- ── 9. Resume Storage Bucket Setup ─────────────────────────────
+INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types) 
+VALUES ('resumes', 'resumes', true, 5242880, ARRAY['application/pdf']) -- 5MB limit
+ON CONFLICT (id) DO NOTHING;
+
+-- Resume Storage RLS: Public read, private manage
+DROP POLICY IF EXISTS "Public View Resumes" ON storage.objects;
+CREATE POLICY "Public View Resumes" ON storage.objects FOR SELECT USING (bucket_id = 'resumes');
+
+DROP POLICY IF EXISTS "Users can manage own resume" ON storage.objects;
+CREATE POLICY "Users can manage own resume" 
+ON storage.objects FOR ALL 
+USING (bucket_id = 'resumes' AND (storage.foldername(name))[1] = auth.uid()::text)
+WITH CHECK (bucket_id = 'resumes' AND (storage.foldername(name))[1] = auth.uid()::text);
