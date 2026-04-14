@@ -43,7 +43,7 @@
     <div class="header-inner">
       <div class="brand">
         <img src="../public/logo.png" alt="Second Brain" class="brand-logo header-logo" />
-        <span class="note-badge" id="note-badge">0</span>
+        <span class="note-badge">v8</span>
       </div>
       <div class="header-actions">
         <span class="header-clock" id="header-clock"></span>
@@ -140,15 +140,6 @@
         <div class="inline-status hidden" id="save-status"></div>
       </section>
 
-      <footer class="app-footer">
-        <div class="footer-inner">
-          <div class="footer-brand">
-            <img src="../public/logo.png" alt="Second Brain" class="footer-logo" />
-          </div>
-          <p class="footer-tagline">Organize your second brain</p>
-          <p class="footer-copyright">© 2026 Second Brain Inc.</p>
-        </div>
-      </footer>
     </div> <!-- /section-notes -->
 
 
@@ -184,32 +175,7 @@
       </div>
 
       <div class="profile-grid">
-        <div class="profile-share">
-          <div class="col-header">
-            <h3>Share Details</h3>
-          </div>
-          <p class="share-desc">Select details to include, then copy to clipboard.</p>
-
-          <div class="capture-box share-box">
-            <div class="share-options" id="share-options">
-              <!-- Filled via JS -->
-            </div>
-            <div class="share-options" style="padding-top: 0;">
-              <label class="share-option">
-                <input type="checkbox" id="include-watermark" checked />
-                <span><b>Include Watermark</b></span>
-              </label>
-            </div>
-            <div class="capture-footer share-actions share-actions-stack">
-              <button type="button" class="btn-liquid btn-full" id="copy-prof-btn">Copy Professional Details</button>
-              <button type="button" class="btn-liquid btn-full primary" id="share-link-btn">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px;"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-                Share Profile Link
-              </button>
-            </div>
-          </div>
-        </div>
-
+        <!-- Your Details (Moved to Left) -->
         <div class="capture-box profile-form">
           <div class="col-header">
             <h3>Your Details</h3>
@@ -253,18 +219,45 @@
             <button type="button" class="btn-liquid primary" id="save-prof-btn">Update Details</button>
           </div>
         </div>
-      </div>
 
-      <footer class="app-footer">
-        <div class="footer-inner">
-          <div class="footer-brand">
-            <img src="../public/logo.png" alt="Second Brain" class="footer-logo" />
+        <!-- Share Details (Moved to Right and heading moved inside) -->
+        <div class="profile-share">
+          <div class="capture-box share-box">
+            <div class="col-header" style="padding: 1.15rem 1.15rem 0.25rem; margin: 0;">
+              <h3>Share Details</h3>
+            </div>
+            <p class="share-desc" style="padding: 0 1.15rem 1rem;">Select details to include, then copy to clipboard.</p>
+            
+            <div class="share-options" id="share-options">
+              <!-- Filled via JS -->
+            </div>
+            <div class="share-options" style="padding-top: 0;">
+              <label class="share-option">
+                <input type="checkbox" id="include-watermark" checked />
+                <span><b>Include Watermark</b></span>
+              </label>
+            </div>
+            <div class="capture-footer share-actions share-actions-stack">
+              <button type="button" class="btn-liquid btn-full" id="copy-prof-btn">Copy Professional Details</button>
+              <button type="button" class="btn-liquid btn-full primary" id="share-link-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px;"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                Share Profile Link
+              </button>
+            </div>
           </div>
-          <p class="footer-tagline">Your personal knowledge vault</p>
-          <p class="footer-copyright">© 2026 Second Brain Inc.</p>
         </div>
-      </footer>
+      </div>
     </div> <!-- /section-profile -->
+
+    <footer class="app-footer">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <img src="../public/logo.png" alt="Second Brain" class="footer-logo" />
+        </div>
+        <p class="footer-tagline" id="footer-tagline">Organize your second brain</p>
+        <p class="footer-copyright">© 2026 Second Brain Inc.</p>
+      </div>
+    </footer>
 
   </main>
 

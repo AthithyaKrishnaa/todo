@@ -139,7 +139,7 @@ async function loadNotes() {
 }
 
 function updateNoteBadge() {
-  if (noteBadge) noteBadge.textContent = allNotes.length;
+  // Badge now used for version v8
 }
 
 function renderNotes() {
@@ -494,6 +494,14 @@ function switchTab(targetId) {
     document.body.classList.add('locked-mode');
   } else {
     document.body.classList.remove('locked-mode');
+  }
+
+  // Update Footer Tagline
+  const footerTagline = document.getElementById('footer-tagline');
+  if (footerTagline) {
+    footerTagline.textContent = targetId === 'section-notes' 
+      ? 'Organize your second brain' 
+      : 'Your personal knowledge vault';
   }
 }
 
