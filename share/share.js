@@ -27,6 +27,12 @@ const resProject    = document.getElementById('res-project');
 const resCerts      = document.getElementById('res-certs');
 const linkPortfolio = document.getElementById('link-portfolio');
 
+// Modal
+const resumeModal       = document.getElementById('resume-modal');
+const closeResumeModal  = document.getElementById('close-resume-modal');
+const viewResumeBtn     = document.getElementById('view-resume-btn');
+const downloadResumeBtn = document.getElementById('download-resume-btn');
+
 async function init() {
   const urlParams = new URLSearchParams(window.location.search);
   const userId = urlParams.get('u');
@@ -123,7 +129,18 @@ function renderProfile(p) {
 
   resources.forEach(r => {
     if (r.url) {
-      r.el.href = r.url;
+      if (r.el === resResume) {
+        // Special Handling for Resume to launch Modal
+        r.el.href = '#';
+        r.el.addEventListener('click', (e) => {
+          e.preventDefault();
+          viewResumeBtn.href = r.url;
+          downloadResumeBtn.href = r.url;
+          resumeModal.classList.remove('hidden');
+        });
+      } else {
+        r.el.href = r.url;
+      }
       hasResources = true;
     } else {
       r.el.classList.add('hidden');
@@ -142,6 +159,12 @@ function renderProfile(p) {
 function showError() {
   loadingEl.classList.add('hidden');
   errorEl.classList.remove('hidden');
+}
+
+if (closeResumeModal) {
+  closeResumeModal.addEventListener('click', () => {
+    resumeModal.classList.add('hidden');
+  });
 }
 
 init();
