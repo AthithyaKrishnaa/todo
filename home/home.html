@@ -145,105 +145,107 @@
 
     <!-- === PROFILE SECTION === -->
     <div id="section-profile" class="app-section hidden">
-      <section class="section">
-        <div class="section-header">
-          <h2 class="section-title">Profile</h2>
-          <p class="section-subtitle">Manage & share your details</p>
+    <!-- === PROFILE SECTION === -->
+    <div id="section-profile" class="app-section hidden">
+      <!-- Section Title -->
+      <div class="section-header profile-global-header">
+        <h2 class="section-title">Profile</h2>
+        <p class="section-subtitle">Manage & share your details</p>
+      </div>
+
+      <!-- ── Profile Avatar ── -->
+      <div class="avatar-container" id="avatar-container">
+        <div class="avatar-wrapper" id="avatar-wrapper">
+          <img id="avatar-img" class="avatar-img" src="" alt="Profile" />
+          <div class="avatar-placeholder" id="avatar-placeholder">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          </div>
         </div>
-
-        <!-- ── Profile Avatar ── -->
-        <div class="avatar-container" id="avatar-container">
-          <div class="avatar-wrapper" id="avatar-wrapper">
-            <img id="avatar-img" class="avatar-img" src="" alt="Profile" />
-            <div class="avatar-placeholder" id="avatar-placeholder">
-              <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-            </div>
-          </div>
-          <div class="avatar-actions">
-            <button type="button" class="btn-liquid avatar-upload-btn" id="avatar-upload-btn">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-              Upload Photo
-            </button>
-            <button type="button" class="btn-liquid danger avatar-delete-btn hidden" id="avatar-delete-btn">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-              Delete Photo
-            </button>
-          </div>
-          <input type="file" id="avatar-file-input" accept="image/*" class="visually-hidden" />
+        <div class="avatar-actions">
+          <button type="button" class="btn-liquid avatar-upload-btn" id="avatar-upload-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Upload Photo
+          </button>
+          <button type="button" class="btn-liquid danger avatar-delete-btn hidden" id="avatar-delete-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            Delete Photo
+          </button>
         </div>
+        <input type="file" id="avatar-file-input" accept="image/*" class="visually-hidden" />
+      </div>
 
-        <div class="profile-grid">
-          <div class="profile-share">
-            <div class="col-header">
-              <h3>Share Details</h3>
-            </div>
-            <p class="share-desc">Select details to include, then copy to clipboard.</p>
-
-            <div class="capture-box share-box">
-              <div class="share-options" id="share-options">
-                <!-- Filled via JS -->
-              </div>
-              <div class="share-options" style="padding-top: 0;">
-                <label class="share-option">
-                  <input type="checkbox" id="include-watermark" checked />
-                  <span><b>Include Watermark</b></span>
-                </label>
-              </div>
-              <div class="capture-footer share-actions share-actions-stack">
-                <button type="button" class="btn-liquid btn-full" id="copy-prof-btn">Copy Professional Details</button>
-                <button type="button" class="btn-liquid btn-full primary" id="share-link-btn">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px;"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-                  Share Profile Link
-                </button>
-              </div>
-            </div>
+      <div class="profile-grid">
+        <div class="profile-share">
+          <div class="col-header">
+            <h3>Share Details</h3>
           </div>
+          <p class="share-desc">Select details to include, then copy to clipboard.</p>
 
-          <div class="capture-box profile-form">
-            <div class="col-header">
-              <h3>Your Details</h3>
+          <div class="capture-box share-box">
+            <div class="share-options" id="share-options">
+              <!-- Filled via JS -->
             </div>
-            <div class="form-group">
-              <label>Name</label><input type="text" id="prof-name" class="profile-input" placeholder="Your full name" />
+            <div class="share-options" style="padding-top: 0;">
+              <label class="share-option">
+                <input type="checkbox" id="include-watermark" checked />
+                <span><b>Include Watermark</b></span>
+              </label>
             </div>
-            <div class="form-group">
-              <label>Phone</label><input type="text" id="prof-phone" class="profile-input" placeholder="+1..." />
-            </div>
-            <div class="form-group">
-              <label>Mail id</label><input type="email" id="prof-email" class="profile-input"
-                placeholder="mail@example.com" />
-            </div>
-            <div class="form-group">
-              <label>Resume Link</label><input type="url" id="prof-resume-link" class="profile-input"
-                placeholder="https://..." />
-            </div>
-            <div class="form-group">
-              <label>GitHub Link</label><input type="url" id="prof-github" class="profile-input"
-                placeholder="https://github.com/..." />
-            </div>
-            <div class="form-group">
-              <label>LinkedIn Link</label><input type="url" id="prof-linkedin" class="profile-input"
-                placeholder="https://linkedin.com/..." />
-            </div>
-            <div class="form-group">
-              <label>Internship Details Link</label><input type="url" id="prof-internship" class="profile-input"
-                placeholder="https://..." />
-            </div>
-            <div class="form-group">
-              <label>Project Details Link</label><input type="url" id="prof-project" class="profile-input"
-                placeholder="https://..." />
-            </div>
-            <div class="form-group">
-              <label>Certifications Details Link</label><input type="url" id="prof-certs" class="profile-input"
-                placeholder="https://..." />
-            </div>
-            <div class="capture-footer">
-              <span id="prof-save-status" class="char-count"></span>
-              <button type="button" class="btn-liquid primary" id="save-prof-btn">Update Details</button>
+            <div class="capture-footer share-actions share-actions-stack">
+              <button type="button" class="btn-liquid btn-full" id="copy-prof-btn">Copy Professional Details</button>
+              <button type="button" class="btn-liquid btn-full primary" id="share-link-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px;"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                Share Profile Link
+              </button>
             </div>
           </div>
         </div>
-      </section>
+
+        <div class="capture-box profile-form">
+          <div class="col-header">
+            <h3>Your Details</h3>
+          </div>
+          <div class="form-group">
+            <label>Name</label><input type="text" id="prof-name" class="profile-input" placeholder="Your full name" />
+          </div>
+          <div class="form-group">
+            <label>Phone</label><input type="text" id="prof-phone" class="profile-input" placeholder="+1..." />
+          </div>
+          <div class="form-group">
+            <label>Mail id</label><input type="email" id="prof-email" class="profile-input"
+              placeholder="mail@example.com" />
+          </div>
+          <div class="form-group">
+            <label>Resume Link</label><input type="url" id="prof-resume-link" class="profile-input"
+              placeholder="https://..." />
+          </div>
+          <div class="form-group">
+            <label>GitHub Link</label><input type="url" id="prof-github" class="profile-input"
+              placeholder="https://github.com/..." />
+          </div>
+          <div class="form-group">
+            <label>LinkedIn Link</label><input type="url" id="prof-linkedin" class="profile-input"
+              placeholder="https://linkedin.com/..." />
+          </div>
+          <div class="form-group">
+            <label>Internship Details Link</label><input type="url" id="prof-internship" class="profile-input"
+              placeholder="https://..." />
+          </div>
+          <div class="form-group">
+            <label>Project Details Link</label><input type="url" id="prof-project" class="profile-input"
+              placeholder="https://..." />
+          </div>
+          <div class="form-group">
+            <label>Certifications Details Link</label><input type="url" id="prof-certs" class="profile-input"
+              placeholder="https://..." />
+          </div>
+          <div class="capture-footer">
+            <span id="prof-save-status" class="char-count"></span>
+            <button type="button" class="btn-liquid primary" id="save-prof-btn">Update Details</button>
+          </div>
+        </div>
+      </div>
+    </div> <!-- /section-profile -->
     </div> <!-- /section-profile -->
 
   </main>
