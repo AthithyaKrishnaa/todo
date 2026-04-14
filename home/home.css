@@ -1556,8 +1556,8 @@ button:active { transform: scale(0.95); }
   }
 
   /* 1. Notes Section 2-Column Layout (Flipped & Wider) */
-  #section-notes {
-    display: grid;
+  #section-notes, #section-notes.active {
+    display: grid !important;
     grid-template-columns: 1fr 420px;
     gap: 4rem;
     align-items: start;
