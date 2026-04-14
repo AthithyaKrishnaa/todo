@@ -68,12 +68,14 @@ function renderProfile(p) {
   // Contact
   if (p.phone) {
     valPhone.textContent = p.phone;
+    valPhone.href = `tel:${p.phone}`;
   } else {
     document.getElementById('item-phone').classList.add('hidden');
   }
 
   if (p.email) {
     valEmail.textContent = p.email;
+    valEmail.href = `mailto:${p.email}`;
   } else {
     document.getElementById('item-email').classList.add('hidden');
   }

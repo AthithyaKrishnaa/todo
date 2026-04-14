@@ -1,22 +1,17 @@
-/* ── Design tokens (Synced with home.css) ──────────────────────── */
+/* ── Black & Lavender Premium Dark Theme ── */
 :root {
-  --bg:           #FAF9F6;
-  --card:         #FFFFFF;
-  --subtle:       #B5AEF6;
-  --accent:       #5A4BFF;
-  --accent-bg:    #EEEDFF;
-  --border:       #E0E0E0;
-  --border-mid:   #D1D1D1;
-  --radius-sm:    6px;
-  --radius-md:    12px;
-  --radius-lg:    18px;
-  --radius-xl:    24px;
-  --shadow:       0 4px 12px rgba(0,0,0,0.05);
-  --shadow-md:    0 12px 34px rgba(90, 75, 255, 0.12);
-  --ink:          #1A1A1A;
-  --ink-mid:      #4A4A4A;
-  --ink-muted:    #808080;
-  --ink-faint:    #D0D0D0;
+  --bg:           #0A0A0B; /* Deep Black */
+  --card:         #121214; /* Dark Charcoal */
+  --subtle:       #B5AEF6; /* Lavender */
+  --accent:       #B5AEF6; /* Lavender accent for dark theme */
+  --accent-bg:    #1A182E; /* Deep Indigo / Purple Tint */
+  --border:       rgba(181, 174, 246, 0.15); /* Lavender Glow Border */
+  --border-glow:  rgba(181, 174, 246, 0.3);
+  --radius-xl:    32px;
+  --shadow-lg:    0 20px 50px rgba(0, 0, 0, 0.5), 0 0 30px rgba(181, 174, 246, 0.05);
+  --ink:          #FFFFFF;
+  --ink-mid:      #B5AEF6; /* Lavender text for main values */
+  --ink-muted:    #8E8E93;
   --font-serif:   'DM Serif Display', Georgia, serif;
   --font-body:    'DM Sans', system-ui, sans-serif;
   --font-mono:    'DM Mono', monospace;
@@ -27,12 +22,11 @@
 
 body {
   font-family: var(--font-body);
-  background: #FFFFFF;
+  background: var(--bg);
   background-image: 
-    radial-gradient(circle at 0% 0%, rgba(181, 174, 246, 0.25) 0%, rgba(255, 255, 255, 0) 45%),
-    radial-gradient(circle at 100% 100%, rgba(90, 75, 255, 0.08) 0%, rgba(255, 255, 255, 0) 50%),
-    radial-gradient(circle at 50% 10%, rgba(181, 174, 246, 0.12) 0%, rgba(255, 255, 255, 0) 60%),
-    linear-gradient(135deg, rgba(255, 255, 255, 1) 0%, rgba(245, 243, 255, 0.4) 100%);
+    radial-gradient(circle at 0% 0%, rgba(181, 174, 246, 0.12) 0%, rgba(0, 0, 0, 0) 45%),
+    radial-gradient(circle at 100% 100%, rgba(90, 75, 255, 0.08) 0%, rgba(0, 0, 0, 0) 50%),
+    radial-gradient(circle at 50% 10%, rgba(181, 174, 246, 0.06) 0%, rgba(0, 0, 0, 0) 60%);
   background-attachment: fixed;
   color: var(--ink);
   min-height: 100vh;
@@ -46,8 +40,8 @@ body {
   width: 100%;
   max-width: 520px;
   background: var(--card);
-  border-radius: 32px;
-  box-shadow: var(--shadow-md);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
   border: 1px solid var(--border);
   overflow: hidden;
   position: relative;
@@ -68,7 +62,7 @@ body {
 .spinner {
   width: 32px;
   height: 32px;
-  border: 3px solid var(--accent-bg);
+  border: 3px solid rgba(181, 174, 246, 0.1);
   border-top-color: var(--accent);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
@@ -79,7 +73,7 @@ body {
 .hidden { display: none !important; }
 
 .profile-header {
-  padding: 4rem 2rem 3rem;
+  padding: 4.5rem 2rem 3rem;
   text-align: center;
   background: linear-gradient(180deg, var(--accent-bg) 0%, transparent 100%);
   position: relative;
@@ -89,9 +83,9 @@ body {
   width: 130px;
   height: 130px;
   border-radius: 50%;
-  background: #fff;
-  border: 4px solid #fff;
-  box-shadow: 0 10px 40px rgba(90, 75, 255, 0.15);
+  background: #000;
+  border: 4px solid var(--card);
+  box-shadow: 0 10px 40px rgba(181, 174, 246, 0.2);
   margin: 0 auto 1.5rem;
   overflow: hidden;
   display: flex;
@@ -113,29 +107,29 @@ body {
 
 .placeholder {
   color: var(--accent);
-  opacity: 0.3;
+  opacity: 0.5;
 }
 
 #view-name {
   font-family: var(--font-serif);
-  font-size: 32px;
+  font-size: 34px;
   font-weight: 400;
   letter-spacing: -0.02em;
   margin-bottom: 0.25rem;
-  color: var(--ink);
+  color: var(--subtle); /* Main name in Lavender */
 }
 
 .tagline {
   font-family: var(--font-mono);
   font-size: 11px;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: var(--accent);
+  letter-spacing: 0.15em;
+  color: var(--ink-muted);
   font-weight: 600;
 }
 
 .profile-sections {
-  padding: 1rem 2.5rem 3rem;
+  padding: 1rem 2.5rem 3.5rem;
 }
 
 .view-section {
@@ -156,12 +150,12 @@ body {
   font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   color: var(--ink-muted);
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.5rem;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 1rem;
 }
 
 .view-section h3::after {
@@ -169,13 +163,12 @@ body {
   flex: 1;
   height: 1px;
   background: var(--border);
-  opacity: 0.6;
 }
 
 .info-grid {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1.5rem;
 }
 
 .info-item {
@@ -187,27 +180,34 @@ body {
   font-size: 11px;
   color: var(--ink-muted);
   text-transform: uppercase;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
+  letter-spacing: 0.05em;
 }
 
 .info-item .value {
-  font-size: 16px;
-  color: var(--ink);
+  font-size: 17px;
+  color: var(--subtle); /* Main info values in Lavender */
   font-weight: 500;
+  text-decoration: none;
+  transition: opacity 0.3s ease;
+}
+
+.info-item .value:hover {
+  opacity: 0.8;
 }
 
 .link-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.85rem;
+  gap: 1rem;
 }
 
 .profile-link {
-  padding: 1rem;
-  border-radius: 16px;
+  padding: 1.15rem;
+  border-radius: 18px;
   background: var(--accent-bg);
-  border: 1px solid transparent;
-  color: var(--accent);
+  border: 1px solid var(--border);
+  color: var(--subtle);
   text-decoration: none;
   font-size: 14px;
   font-weight: 600;
@@ -216,62 +216,62 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 12px rgba(90, 75, 255, 0.05);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
 .profile-link:hover {
-  background: var(--accent);
-  color: #fff;
+  background: var(--subtle);
+  color: #000;
   transform: translateY(-4px);
-  box-shadow: 0 8px 20px rgba(90, 75, 255, 0.2);
+  box-shadow: 0 10px 25px rgba(181, 174, 246, 0.3);
 }
 
 .resource-list {
   display: flex;
   flex-direction: column;
-  gap: 0.85rem;
+  gap: 1rem;
 }
 
 .resource-item {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  padding: 1.15rem 1.5rem;
-  background: #fff;
+  gap: 1.25rem;
+  padding: 1.25rem 1.75rem;
+  background: rgba(255, 255, 255, 0.03);
   border: 1px solid var(--border);
-  border-radius: 18px;
+  border-radius: 20px;
   text-decoration: none;
   color: var(--ink);
   transition: all var(--transition);
-  box-shadow: var(--shadow);
 }
 
 .resource-item:hover {
-  transform: translateX(6px) scale(1.01);
-  border-color: var(--accent);
-  box-shadow: 0 8px 25px rgba(90, 75, 255, 0.1);
+  transform: translateX(8px) scale(1.01);
+  background: rgba(181, 174, 246, 0.05);
+  border-color: var(--subtle);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
 
 .resource-item .icon { font-size: 20px; }
-.resource-item .text { font-size: 14px; font-weight: 600; color: var(--ink-mid); }
+.resource-item .text { font-size: 14px; font-weight: 600; color: var(--subtle); }
 
 .footer {
   text-align: center;
-  padding: 2.5rem;
-  background: var(--bg);
+  padding: 3rem 2rem;
+  background: rgba(0, 0, 0, 0.2);
   border-top: 1px solid var(--border);
 }
 
 .footer p {
-  font-size: 11px;
+  font-size: 10px;
   color: var(--ink-muted);
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.12em;
   font-weight: 500;
 }
 
 .error-view {
-  padding: 6rem 2rem;
+  padding: 8rem 2rem;
   text-align: center;
 }
 
@@ -279,40 +279,42 @@ body {
   font-size: 48px;
   margin-bottom: 1.5rem;
   display: block;
+  opacity: 0.6;
 }
 
 .error-view h2 {
   font-family: var(--font-serif);
   font-size: 28px;
   margin-bottom: 0.75rem;
+  color: var(--subtle);
 }
 
 .error-view p {
   font-size: 15px;
   color: var(--ink-muted);
-  margin-bottom: 2.5rem;
+  margin-bottom: 3rem;
 }
 
 .back-btn {
   display: inline-block;
-  padding: 1rem 2rem;
-  background: var(--accent);
-  color: #fff;
+  padding: 1.15rem 2.25rem;
+  background: var(--subtle);
+  color: #000;
   text-decoration: none;
   border-radius: 999px;
   font-size: 14px;
   font-weight: 700;
   transition: all var(--transition);
-  box-shadow: 0 6px 20px rgba(90, 75, 255, 0.25);
+  box-shadow: 0 8px 25px rgba(181, 174, 246, 0.3);
 }
 
 .back-btn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 10px 30px rgba(90, 75, 255, 0.35);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 35px rgba(181, 174, 246, 0.4);
 }
 
 @media (max-width: 500px) {
   .share-container { border-radius: 0; min-height: 100vh; }
   body { padding: 0; }
-  .profile-header { padding-top: 5rem; }
+  .profile-header { padding-top: 6rem; }
 }
