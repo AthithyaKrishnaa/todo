@@ -688,11 +688,12 @@ if (copyProfBtn && shareOptions) {
       }
 
       // 3. Professional Profiles
-      const socialKeys = ['github', 'linkedin'];
-      if (socialKeys.some(k => keys.includes(k) && p[k])) {
+      const socialKeys = ['github', 'linkedin', 'portfolio'];
+      if (socialKeys.some(k => keys.includes(k) && (p[k] || p.portfolio_link))) {
         output += `Professional Profiles\n`;
         if (keys.includes('github') && p.github) output += `GitHub: ${p.github}\n`;
         if (keys.includes('linkedin') && p.linkedin) output += `LinkedIn: ${p.linkedin}\n`;
+        if (keys.includes('portfolio') && p.portfolio_link) output += `Portfolio: ${p.portfolio_link}\n`;
         output += `\n`;
       }
 
@@ -702,13 +703,12 @@ if (copyProfBtn && shareOptions) {
       }
 
       // 5. Documents & Resources
-      const docKeys = ['internship', 'project', 'certs', 'portfolio'];
+      const docKeys = ['internship', 'project', 'certs'];
       if (docKeys.some(k => keys.includes(k) && p[`${k}_link`])) {
         output += `Documents & Resources\n`;
         if (keys.includes('internship') && p.internship_link) output += `Internships: ${p.internship_link}\n`;
         if (keys.includes('project') && p.project_link) output += `Projects: ${p.project_link}\n`;
         if (keys.includes('certs') && p.certifications_link) output += `Certifications: ${p.certifications_link}\n`;
-        if (keys.includes('portfolio') && p.portfolio_link) output += `Portfolio: ${p.portfolio_link}\n`;
         output += `\n`;
       }
 

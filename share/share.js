@@ -25,7 +25,7 @@ const resResume     = document.getElementById('res-resume');
 const resInternship = document.getElementById('res-internship');
 const resProject    = document.getElementById('res-project');
 const resCerts      = document.getElementById('res-certs');
-const resPortfolio  = document.getElementById('res-portfolio');
+const linkPortfolio = document.getElementById('link-portfolio');
 
 async function init() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -101,6 +101,13 @@ function renderProfile(p) {
     linkLinkedin.classList.add('hidden');
   }
 
+  if (p.portfolio_link) {
+    linkPortfolio.href = p.portfolio_link;
+    hasSocial = true;
+  } else {
+    linkPortfolio.classList.add('hidden');
+  }
+
   if (!hasSocial) {
     document.getElementById('sec-social').classList.add('hidden');
   }
@@ -111,8 +118,7 @@ function renderProfile(p) {
     { el: resResume, url: p.resume_link },
     { el: resInternship, url: p.internship_link },
     { el: resProject, url: p.project_link },
-    { el: resCerts, url: p.certifications_link },
-    { el: resPortfolio, url: p.portfolio_link }
+    { el: resCerts, url: p.certifications_link }
   ];
 
   resources.forEach(r => {

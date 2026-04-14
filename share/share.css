@@ -218,7 +218,7 @@ body {
   border-radius: 16px;
   background: var(--card);
   border: 1px solid var(--border);
-  color: var(--ink-mid);
+  color: var(--ink);
   text-decoration: none;
   font-size: 13px;
   font-weight: 500;
@@ -232,7 +232,7 @@ body {
 
 .profile-link:hover {
   border-color: var(--accent);
-  color: var(--accent);
+  color: var(--ink);
   background: var(--accent-bg);
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(90, 75, 255, 0.08);
@@ -267,8 +267,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--accent);
-  opacity: 0.8;
+  color: var(--ink) !important;
+  opacity: 1;
 }
 
 .resource-item .text { font-size: 14px; font-weight: 600; color: var(--ink); }
