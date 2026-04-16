@@ -30,9 +30,9 @@
  * ============================================================
  */
 
-const GEMINI_API_KEY = window.CONFIG?.GEMINI_API_KEY || '';
+const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
 if (!GEMINI_API_KEY) {
-  console.error('[Gemini] API key missing — add GEMINI_API_KEY to config.js');
+  console.error('[Gemini] API key missing — add VITE_GEMINI_API_KEY to your Vercel env or .env file');
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -494,7 +494,7 @@ async function generateSmartSearch(query, notes) {
 // Restore any persisted blocks from previous page loads
 _restorePersistedBlocks();
 
-window.GEMINI = {
+export const GEMINI = {
   // ── Core caller (JSON response) ──
   callGemini,
 
@@ -512,6 +512,9 @@ window.GEMINI = {
   getRouterState,   // window.GEMINI.getRouterState()  → model status table
   resetRouter,      // window.GEMINI.resetRouter()     → unblock all models
 };
+
+// Also expose to window for console debugging
+window.GEMINI = GEMINI;
 
 console.log(
   `%c[Gemini Router] ✓ Loaded — active model: ${_selectModel()?.id ?? 'NONE'}`,

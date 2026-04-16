@@ -1,5 +1,6 @@
 # ─── Credentials ───
 config.js
+.env
 
 # ─── OS junk ─────────────────────────────
 .DS_Store

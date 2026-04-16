@@ -3,35 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <title>Second Brain</title>
-  <!-- Match the app's background color so there's no white flash -->
   <style>
     body { background-color: #F5F3EF; margin: 0; }
     @media (prefers-color-scheme: dark) { body { background-color: #111110; } }
   </style>
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-  <script>console.log('Root index: loading config.js');</script>
-  <script src="config.js" onerror="console.error('Root index: FAILED to load config.js')"></script>
-  <script>
-    (async () => {
-      console.log('Root index: window.CONFIG is:', window.CONFIG);
-      try {
-        const sb = supabase.createClient(window.CONFIG.SUPABASE_URL, window.CONFIG.SUPABASE_ANON_KEY);
-        const { data: { session } } = await sb.auth.getSession();
-        
-        // Smart routing: Go to home if logged in, otherwise go to login.
-        // Uses .replace() so they don't get stuck in a 'back' button loop.
-        if (session) {
-          window.location.replace('home/home.html');
-        } else {
-          window.location.replace('login/index.html');
-        }
-      } catch (e) {
-        // Fallback if something fails
-        window.location.replace('login/index.html');
-      }
-    })();
-  </script>
+  <script type="module" src="/main.js"></script>
 </head>
 <body></body>
 </html>

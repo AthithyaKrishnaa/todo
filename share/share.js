@@ -1,8 +1,9 @@
-/**
- * share.js — Public Profile Viewer
- */
+import { createClient } from '@supabase/supabase-js';
 
-const sb = supabase.createClient(window.CONFIG.SUPABASE_URL, window.CONFIG.SUPABASE_ANON_KEY);
+const sb = createClient(
+  import.meta.env.VITE_SUPABASE_URL,
+  import.meta.env.VITE_SUPABASE_ANON_KEY
+);
 
 const loadingEl = document.getElementById('loading');
 const contentEl = document.getElementById('content');

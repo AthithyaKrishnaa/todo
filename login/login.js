@@ -7,8 +7,11 @@
 'use strict';
 
 /* ── Init Supabase ──────────────────────────────────── */
-const { createClient } = supabase;
-const sb = createClient(window.CONFIG.SUPABASE_URL, window.CONFIG.SUPABASE_ANON_KEY, {
+import { createClient } from '@supabase/supabase-js';
+const sb = createClient(
+  import.meta.env.VITE_SUPABASE_URL,
+  import.meta.env.VITE_SUPABASE_ANON_KEY,
+  {
   auth: {
     persistSession:    true,
     autoRefreshToken:  true,

@@ -1,6 +1,10 @@
+import { createClient } from '@supabase/supabase-js';
+import { GEMINI } from '../gemini.js';
 
-
-const sb = supabase.createClient(window.CONFIG.SUPABASE_URL, window.CONFIG.SUPABASE_ANON_KEY);
+const sb = createClient(
+  import.meta.env.VITE_SUPABASE_URL,
+  import.meta.env.VITE_SUPABASE_ANON_KEY
+);
 
 
 const authGuard      = document.getElementById('auth-guard');
