@@ -10,9 +10,11 @@
   </style>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-  <script src="config.js"></script>
+  <script>console.log('Root index: loading config.js');</script>
+  <script src="config.js" onerror="console.error('Root index: FAILED to load config.js')"></script>
   <script>
     (async () => {
+      console.log('Root index: window.CONFIG is:', window.CONFIG);
       try {
         const sb = supabase.createClient(window.CONFIG.SUPABASE_URL, window.CONFIG.SUPABASE_ANON_KEY);
         const { data: { session } } = await sb.auth.getSession();

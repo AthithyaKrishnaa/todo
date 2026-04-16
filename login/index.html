@@ -37,7 +37,9 @@
 
   <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-  <script src="../config.js"></script>
+  <script>console.log('Attempting to load config.js from ../config.js');</script>
+  <script src="../config.js" onerror="console.error('FAILED to load ../config.js')"></script>
+  <script>console.log('After config.js load, window.CONFIG is:', window.CONFIG);</script>
   <script src="login.js"></script>
 </body>
 </html>
