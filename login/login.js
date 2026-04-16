@@ -8,7 +8,7 @@
 
 /* ── Init Supabase ──────────────────────────────────── */
 const { createClient } = supabase;
-const sb = createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY, {
+const sb = createClient(window.CONFIG.SUPABASE_URL, window.CONFIG.SUPABASE_ANON_KEY, {
   auth: {
     persistSession:    true,
     autoRefreshToken:  true,
