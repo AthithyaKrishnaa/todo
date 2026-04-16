@@ -9,7 +9,6 @@ const sb = createClient(
 
 const authGuard      = document.getElementById('auth-guard');
 const logoutBtn      = document.getElementById('logout-btn');
-const noteBadge      = document.getElementById('note-badge');
 
 const noteInput      = document.getElementById('note-input');
 const tagChips       = document.querySelectorAll('.tag-chip');
@@ -190,26 +189,29 @@ function renderNote(note) {
   const pinBtn = makeActionBtn(
     pinSvg,
     note.pinned ? 'Unpin note' : 'Pin note',
-    note.pinned ? 'action-btn pin-btn' + (note.pinned ? ' is-pinned' : '') : 'action-btn pin-btn'
+    note.done ? 'action-btn pin-btn disabled' : (note.pinned ? 'action-btn pin-btn active' : 'action-btn pin-btn')
   );
 
   const doneBtn = makeActionBtn(
     doneSvg,
     note.done ? 'Mark active' : 'Mark done',
-    note.done ? 'action-btn done-btn is-done' : 'action-btn done-btn'
+    note.done ? 'action-btn done-btn active' : 'action-btn done-btn'
   );
 
-  const delBtn = makeActionBtn(delSvg, 'Delete note', 'action-btn delete-btn');
+  const delBtn = makeActionBtn(delSvg, 'Delete note', 'action-btn del-btn');
 
   actionsDiv.append(pinBtn, doneBtn, delBtn);
-  header.append(tagsDiv, actionsDiv);
-
+  header.append(actionsDiv);
+  
+  const tagSpan = document.createElement('span');
+  tagSpan.className = 'note-tag';
+  tagSpan.textContent = (note.tags && note.tags[0]) ? note.tags[0] : 'Note';
   
   const contentP = document.createElement('p');
-  contentP.className = 'card-content';
+  contentP.className = 'note-text';
   contentP.innerHTML = linkify(escapeHTML(note.content));
 
-  card.append(header, contentP);
+  card.append(tagSpan, header, contentP);
 
   
   pinBtn.addEventListener('click', async () => {
