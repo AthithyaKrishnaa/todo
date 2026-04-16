@@ -5,34 +5,35 @@ const sb = createClient(
   import.meta.env.VITE_SUPABASE_ANON_KEY
 );
 
+// Containers
 const loadingEl = document.getElementById('loading');
 const contentEl = document.getElementById('content');
-const errorEl   = document.getElementById('error');
+const errorEl   = document.getElementById('error-screen');
 
-const viewAvatar      = document.getElementById('view-avatar');
-const viewPlaceholder = document.getElementById('view-placeholder');
-const viewName        = document.getElementById('view-name');
+// Profile Header
+const pfpEl         = document.getElementById('pfp');
+const pfpPlaceholder = document.getElementById('pfp-placeholder');
+const nameEl        = document.getElementById('name');
+const emailEl       = document.getElementById('email');
 
-// Info items
-const valPhone = document.getElementById('val-phone');
-const valEmail = document.getElementById('val-email');
+// Social Links
+const githubLink    = document.getElementById('github-link');
+const linkedinLink  = document.getElementById('linkedin-link');
+const portfolioLink = document.getElementById('portfolio-link');
 
-// Links
-const linkGithub   = document.getElementById('link-github');
-const linkLinkedin = document.getElementById('link-linkedin');
+// Main Contact Footer
+const phoneEl       = document.getElementById('phone');
+const phoneWrap     = document.getElementById('phone-wrap');
+const emailFooter   = document.getElementById('email-footer');
 
 // Resources
-const resResume     = document.getElementById('res-resume');
-const resInternship = document.getElementById('res-internship');
-const resProject    = document.getElementById('res-project');
-const resCerts      = document.getElementById('res-certs');
-const linkPortfolio = document.getElementById('link-portfolio');
-
-// Modal
-const resumeModal       = document.getElementById('resume-modal');
-const closeResumeModal  = document.getElementById('close-resume-modal');
-const viewResumeBtn     = document.getElementById('view-resume-btn');
-const downloadResumeBtn = document.getElementById('download-resume-btn');
+const resumeBtn     = document.getElementById('resume-btn');
+const internWrap    = document.getElementById('intern-wrap');
+const internLink    = document.getElementById('intern-link');
+const projectWrap   = document.getElementById('project-wrap');
+const projectLink   = document.getElementById('project-link');
+const certWrap      = document.getElementById('cert-wrap');
+const certLink      = document.getElementById('cert-link');
 
 async function init() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -63,98 +64,58 @@ async function init() {
 }
 
 function renderProfile(p) {
-  // Name
-  viewName.textContent = p.name || 'Professional Portfolio';
+  // Name & Header Email
+  nameEl.textContent = p.name || 'Professional Portfolio';
+  emailEl.textContent = p.email || '';
 
   // Avatar
   if (p.avatar_url) {
-    viewAvatar.src = p.avatar_url;
-    viewAvatar.classList.remove('hidden');
-    viewPlaceholder.classList.add('hidden');
+    pfpEl.src = p.avatar_url;
+    pfpEl.classList.remove('hidden');
+    pfpPlaceholder.classList.add('hidden');
   }
 
-  // Contact
-  if (p.phone) {
-    valPhone.textContent = p.phone;
-    valPhone.href = `tel:${p.phone}`;
-  } else {
-    document.getElementById('item-phone').classList.add('hidden');
-  }
-
-  if (p.email) {
-    valEmail.textContent = p.email;
-    valEmail.href = `mailto:${p.email}`;
-  } else {
-    document.getElementById('item-email').classList.add('hidden');
-  }
-
-  if (!p.phone && !p.email) {
-    document.getElementById('sec-contact').classList.add('hidden');
-  }
-
-  // Social
-  let hasSocial = false;
+  // Socials
   if (p.github) {
-    linkGithub.href = p.github;
-    hasSocial = true;
-  } else {
-    linkGithub.classList.add('hidden');
+    githubLink.href = p.github;
+    githubLink.classList.remove('hidden');
   }
-
   if (p.linkedin) {
-    linkLinkedin.href = p.linkedin;
-    hasSocial = true;
-  } else {
-    linkLinkedin.classList.add('hidden');
+    linkedinLink.href = p.linkedin;
+    linkedinLink.classList.remove('hidden');
   }
-
   if (p.portfolio_link) {
-    linkPortfolio.href = p.portfolio_link;
-    hasSocial = true;
-  } else {
-    linkPortfolio.classList.add('hidden');
+    portfolioLink.href = p.portfolio_link;
+    portfolioLink.classList.remove('hidden');
   }
 
-  if (!hasSocial) {
-    document.getElementById('sec-social').classList.add('hidden');
+  // Resume
+  if (p.resume_link) {
+    resumeBtn.href = p.resume_link;
+    resumeBtn.classList.remove('hidden');
   }
 
-  // Resources
-  let hasResources = false;
-  const resources = [
-    { el: resResume, url: p.resume_link },
-    { el: resInternship, url: p.internship_link },
-    { el: resProject, url: p.project_link },
-    { el: resCerts, url: p.certifications_link }
-  ];
+  // Links & Professional Details
+  if (p.internship_link) {
+    internLink.href = p.internship_link;
+    internWrap.classList.remove('hidden');
+  }
+  if (p.project_link) {
+    projectLink.href = p.project_link;
+    projectWrap.classList.remove('hidden');
+  }
+  if (p.certifications_link) {
+    certLink.href = p.certifications_link;
+    certWrap.classList.remove('hidden');
+  }
 
-  resources.forEach(r => {
-    if (r.url) {
-      if (r.el === resResume) {
-        // Special Handling for Resume to launch Modal
-        r.el.href = '#';
-        r.el.addEventListener('click', (e) => {
-          e.preventDefault();
-          let downloadUrl = r.url;
-          // Force download parameter for Supabase hosted files
-          if (r.url.includes('supabase.co/storage/v1/object/public/')) {
-            downloadUrl += (r.url.includes('?') ? '&' : '?') + 'download=';
-          }
-          viewResumeBtn.href = r.url;
-          downloadResumeBtn.href = downloadUrl;
-          resumeModal.classList.remove('hidden');
-        });
-      } else {
-        r.el.href = r.url;
-      }
-      hasResources = true;
-    } else {
-      r.el.classList.add('hidden');
-    }
-  });
-
-  if (!hasResources) {
-    document.getElementById('sec-resources').classList.add('hidden');
+  // Contact Info
+  if (p.phone) {
+    phoneEl.textContent = p.phone;
+    phoneWrap.classList.remove('hidden');
+  }
+  if (p.email) {
+    emailFooter.textContent = p.email;
   }
 
   // Show content
@@ -165,12 +126,6 @@ function renderProfile(p) {
 function showError() {
   loadingEl.classList.add('hidden');
   errorEl.classList.remove('hidden');
-}
-
-if (closeResumeModal) {
-  closeResumeModal.addEventListener('click', () => {
-    resumeModal.classList.add('hidden');
-  });
 }
 
 init();
