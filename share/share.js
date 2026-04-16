@@ -114,7 +114,7 @@ function renderProfile(p) {
     phoneEl.textContent = p.phone;
     phoneWrap.classList.remove('hidden');
   }
-  if (p.email) {
+  if (p.email && emailFooter) {
     emailFooter.textContent = p.email;
   }
 
