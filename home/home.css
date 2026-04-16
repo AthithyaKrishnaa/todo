@@ -62,6 +62,9 @@ body.locked-mode {
 body {
   font-family: var(--font-body);
   background: #FFFFFF;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
   background-image: 
     radial-gradient(circle at 0% 0%, rgba(181, 174, 246, 0.25) 0%, rgba(255, 255, 255, 0) 45%),
     radial-gradient(circle at 100% 100%, rgba(90, 75, 255, 0.08) 0%, rgba(255, 255, 255, 0) 50%),
@@ -176,27 +179,41 @@ body {
   justify-content: space-between;
 }
 
-.brand {
+.header-title-wrap {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.75rem;
 }
 
-.brand-name {
-  font-family: var(--font-serif);
-  font-size: 20px;
-  font-weight: 400;
-  letter-spacing: -0.02em;
+.header-title-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
+
+.top-header-title {
+  font-family: var(--font-serif);
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.top-header-subtitle {
+  font-size: 12px;
+  color: var(--ink-muted);
+  margin: 0;
+  font-family: var(--font-body);
+}
+
+
 
 .brand-logo {
   height: auto;
   object-fit: contain;
   display: block;
-}
-
-.header-logo {
-  height: 55px;
 }
 
 .sidebar-logo {
@@ -246,6 +263,14 @@ body {
   background: rgba(181, 174, 246, 0.6); 
   transform: translateY(-2px);
   box-shadow: 0 6px 15px rgba(90, 75, 255, 0.2);
+}
+
+.logout-text {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 14px;
+  margin-right: 6px;
+  display: none;
 }
 
 #logout-btn {
@@ -437,14 +462,14 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.15rem 1.15rem;
+  padding: 0.6rem 1.15rem;
   border-top: 1px solid var(--border);
   background: var(--subtle);
   transition: padding 0.3s ease;
 }
 
 .capture-box:focus-within .capture-footer {
-  padding: 0.45rem 1.15rem;
+  padding: 0.75rem 1.15rem;
 }
 
 .char-count {
@@ -466,12 +491,12 @@ body {
   font-weight: 700;
   color: var(--ink);
   background: rgba(181, 174, 246, 0.4);
-  border: 1px solid rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.55);
   border-radius: 999px;
   cursor: pointer;
   transition: all 0.4s cubic-bezier(0.19, 1, 0.22, 1);
   z-index: 1;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15); /* Slightly darker high-end shadow */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
 }
 
 .btn-liquid:hover {
@@ -482,7 +507,7 @@ body {
 
 .btn-liquid.primary {
   background: linear-gradient(135deg, #A8A1F3 0%, #5A4BFF 100%);
-  border: 1px solid rgba(0, 0, 0, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.55);
   color: #FFFFFF;
 }
 
@@ -499,12 +524,12 @@ body {
 
 .btn-liquid.danger {
   color: #ff4d4d;
-  border-color: #000;
+  border-color: rgba(255, 255, 255, 0.55);
 }
 
 .btn-liquid.danger:hover {
   background: rgba(255, 77, 77, 0.15);
-  border-color: #ff4d4d;
+  border-color: rgba(255, 100, 100, 0.7);
 }
 
 /* ── Status line ────────────────────────── */
@@ -909,8 +934,10 @@ body {
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.4);
-  z-index: 800;
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 9000;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1144,7 +1171,7 @@ body {
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-top: 2px solid rgba(90, 75, 255, 0.15);
-  margin-top: 0.5rem;
+  margin-top: auto;
   padding: 0.6rem 0;
 }
 
@@ -1247,6 +1274,8 @@ body {
 /* ── App Layout: Notes locked, Profile scrollable ─── */
 .main-content {
   flex: 1;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
   min-height: 0;
 }
@@ -1287,13 +1316,13 @@ body {
 
 .app-section {
   animation: sectionSlideIn 0.5s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 /* When locked-mode is active (Notes tab): fill viewport, no page scroll */
 .locked-mode .app-section {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
   overflow: visible; /* Changed from hidden to allow Cockpit scrolling */
 }
 
@@ -1343,15 +1372,13 @@ body:not(.locked-mode) .app-section {
 
 @media (max-width: 1024px) {
   .sidebar { transform: translateX(-100%); display: none; }
-  .has-sidebar { padding-left: 0; }
-  .header { left: 0; }
+  .has-sidebar { padding-left: 0 !important; }
+  .header { left: 0 !important; }
+  .main-content { margin-left: 0; }
   .vault-grid {
     grid-template-columns: 1fr;
     gap: 1.5rem;
     overflow-y: auto;
-  }
-  .app-footer {
-    display: none !important;
   }
 }
 
@@ -1381,6 +1408,9 @@ body:not(.locked-mode) .app-section {
     width: 100%;
     margin-bottom: 0.5rem; 
   }
+  .notes-global-filter {
+    margin-top: 1rem; /* prevent touching header on mobile */
+  }
   .profile-grid {
     display: flex !important;
     flex-direction: column-reverse !important;
@@ -1409,7 +1439,6 @@ body:not(.locked-mode) .app-section {
     padding: 0.4rem 1rem;
     font-size: 12px;
   }
-  .header-clock { display: none; }
   .footer-tagline { font-size: 11px; }
   .footer-copyright { font-size: 9px; }
 }
@@ -1750,39 +1779,103 @@ button:active { transform: scale(0.95); }
 
 /* ── Desktop Layout Optimization (2-Column) ────────────────── */
 @media (min-width: 1024px) {
+  .sidebar { display: flex !important; transform: translateX(0); }
+  .has-sidebar { padding-left: 260px !important; }
+  .header { left: 260px !important; right: 0; margin: 0; width: auto; max-width: none; }
+  
+  .logout-text { display: inline-block; }
+  #logout-btn {
+    width: auto;
+    padding: 0 1rem;
+    border-radius: 999px;
+  }
+  .nav-liquid-container { display: none !important; } /* Hide top nav on desktop */
+
   .main-content {
-    padding-top: 0.5rem;
+    padding-top: 3rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
   }
 
-  /* 1. Notes Section 2-Column Layout (Flipped & Wider) */
+  /* Desktop: header spans full width from after sidebar */
+  .header-inner {
+    max-width: none;
+    padding: 0.6rem 2.5rem;
+    margin: 0;
+  }
+
+
+
+  /* Removed hidden rule for smart-ai-container since it's now a standalone component */
+
+  /* Equal-width columns for notes list and capture box */
   #section-notes.active {
     display: grid !important;
-    grid-template-columns: 1fr 380px;
-    column-gap: 3rem;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 2.5rem;
     row-gap: 0;
     align-items: start;
-    max-width: 1300px;
+    max-width: 1400px;
     margin: 0 auto;
-    padding: 0 2rem;
+    padding: 0 2.5rem;
+    width: 100%;
   }
 
-  .notes-global-header,
   .notes-global-filter {
+    grid-column: 1 / -1;
+    margin-bottom: 0.5rem;
+  }
+
+  .bulk-actions {
     grid-column: 1 / -1;
   }
 
   #section-notes .section.dashboard {
-    /* Notes List (Dashboard) - Now on the LEFT */
     grid-column: 1;
     margin-bottom: 0;
+    /* Match height of the capture column */
+    min-height: 500px;
   }
 
   #section-notes .section:has(.capture-box) {
-    /* Capture Box - Now on the RIGHT */
     grid-column: 2;
     position: sticky;
-    top: 100px;
+    top: 90px;
     z-index: 10;
+  }
+
+  /* Make both columns equal height visually */
+  #section-notes .section.dashboard .scrollable-notes {
+    min-height: 440px;
+    max-height: calc(100vh - 220px);
+  }
+
+  /* ── Desktop Capture Box: always fully open, no focus-reveal ── */
+  #section-notes .section:has(.capture-box) .capture-box {
+    min-height: auto;
+    border-color: var(--border-mid);
+    box-shadow: var(--shadow-md);
+  }
+
+  /* Always show tag row and remind row */
+  #section-notes .section:has(.capture-box) .capture-box .row {
+    max-height: 200px !important;
+    opacity: 1 !important;
+    padding: 0.5rem 1.15rem !important;
+    border-top: 1px solid var(--border-subtle) !important;
+    overflow: visible !important;
+  }
+
+  /* Always show footer with full padding */
+  #section-notes .section:has(.capture-box) .capture-box .capture-footer {
+    padding: 0.55rem 1.15rem !important;
+  }
+
+  /* Keep textarea at a comfortable height */
+  #section-notes .section:has(.capture-box) .capture-box .note-input {
+    min-height: 100px !important;
+    padding: 0.75rem 1.15rem !important;
   }
 
   /* Footer spans full width in grid */
@@ -1861,5 +1954,264 @@ button:active { transform: scale(0.95); }
   .app-footer .footer-inner {
     max-width: 1300px;
     padding: 0 2rem;
+  }
+}
+
+/* ── Smart AI Features ──────────────────── */
+.smart-btn {
+  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%) !important;
+  color: #fff !important;
+  border: 1px solid rgba(255, 255, 255, 0.6) !important;
+  font-family: var(--font-body);
+  font-weight: 700;
+  box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4) !important;
+  padding: 0.85rem 1.8rem !important;
+  font-size: 13px !important;
+}
+
+.smart-btn:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 25px rgba(168, 85, 247, 0.5) !important;
+}
+
+.header-with-action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.header-with-action .notes-global-header {
+  margin: 0;
+  padding: 0;
+}
+
+
+
+.smart-ai-container {
+  margin-top: 1.5rem;
+  border-top: 1px dashed var(--border);
+  padding-top: 1.5rem;
+}
+
+.btn-group {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.bulk-actions {
+  display: flex;
+  justify-content: center;
+  gap: 0.6rem;
+  margin-bottom: 1.1rem;
+  flex-wrap: wrap;
+}
+
+.clear-all-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-mid);
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 8px 18px;
+  border-radius: 999px;
+  transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+}
+
+.clear-all-btn svg {
+  flex-shrink: 0;
+}
+
+.clear-all-btn:hover {
+  background: #fff5f5;
+  color: #e03131;
+  border-color: #e03131;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(224, 49, 49, 0.15);
+}
+
+.clear-all-btn.hidden {
+  display: none !important;
+}
+
+/* Notes section header layout */
+.notes-header-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.75rem;
+  padding: 0 0.25rem;
+}
+
+.section-header-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+/* SVG icon helpers */
+.btn-icon {
+  flex-shrink: 0;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+.chip-icon {
+  flex-shrink: 0;
+  margin-right: 5px;
+  vertical-align: middle;
+  opacity: 0.85;
+}
+
+
+
+/* ── Sticky Clear Buttons inside notes-area ── */
+.notes-sticky-clear {
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem 0.5rem 0.75rem;
+  pointer-events: none; /* Let clicks through the gradient area */
+  flex-wrap: wrap;
+}
+
+.clear-sticky-btn {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12.5px;
+  font-weight: 600;
+  font-family: var(--font-body);
+  color: #c92a2a;
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(224, 49, 49, 0.3);
+  padding: 7px 16px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 16px rgba(224,49,49,0.12);
+}
+
+.clear-sticky-btn:hover {
+  background: rgba(255,245,245,0.95);
+  border-color: #e03131;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(224,49,49,0.22);
+}
+
+.clear-sticky-btn.hidden {
+  display: none !important;
+}
+
+.clear-sticky-btn svg {
+  flex-shrink: 0;
+}
+
+/* ── Sidebar v8 version badge ── */
+.sidebar-brand {
+  position: relative;
+  display: inline-flex;
+}
+
+.sidebar-version {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  background: var(--subtle);
+  color: var(--ink-muted);
+  padding: 2px 5px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  position: absolute;
+  top: 15px;
+  right: -20px;
+  line-height: 1;
+}
+
+/* ── Header: mobile vs desktop visibility ── */
+.mobile-brand {
+  display: inline-flex;
+  align-items: flex-start;
+  position: relative;
+}
+
+.note-badge {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  background: var(--accent-light);
+  color: var(--accent-dark);
+  padding: 2px 5px;
+  border-radius: 20px;
+  border: 1px solid rgba(90, 75, 255, 0.2);
+  position: absolute;
+  top: 0;
+  right: -25px;
+  line-height: 1;
+}
+
+.desktop-header-title {
+  display: none;
+}
+
+.header-logo {
+  height: 48px;
+}
+
+
+
+/* ── Desktop overrides for header ── */
+@media (min-width: 1024px) {
+  .mobile-brand { display: none; }
+  .desktop-header-title { display: block; }
+  .note-badge { display: none; } /* v8 now in sidebar */
+
+}
+
+/* ── Mobile: hide desktop-only elements ── */
+@media (max-width: 1023px) {
+
+  .desktop-header-title { display: none !important; }
+  
+  /* Prevent top bar from hitting header in mobile view */
+  .notes-global-filter {
+    margin-top: 1rem;
+  }
+}
+
+/* ── Profile Section Spacing ── */
+.profile-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 0 1.25rem 2rem; /* Mobile padding so it doesn't touch edges */
+}
+
+@media (min-width: 1024px) {
+  .profile-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2.5rem;
+    padding: 0 2.5rem; /* Match desktop notes padding */
+    align-items: start;
+  }
+  .profile-form {
+    grid-row: 1 / span 2;
+  }
+  /* Right column stacks share + smart AI vertically */
+  .profile-right-col {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
   }
 }

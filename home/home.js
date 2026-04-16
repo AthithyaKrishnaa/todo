@@ -1,11 +1,8 @@
-/**
- * SECOND BRAIN — home.js
- * Supabase client is initialized via <script src="config.js">
- */
+
 
 const sb = supabase.createClient(window.CONFIG.SUPABASE_URL, window.CONFIG.SUPABASE_ANON_KEY);
 
-/* ── DOM References ─────────────────────────────────────────── */
+
 const authGuard      = document.getElementById('auth-guard');
 const logoutBtn      = document.getElementById('logout-btn');
 const noteBadge      = document.getElementById('note-badge');
@@ -49,29 +46,29 @@ const shareOptions   = document.getElementById('share-options');
 const copyProfBtn    = document.getElementById('copy-prof-btn');
 const shareLinkBtn   = document.getElementById('share-link-btn');
 
-/* ── Avatar DOM References ─────────────────── */
+
 const avatarImg      = document.getElementById('avatar-img');
 const avatarPlaceholder = document.getElementById('avatar-placeholder');
 const avatarUploadBtn = document.getElementById('avatar-upload-btn');
 const avatarDeleteBtn = document.getElementById('avatar-delete-btn');
 const avatarFileInput = document.getElementById('avatar-file-input');
 
-/* ── Resume Upload DOM ─────────────────────── */
+
 const resumeFileInput = document.getElementById('resume-file-input');
 const resumeUploadBtn = document.getElementById('resume-upload-btn');
 const resumeFileName  = document.getElementById('resume-file-name');
 
-/* ── Cropper DOM References ────────────────── */
+
 const cropperOverlay     = document.getElementById('cropper-overlay');
 const cropperImage       = document.getElementById('cropper-image');
 const cropperCloseBtn     = document.getElementById('cropper-close-btn');
 const cropperCancelBtn    = document.getElementById('cropper-cancel-btn');
 const cropperConfirmBtn   = document.getElementById('cropper-confirm-btn');
 
-/* ── Sidebar DOM ────────────────────────────────────────────── */
+
 const sidebarItems   = document.querySelectorAll('.side-nav-item');
 
-/* ── App state ──────────────────────────────────────────────── */
+
 let currentUser    = null;
 let allNotes       = [];
 let currentFilter  = 'pending';
@@ -80,10 +77,7 @@ let pendingDeleteId= null;
 let userProfile    = null;
 let cropperInstance = null;
 
-/* ═══════════════════════════════════════════════════════════════
-   AUTH & INITIALIZATION
-═══════════════════════════════════════════════════════════════ */
-// Always enforce the light theme for the Exceldent palette
+
 document.documentElement.setAttribute('data-theme', 'light');
 
 async function initAuth() {
@@ -94,7 +88,7 @@ async function initAuth() {
   }
   currentUser = session.user;
   if (authGuard) authGuard.classList.add('hidden');
-  
+
   loadNotes();
   loadProfile();
 }
@@ -106,18 +100,13 @@ if (logoutBtn) {
   });
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   THEME
-═══════════════════════════════════════════════════════════════ */
+
 function initTheme() {
-  // Always light theme for the Exceldent palette
   document.documentElement.setAttribute('data-theme', 'light');
   localStorage.setItem('theme', 'light');
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   NOTES: LOAD & RENDER
-═══════════════════════════════════════════════════════════════ */
+
 async function loadNotes() {
   if (!currentUser) return;
   notesLoading.classList.remove('hidden');
@@ -145,7 +134,6 @@ async function loadNotes() {
 }
 
 function updateNoteBadge() {
-  // Badge now used for version v8
 }
 
 function renderNotes() {
@@ -153,7 +141,7 @@ function renderNotes() {
   const filtered = allNotes.filter(n => {
     if (currentFilter === 'pending')      return !n.done;
     if (currentFilter === 'accomplished') return n.done;
-    return true; // fallback
+    return true;
   });
 
   if (filtered.length === 0) {
@@ -171,11 +159,11 @@ function renderNote(note) {
   const card = document.createElement('div');
   card.className = note.done ? 'note-card done' : 'note-card';
 
-  /* ── Header ── */
+  
   const header = document.createElement('div');
   header.className = 'card-header';
 
-  /* Tags */
+  
   const tagsDiv = document.createElement('div');
   tagsDiv.className = 'card-tags';
   (note.tags || []).forEach(tag => {
@@ -185,17 +173,14 @@ function renderNote(note) {
     tagsDiv.appendChild(span);
   });
 
-  /* Action buttons */
+  
   const actionsDiv = document.createElement('div');
   actionsDiv.className = 'card-actions';
 
-  // Pin SVG
   const pinSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="17" x2="12" y2="22"></line><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.79-.9A.5.5 0 0 1 16 12.1V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v7.1a.5.5 0 0 1-.1.41l-1.79.9A2 2 0 0 0 5 15.24V17z"></path></svg>`;
-  // Done SVG
-  const doneSvg = note.done 
+  const doneSvg = note.done
     ? `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>`
     : `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
-  // Delete SVG
   const delSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>`;
 
   const pinBtn = makeActionBtn(
@@ -215,14 +200,14 @@ function renderNote(note) {
   actionsDiv.append(pinBtn, doneBtn, delBtn);
   header.append(tagsDiv, actionsDiv);
 
-  /* ── Content ── */
+  
   const contentP = document.createElement('p');
   contentP.className = 'card-content';
   contentP.innerHTML = linkify(escapeHTML(note.content));
 
   card.append(header, contentP);
 
-  /* ── Events ── */
+  
   pinBtn.addEventListener('click', async () => {
     const isPinned = !note.pinned;
     const { error } = await sb.from('notes').update({ pinned: isPinned }).eq('id', note.id);
@@ -234,13 +219,13 @@ function renderNote(note) {
 
   doneBtn.addEventListener('click', async () => {
     const isNowDone = !note.done;
-    
+
     doneBtn.disabled = true;
-    
-    const { error } = await sb.from('notes').update({ 
+
+    const { error } = await sb.from('notes').update({
       done: isNowDone
     }).eq('id', note.id);
-    
+
     if (error) {
       console.error('Done toggle error:', JSON.stringify(error));
       showStatus('Failed: ' + (error.message || 'Unknown error'));
@@ -273,9 +258,7 @@ function makeActionBtn(label, ariaLabel, className) {
   return btn;
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   NOTES: CREATE & DELETE
-═══════════════════════════════════════════════════════════════ */
+
 if (saveBtn) {
   saveBtn.addEventListener('click', saveNote);
 }
@@ -330,7 +313,6 @@ if (confirmOk) {
   confirmOk.addEventListener('click', async () => {
     if (!pendingDeleteId) return;
 
-    // Handle avatar deletion
     if (pendingDeleteId === '__AVATAR__') {
       confirmOverlay.classList.add('hidden');
       avatarDeleteBtn.disabled = true;
@@ -353,7 +335,6 @@ if (confirmOk) {
       return;
     }
 
-    // Handle note deletion
     const { error } = await sb.from('notes').delete().eq('id', pendingDeleteId);
     confirmOverlay.classList.add('hidden');
     pendingDeleteId = null;
@@ -369,26 +350,21 @@ if (confirmCancel) {
   confirmCancel.addEventListener('click', () => confirmOverlay.classList.add('hidden'));
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   SEARCH & FILTERS
-═══════════════════════════════════════════════════════════════ */
+
 filterBtns.forEach(btn => {
   btn.addEventListener('click', () => {
     filterBtns.forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     currentFilter = btn.dataset.filter;
-    
-    // Liquid Animation State
+
     const filterBar = document.getElementById('filter-bar');
     if (filterBar) filterBar.dataset.state = currentFilter;
-    
+
     renderNotes();
   });
 });
 
-/* ═══════════════════════════════════════════════════════════════
-   TAG CHIPS
-═══════════════════════════════════════════════════════════════ */
+
 tagChips.forEach(chip => {
   chip.addEventListener('click', () => {
     const pressed = chip.getAttribute('aria-pressed') === 'true';
@@ -398,25 +374,19 @@ tagChips.forEach(chip => {
 
 
 
-/* ═══════════════════════════════════════════════════════════════
-   UTILITIES
-═══════════════════════════════════════════════════════════════ */
-/** Premium Status Feedback Card */
+
+
 function showStatus(msg) {
   if (!statusCard || !statusMsg || !statusBar) return;
-  
-  // Clear any existing timeout
+
   if (statusCard._timer) clearTimeout(statusCard._timer);
-  
-  // Reset
+
   statusCard.classList.remove('visible', 'active');
-  void statusCard.offsetWidth; // Trigger reflow
-  
-  // Update & Show
+  void statusCard.offsetWidth;
+
   statusMsg.textContent = msg;
   statusCard.classList.add('visible', 'active');
-  
-  // Auto-hide after 3s (matches CSS animation)
+
   statusCard._timer = setTimeout(() => {
     statusCard.classList.remove('visible', 'active');
   }, 3000);
@@ -428,7 +398,7 @@ function escapeHTML(str) {
   })[m]);
 }
 
-/** Wrap URLs in anchor tags (after escaping) */
+
 function linkify(escaped) {
   return escaped.replace(
     /(https?:\/\/[^\s<>"']+)/g,
@@ -436,19 +406,19 @@ function linkify(escaped) {
   );
 }
 
-/** Clean URLs by removing tracking parameters */
+
 function cleanURL(url) {
   try {
     const u = new URL(url);
     const paramsToRemove = ['usp', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'si', 'fbclid', 'igsh'];
     paramsToRemove.forEach(p => u.searchParams.delete(p));
-    return u.toString().replace(/\/$/, ""); // Remove trailing slash if any
+    return u.toString().replace(/\/$/, "");
   } catch {
-    return url; // Return as-is if not a valid URL
+    return url;
   }
 }
 
-/** Handle URL field input/paste for cleaning */
+
 function initURLCleaners() {
   const urlInputs = document.querySelectorAll('input[type="url"]');
   urlInputs.forEach(input => {
@@ -465,7 +435,7 @@ function initURLCleaners() {
   });
 }
 
-/** Shorten URL using is.gd API */
+
 async function shortenURL(url) {
   if (!url || url.length < 25) return url;
   try {
@@ -479,18 +449,13 @@ async function shortenURL(url) {
 
 
 
-/* ═══════════════════════════════════════════════════════════════
-   NAVIGATION
-═══════════════════════════════════════════════════════════════ */
+
 function switchTab(targetId) {
-  // Persist view
   localStorage.setItem('activeSection', targetId);
 
-  // Navigation highlight
   navItems.forEach(b => b.classList.toggle('active', b.dataset.target === targetId));
   sidebarItems.forEach(b => b.classList.toggle('active', b.dataset.target === targetId));
-  
-  // Update Desktop Liquid Nav State
+
   const mainTabs = document.getElementById('main-tabs');
   if (mainTabs) {
     mainTabs.setAttribute('data-state', targetId);
@@ -499,26 +464,23 @@ function switchTab(targetId) {
   }
 
   const isDesktop = window.innerWidth >= 768;
-  
-  // Section visibility
+
   appSections.forEach(sec => {
     const isActive = sec.id === targetId;
     sec.classList.toggle('active', isActive);
     sec.classList.toggle('hidden', !isActive);
   });
 
-  // Locked mode handling
   if (targetId === 'section-notes' || isDesktop) {
     document.body.classList.add('locked-mode');
   } else {
     document.body.classList.remove('locked-mode');
   }
 
-  // Update Footer Tagline
   const footerTagline = document.getElementById('footer-tagline');
   if (footerTagline) {
-    footerTagline.textContent = targetId === 'section-notes' 
-      ? 'Organize your second brain' 
+    footerTagline.textContent = targetId === 'section-notes'
+      ? 'Organize your second brain'
       : 'Your personal knowledge vault';
   }
 }
@@ -530,7 +492,6 @@ if (sidebarItems.length > 0) {
   sidebarItems.forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.target)));
 }
 
-// Desktop Liquid Main Tabs
 const mainTabButtons = document.querySelectorAll('.main-nav-liquid .filter-btn');
 if (mainTabButtons.length > 0) {
   mainTabButtons.forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.target)));
@@ -538,15 +499,13 @@ if (mainTabButtons.length > 0) {
 
 
 
-/* ═══════════════════════════════════════════════════════════════
-   PROFILE
-═══════════════════════════════════════════════════════════════ */
+
 async function loadProfile() {
   try {
     const { data, error } = await sb.from('profile').select('*').eq('user_id', currentUser.id).maybeSingle();
     if (error && error.code !== 'PGRST116') throw error;
     userProfile = data;
-    
+
     if (userProfile) {
       if (profName)       profName.value = userProfile.name || '';
       if (profPhone)      profPhone.value = userProfile.phone || '';
@@ -558,7 +517,7 @@ async function loadProfile() {
       if (profProject)    profProject.value = userProfile.project_link || '';
       if (profCerts)      profCerts.value = userProfile.certifications_link || '';
       if (profPortfolio)  profPortfolio.value = userProfile.portfolio_link || '';
-      
+
       if (userProfile.resume_link && resumeFileName && resumeUploadBtn) {
         resumeFileName.textContent = 'Current Resume Uploaded (PDF)';
         resumeFileName.style.color = 'var(--ink-mid)';
@@ -568,8 +527,7 @@ async function loadProfile() {
         `;
       }
     }
-    
-    // Manage Avatar Display
+
     if (userProfile && userProfile.avatar_url) {
       avatarImg.src = userProfile.avatar_url;
       avatarImg.classList.remove('hidden');
@@ -593,7 +551,7 @@ if (saveProfBtn && profName) {
   saveProfBtn.addEventListener('click', async () => {
     saveProfBtn.disabled = true;
     if (profSaveStatus) profSaveStatus.textContent = 'Saving...';
-    
+
     try {
       const payload = {
         user_id: currentUser.id,
@@ -609,10 +567,10 @@ if (saveProfBtn && profName) {
         portfolio_link: profPortfolio.value.trim(),
         updated_at: new Date().toISOString()
       };
-      
+
       const { error } = await sb.from('profile').upsert(payload, { onConflict: 'user_id' });
       if (error) throw error;
-      
+
       userProfile = payload;
       showStatus('Profile saved');
       buildShareOptions();
@@ -635,7 +593,7 @@ function buildShareOptions() {
     shareOptions.innerHTML = '<span class="share-desc">Fill out your profile first.</span>';
     return;
   }
-  
+
   const fields = [
     { key: 'name', label: 'Name', val: userProfile.name },
     { key: 'phone', label: 'Phone', val: userProfile.phone },
@@ -648,7 +606,7 @@ function buildShareOptions() {
     { key: 'certs', label: 'Certifications Details', val: userProfile.certifications_link },
     { key: 'portfolio', label: 'Portfolio Link', val: userProfile.portfolio_link }
   ];
-  
+
   let hasData = false;
   fields.forEach(f => {
     if (f.val) {
@@ -659,7 +617,7 @@ function buildShareOptions() {
       shareOptions.appendChild(wrap);
     }
   });
-  
+
   if (!hasData) {
     shareOptions.innerHTML = '<span class="share-desc">No details saved yet.</span>';
   }
@@ -668,31 +626,28 @@ function buildShareOptions() {
 if (copyProfBtn && shareOptions) {
   copyProfBtn.addEventListener('click', () => {
     if (!userProfile) return;
-    
+
     try {
       const allCheckboxes = shareOptions.querySelectorAll('input[type="checkbox"]');
       let checkedBoxes = Array.from(allCheckboxes).filter(cb => cb.checked);
       const includeWatermark = document.getElementById('include-watermark')?.checked ?? true;
-      
+
       if (checkedBoxes.length === 0 && allCheckboxes.length > 0) {
         checkedBoxes = Array.from(allCheckboxes);
       } else if (checkedBoxes.length === 0) {
         showStatus('Nothing to copy');
         return;
       }
-      
+
       const keys = checkedBoxes.map(cb => cb.dataset.key);
       const p = userProfile;
-      
-      // FINAL Grouped Text Format
+
       let output = "";
-      
-      // 1. Name
+
       if (keys.includes('name') && p.name) {
         output += `${p.name.toUpperCase()}\n\n`;
       }
 
-      // 2. Contact Information
       const contactKeys = ['phone', 'email'];
       if (contactKeys.some(k => keys.includes(k) && p[k])) {
         output += `Contact Information\n`;
@@ -701,7 +656,6 @@ if (copyProfBtn && shareOptions) {
         output += `\n`;
       }
 
-      // 3. Professional Profiles
       const socialKeys = ['github', 'linkedin', 'portfolio'];
       if (socialKeys.some(k => keys.includes(k) && (p[k] || p.portfolio_link))) {
         output += `Professional Profiles\n`;
@@ -711,12 +665,10 @@ if (copyProfBtn && shareOptions) {
         output += `\n`;
       }
 
-      // 4. Resume
       if (keys.includes('resume') && p.resume_link) {
         output += `Resume\nResume Link: ${p.resume_link}\n\n`;
       }
 
-      // 5. Documents & Resources
       const docKeys = ['internship', 'project', 'certs'];
       if (docKeys.some(k => keys.includes(k) && p[`${k}_link`])) {
         output += `Documents & Resources\n`;
@@ -729,7 +681,7 @@ if (copyProfBtn && shareOptions) {
       if (includeWatermark) {
         output += `──────────────────────────\nGenerated via Second Brain`;
       }
-      
+
       navigator.clipboard.writeText(output.trim());
       showStatus('Details copied to clipboard ✨');
     } catch (e) {
@@ -748,10 +700,7 @@ if (shareLinkBtn) {
   });
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   AVATAR & CROPPER LOGIC
-   Uses Cropper.js from CDN
-═══════════════════════════════════════════════════════════════ */
+
 if (avatarUploadBtn) {
   avatarUploadBtn.addEventListener('click', () => avatarFileInput.click());
 }
@@ -770,8 +719,7 @@ if (avatarFileInput) {
     reader.onload = (event) => {
       cropperImage.src = event.target.result;
       cropperOverlay.classList.remove('hidden');
-      
-      // Initialize Cropper
+
       if (cropperInstance) cropperInstance.destroy();
       cropperInstance = new Cropper(cropperImage, {
         aspectRatio: 1,
@@ -814,8 +762,7 @@ cropperConfirmBtn?.addEventListener('click', async () => {
       if (!blob) throw new Error('Failed to create blob');
 
       const fileName = `${currentUser.id}/avatar_${Date.now()}.png`;
-      
-      // 1. Upload to Supabase Storage
+
       const { data: uploadData, error: uploadError } = await sb.storage
         .from('avatars')
         .upload(fileName, blob, {
@@ -825,16 +772,14 @@ cropperConfirmBtn?.addEventListener('click', async () => {
 
       if (uploadError) throw uploadError;
 
-      // 2. Get Public URL
       const { data: { publicUrl } } = sb.storage
         .from('avatars')
         .getPublicUrl(fileName);
 
-      // 3. Update Profile in DB
       const { error: dbError } = await sb
         .from('profile')
-        .upsert({ 
-          user_id: currentUser.id, 
+        .upsert({
+          user_id: currentUser.id,
           avatar_url: publicUrl,
           updated_at: new Date().toISOString()
         }, { onConflict: 'user_id' });
@@ -865,12 +810,10 @@ if (avatarDeleteBtn) {
   });
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   RESUME UPLOAD LOGIC
-═══════════════════════════════════════════════════════════════ */
+
 if (resumeUploadBtn && resumeFileInput) {
   resumeUploadBtn.addEventListener('click', () => resumeFileInput.click());
-  
+
   resumeFileInput.addEventListener('change', async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -885,7 +828,7 @@ if (resumeUploadBtn && resumeFileInput) {
 
     try {
       if (!currentUser) throw new Error("Not authenticated");
-      
+
       const fileName = `${currentUser.id}/resume_${Date.now()}.pdf`;
       const { data: uploadData, error: uploadError } = await sb.storage
         .from('resumes')
@@ -900,11 +843,10 @@ if (resumeUploadBtn && resumeFileInput) {
         .from('resumes')
         .getPublicUrl(fileName);
 
-      // Save directly to profile so user doesn't have to hit "Update"
       const { error: dbError } = await sb
         .from('profile')
-        .upsert({ 
-          user_id: currentUser.id, 
+        .upsert({
+          user_id: currentUser.id,
           resume_link: publicUrl,
           updated_at: new Date().toISOString()
         }, { onConflict: 'user_id' });
@@ -913,7 +855,7 @@ if (resumeUploadBtn && resumeFileInput) {
 
       profResumeLink.value = publicUrl;
       resumeFileName.textContent = `Uploaded: ${file.name}`;
-      resumeFileName.style.color = '#10B981'; // Emerald
+      resumeFileName.style.color = '#10B981';
       showStatus('Resume uploaded! ✨');
 
     } catch (err) {
@@ -930,18 +872,14 @@ if (resumeUploadBtn && resumeFileInput) {
   });
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   INIT
-═══════════════════════════════════════════════════════════════ */
+
 initTheme();
-initAuth();   // runs auth guard, then loads notes
+initAuth();
 initURLCleaners();
 
-// Restore last active section or default to notes
 const savedSection = localStorage.getItem('activeSection') || 'section-notes';
 switchTab(savedSection);
 
-// Live IST Clock
 function updateClock() {
   const clockEl = document.getElementById('header-clock');
   if (!clockEl) return;
@@ -955,3 +893,117 @@ function updateClock() {
 }
 updateClock();
 setInterval(updateClock, 1000);
+
+
+/* ── Smart Save ─────────────────────────────── */
+const smartSaveBtn = document.getElementById('smart-save-btn');
+if (smartSaveBtn) {
+  smartSaveBtn.addEventListener('click', async () => {
+    if (!window.GEMINI) { showStatus('AI module not loaded 😕'); return; }
+    const text = noteInput?.value?.trim();
+    if (!text) { showStatus('Write something first! ✏️'); return; }
+    if (text.length < 10) { showStatus('Too short for AI splitting — just save it normally!'); return; }
+
+    const originalHTML = smartSaveBtn.innerHTML;
+    smartSaveBtn.disabled = true;
+    smartSaveBtn.innerHTML = '⏳ Thinking...';
+
+    try {
+      const notes = await window.GEMINI.smartSplitNotes(text);
+      if (!Array.isArray(notes) || notes.length === 0) throw new Error('No notes returned');
+
+      let saved = 0;
+      for (const note of notes) {
+        const { error } = await sb.from('notes').insert({
+          user_id: currentUser.id,
+          content: note.content?.trim(),
+          tags: note.tags || [],
+          pinned: false,
+          done: false
+        });
+        if (!error) saved++;
+      }
+
+      noteInput.value = '';
+      await loadNotes();
+      showStatus(`✨ Smart saved ${saved} note${saved !== 1 ? 's' : ''}!`);
+    } catch (err) {
+      console.error('[SmartSave]', err);
+      if (err.message?.includes('Limit')) {
+        showStatus(err.message);
+      } else if (err.message?.includes('API')) {
+        showStatus('AI service unavailable. Try again shortly 🔌');
+      } else {
+        showStatus('Smart save failed — notes not split 😕');
+      }
+    } finally {
+      smartSaveBtn.disabled = false;
+      smartSaveBtn.innerHTML = originalHTML;
+    }
+  });
+}
+
+
+
+
+
+
+
+
+
+/* ── Smart Fill ─────────────────────────────── */
+const smartProfBtn = document.getElementById('smart-prof-btn');
+if (smartProfBtn) {
+  smartProfBtn.addEventListener('click', async () => {
+    if (!window.GEMINI) { showStatus('AI module not loaded 😕'); return; }
+    const smartInput = document.getElementById('smart-ai-input');
+    const fillStatus = document.getElementById('smart-fill-status');
+    const text = smartInput?.value?.trim();
+
+    if (!text) { showStatus('Paste some links or details first! 🔗'); return; }
+
+    const originalHTML = smartProfBtn.innerHTML;
+    smartProfBtn.disabled = true;
+    smartProfBtn.innerHTML = '⏳ Analysing...';
+    if (fillStatus) fillStatus.textContent = 'AI is reading your details...';
+
+    try {
+      const parsed = await window.GEMINI.smartParseProfile(text);
+      if (!parsed) throw new Error('Empty response');
+
+      let filled = 0;
+      const map = {
+        name: profName, phone: profPhone, email: profEmail,
+        github: profGithub, linkedin: profLinkedin,
+        internship_link: profInternship, project_link: profProject,
+        certifications_link: profCerts, portfolio_link: profPortfolio
+      };
+      for (const [key, el] of Object.entries(map)) {
+        if (parsed[key] && el) { el.value = parsed[key]; filled++; }
+      }
+
+      if (smartInput) smartInput.value = '';
+      if (fillStatus) fillStatus.textContent = '';
+
+      if (filled === 0) {
+        showStatus("AI couldn't find any recognisable fields 🤔 Try pasting clearer info.");
+      } else {
+        showStatus(`✨ ${filled} field${filled !== 1 ? 's' : ''} filled! Click "Update Details" to save.`);
+      }
+    } catch (err) {
+      console.error('[SmartFill]', err);
+      if (fillStatus) fillStatus.textContent = '';
+      if (err.message?.includes('Limit')) {
+        showStatus(err.message);
+      } else if (err.message?.includes('API')) {
+        showStatus('AI service unavailable. Try again shortly 🔌');
+      } else {
+        showStatus('Smart Fill failed — try again 😕');
+      }
+    } finally {
+      smartProfBtn.disabled = false;
+      smartProfBtn.innerHTML = originalHTML;
+    }
+  });
+}
+
