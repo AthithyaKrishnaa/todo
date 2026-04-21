@@ -1323,7 +1323,7 @@ body {
 
 /* When locked-mode is active (Notes tab): fill viewport, no page scroll */
 .locked-mode .app-section {
-  overflow: visible; /* Changed from hidden to allow Cockpit scrolling */
+  overflow: hidden; /* Changed from visible to correctly contain scrollable dashboard */
 }
 
 /* When NOT locked (Profile tab): normal page flow */
@@ -1444,7 +1444,7 @@ body:not(.locked-mode) .app-section {
 }
 
 /* ── Dashboard Spacing ── */
-.dashboard { margin-bottom: 0.5rem; flex-shrink: 0; }
+.dashboard { margin-bottom: 0.5rem; }
 
 /* ── Status Card (Premium Feedback) ──────── */
 .status-card {
