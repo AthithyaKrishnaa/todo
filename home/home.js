@@ -150,13 +150,14 @@ function renderNotes() {
 
   if (filtered.length === 0) {
     emptyState.classList.remove('hidden');
-    return;
+    notesList.classList.add('hidden');
+  } else {
+    emptyState.classList.add('hidden');
+    notesList.classList.remove('hidden');
+    filtered.forEach(n => {
+      notesList.appendChild(renderNote(n));
+    });
   }
-
-  notesList.classList.remove('hidden');
-  filtered.forEach(n => {
-    notesList.appendChild(renderNote(n));
-  });
 }
 
 function renderNote(note) {
