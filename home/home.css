@@ -1441,6 +1441,7 @@ body:not(.locked-mode) .app-section {
   }
   .footer-tagline { font-size: 11px; }
   .footer-copyright { font-size: 9px; }
+  .app-footer { display: none !important; }
 }
 
 /* ── Dashboard Spacing ── */
