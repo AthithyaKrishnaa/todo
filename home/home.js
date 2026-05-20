@@ -22,6 +22,9 @@ const notesLoading   = document.getElementById('notes-loading');
 const notesList      = document.getElementById('notes-list');
 const emptyState     = document.getElementById('empty-state');
 
+const clearAllBtn    = document.getElementById('clear-all-btn');
+const clearDoneBtn   = document.getElementById('clear-done-btn');
+
 const statusCard     = document.getElementById('status-card');
 const statusMsg      = document.getElementById('status-msg');
 const statusBar     = document.getElementById('status-bar');
@@ -95,6 +98,7 @@ async function initAuth() {
 
   loadNotes();
   loadProfile();
+  initRealtime();
 }
 
 if (logoutBtn) {
@@ -161,6 +165,25 @@ function renderNotes() {
     filtered.forEach(n => {
       notesList.appendChild(renderNote(n));
     });
+  }
+  updateClearButtons();
+}
+
+function updateClearButtons() {
+  if (!clearAllBtn || !clearDoneBtn) return;
+  
+  const pendingNotes = allNotes.filter(n => !n.done && !(n.tags && n.tags.includes('daily_tracker')));
+  const accomplishedNotes = allNotes.filter(n => n.done && !(n.tags && n.tags.includes('daily_tracker')));
+  
+  if (currentFilter === 'pending' && pendingNotes.length > 0) {
+    clearAllBtn.classList.remove('hidden');
+    clearDoneBtn.classList.add('hidden');
+  } else if (currentFilter === 'accomplished' && accomplishedNotes.length > 0) {
+    clearDoneBtn.classList.remove('hidden');
+    clearAllBtn.classList.add('hidden');
+  } else {
+    clearAllBtn.classList.add('hidden');
+    clearDoneBtn.classList.add('hidden');
   }
 }
 
@@ -340,6 +363,62 @@ if (confirmOk) {
       } finally {
         avatarDeleteBtn.disabled = false;
         pendingDeleteId = null;
+      }
+      return;
+    }
+
+    if (pendingDeleteId === '__CLEAR_PENDING__') {
+      confirmOverlay.classList.add('hidden');
+      pendingDeleteId = null;
+      
+      const toDelete = allNotes.filter(n => !n.done && !(n.tags && n.tags.includes('daily_tracker')));
+      if (toDelete.length === 0) {
+        showStatus('No pending notes to delete');
+        return;
+      }
+      
+      showStatus('Clearing pending notes...');
+      const ids = toDelete.map(n => n.id);
+      const { error } = await sb
+        .from('notes')
+        .delete()
+        .in('id', ids);
+        
+      if (error) {
+        console.error(error);
+        showStatus('Failed to clear notes');
+      } else {
+        allNotes = allNotes.filter(n => !ids.includes(n.id));
+        renderNotes();
+        showStatus('All pending notes deleted 🗑️');
+      }
+      return;
+    }
+
+    if (pendingDeleteId === '__CLEAR_DONE__') {
+      confirmOverlay.classList.add('hidden');
+      pendingDeleteId = null;
+      
+      const toDelete = allNotes.filter(n => n.done && !(n.tags && n.tags.includes('daily_tracker')));
+      if (toDelete.length === 0) {
+        showStatus('No accomplished notes to delete');
+        return;
+      }
+      
+      showStatus('Clearing accomplished notes...');
+      const ids = toDelete.map(n => n.id);
+      const { error } = await sb
+        .from('notes')
+        .delete()
+        .in('id', ids);
+        
+      if (error) {
+        console.error(error);
+        showStatus('Failed to clear notes');
+      } else {
+        allNotes = allNotes.filter(n => !ids.includes(n.id));
+        renderNotes();
+        showStatus('All accomplished notes deleted 🗑️');
       }
       return;
     }
@@ -1624,5 +1703,79 @@ function initTrackerEvents() {
 
 // Start tracker event listeners
 initTrackerEvents();
+
+let notesChannel = null;
+
+function initRealtime() {
+  if (!currentUser) return;
+  if (notesChannel) return;
+  
+  notesChannel = sb.channel('notes-realtime-channel')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'notes' }, (payload) => {
+      handleRealtimeChange(payload);
+    })
+    .subscribe((status) => {
+      console.log('Supabase Realtime subscription status:', status);
+    });
+}
+
+function handleRealtimeChange(payload) {
+  if (!currentUser) return;
+  const event = payload.eventType;
+  const newRecord = payload.new;
+  const oldRecord = payload.old;
+
+  if (event === 'INSERT' || event === 'UPDATE') {
+    if (newRecord.user_id !== currentUser.id) return;
+    
+    const idx = allNotes.findIndex(n => n.id === newRecord.id);
+    if (idx !== -1) {
+      allNotes[idx] = newRecord;
+    } else {
+      allNotes.push(newRecord);
+    }
+  } else if (event === 'DELETE') {
+    if (!oldRecord || !oldRecord.id) return;
+    allNotes = allNotes.filter(n => n.id !== oldRecord.id);
+  }
+
+  // Sort notes: pinned desc, then created_at desc
+  allNotes.sort((a, b) => {
+    if (a.pinned !== b.pinned) {
+      return b.pinned ? 1 : -1;
+    }
+    return new Date(b.created_at) - new Date(a.created_at);
+  });
+
+  // Re-render views
+  renderNotes();
+  
+  if (trackerSubTab === 'today') {
+    renderTrackerToday();
+  } else {
+    renderTrackerInsights();
+  }
+}
+
+function initClearButtons() {
+  if (clearAllBtn) {
+    clearAllBtn.addEventListener('click', () => {
+      pendingDeleteId = '__CLEAR_PENDING__';
+      confirmMsg.textContent = 'Are you sure you want to delete ALL pending notes? This cannot be undone.';
+      confirmOk.textContent = 'Delete All';
+      confirmOverlay.classList.remove('hidden');
+    });
+  }
+
+  if (clearDoneBtn) {
+    clearDoneBtn.addEventListener('click', () => {
+      pendingDeleteId = '__CLEAR_DONE__';
+      confirmMsg.textContent = 'Are you sure you want to delete ALL accomplished notes? This cannot be undone.';
+      confirmOk.textContent = 'Delete All';
+      confirmOverlay.classList.remove('hidden');
+    });
+  }
+}
+initClearButtons();
 
 
