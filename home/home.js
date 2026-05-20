@@ -982,12 +982,7 @@ if (resumeUploadBtn && resumeFileInput) {
 }
 
 
-initTheme();
-initAuth();
-initURLCleaners();
-
-const savedSection = localStorage.getItem('activeSection') || 'section-notes';
-switchTab(savedSection);
+// Startup sequence moved to the bottom of the file to prevent TDZ (Temporal Dead Zone) ReferenceErrors on page reload
 
 function updateClock() {
   const clockEl = document.getElementById('header-clock');
@@ -1777,5 +1772,15 @@ function initClearButtons() {
   }
 }
 initClearButtons();
+
+// ==========================================================================
+// SAFE APPLICATION BOOT / STARTUP SEQUENCE
+// ==========================================================================
+initTheme();
+initAuth();
+initURLCleaners();
+
+const savedSection = localStorage.getItem('activeSection') || 'section-notes';
+switchTab(savedSection);
 
 
