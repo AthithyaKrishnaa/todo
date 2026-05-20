@@ -480,7 +480,7 @@ function switchTab(targetId) {
     sec.classList.toggle('hidden', !isActive);
   });
 
-  if (targetId === 'section-notes' || targetId === 'section-tracker' || isDesktop) {
+  if (targetId === 'section-notes' || isDesktop) {
     document.body.classList.add('locked-mode');
   } else {
     document.body.classList.remove('locked-mode');

@@ -2221,7 +2221,74 @@ button:active { transform: scale(0.95); }
    DAILY TRACKER & INSIGHTS STYLING — ADDITIONS
    ========================================================================== */
 
-/* ── Tab Switcher Override for 3 sections ── */
+@media (max-width: 600px) {
+  /* Ensure the main tab switcher adapts on small screens */
+  .main-nav-liquid {
+    width: 100% !important;
+    max-width: 100%;
+    overflow-x: auto;
+    padding: 0 0.5rem;
+    box-sizing: border-box;
+  }
+
+  .main-nav-liquid .filter-glass {
+    width: auto !important;
+    min-width: max-content;
+  }
+
+  /* Charts and heatmap wrappers become scrollable horizontally */
+  .chart-wrapper, .heatmap-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Reduce padding on category cards for tighter screens */
+  .tracker-category-card {
+    padding: 0.9rem;
+  }
+
+  .tracker-categories-grid {
+    gap: 0.9rem;
+  }
+
+  /* Insights grid stacks on mobile */
+  .insights-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .insights-card.full-width {
+    grid-column: auto;
+  }
+
+  .insights-card {
+    margin-bottom: 1rem;
+  }
+
+  /* Ensure weekly bar chart bars are not too narrow */
+  .bar-chart {
+    gap: 0.35rem;
+  }
+
+  .bar-column .bar-fill-container {
+    width: 12px;
+  }
+
+  .weekly-bar-chart {
+    height: 130px;
+  }
+
+  /* Heatmap grid responsive columns */
+  .heatmap-grid {
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.35rem;
+  }
+
+  .heatmap-cell {
+    min-width: 20px;
+    min-height: 20px;
+  }
+}
+
 .main-nav-liquid {
   grid-template-columns: 1fr 1fr 1fr !important;
   width: 380px !important;
