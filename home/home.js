@@ -135,6 +135,9 @@ async function loadNotes() {
   allNotes = data || [];
   updateNoteBadge();
   renderNotes();
+  if (typeof renderTrackerToday === 'function') {
+    renderTrackerToday();
+  }
 }
 
 function updateNoteBadge() {
@@ -143,6 +146,7 @@ function updateNoteBadge() {
 function renderNotes() {
   notesList.innerHTML = '';
   const filtered = allNotes.filter(n => {
+    if (n.tags && n.tags.includes('daily_tracker')) return false;
     if (currentFilter === 'pending')      return !n.done;
     if (currentFilter === 'accomplished') return n.done;
     return true;
@@ -476,17 +480,38 @@ function switchTab(targetId) {
     sec.classList.toggle('hidden', !isActive);
   });
 
-  if (targetId === 'section-notes' || isDesktop) {
+  if (targetId === 'section-notes' || targetId === 'section-tracker' || isDesktop) {
     document.body.classList.add('locked-mode');
   } else {
     document.body.classList.remove('locked-mode');
   }
 
+  // Update header title dynamically
+  const topHeaderTitle = document.getElementById('top-header-title');
+  if (topHeaderTitle) {
+    if (targetId === 'section-notes') topHeaderTitle.textContent = 'Notes';
+    else if (targetId === 'section-tracker') topHeaderTitle.textContent = 'Daily Tracker';
+    else if (targetId === 'section-profile') topHeaderTitle.textContent = 'Profile';
+  }
+
   const footerTagline = document.getElementById('footer-tagline');
   if (footerTagline) {
-    footerTagline.textContent = targetId === 'section-notes'
-      ? 'Organize your second brain'
-      : 'Your personal knowledge vault';
+    if (targetId === 'section-notes') {
+      footerTagline.textContent = 'Organize your second brain';
+    } else if (targetId === 'section-tracker') {
+      footerTagline.textContent = 'Form healthy daily habits';
+    } else {
+      footerTagline.textContent = 'Your personal knowledge vault';
+    }
+  }
+
+  // Trigger tracker rendering if tracker active
+  if (targetId === 'section-tracker') {
+    if (trackerSubTab === 'today') {
+      if (typeof renderTrackerToday === 'function') renderTrackerToday();
+    } else {
+      if (typeof renderTrackerInsights === 'function') renderTrackerInsights();
+    }
   }
 }
 
@@ -1011,4 +1036,593 @@ if (smartProfBtn) {
     }
   });
 }
+
+
+// ==========================================================================
+// DAILY TRACKER & INSIGHTS ENGINE
+// ==========================================================================
+
+let trackerDate = getLocalDateString();
+let trackerSubTab = 'today';
+
+const TRACKER_ITEMS = [
+  'morning:drink-water', 'morning:mouth-wash', 'morning:brush', 'morning:sunscreen',
+  'fitness:hit-gym', 'fitness:cardio', 'fitness:creatine', 'fitness:protein',
+  'productivity:dsa', 'productivity:study-ai',
+  'night:brush', 'night:mouth-wash', 'night:tablets', 'night:prep-clothes', 'night:sleep'
+];
+
+function getLocalDateString(dateObj = new Date()) {
+  const d = new Date(dateObj.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+function formatDateElegant(dateStr) {
+  const [yyyy, mm, dd] = dateStr.split('-');
+  const dateObj = new Date(yyyy, mm - 1, dd);
+  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  return dateObj.toLocaleDateString('en-US', options);
+}
+
+function shiftTrackerDate(offset) {
+  const [yyyy, mm, dd] = trackerDate.split('-');
+  const curr = new Date(yyyy, mm - 1, dd);
+  curr.setDate(curr.getDate() + offset);
+  trackerDate = getLocalDateString(curr);
+  renderTrackerToday();
+}
+
+async function toggleTrackerItem(itemKey, isChecked) {
+  if (!currentUser) return;
+  
+  const existingNote = allNotes.find(n => 
+    n.tags && 
+    n.tags.includes('daily_tracker') && 
+    n.content.includes(`"date":"${trackerDate}"`)
+  );
+  
+  let completed = [];
+  if (existingNote) {
+    try {
+      const payload = JSON.parse(existingNote.content);
+      completed = payload.completed || [];
+    } catch (e) {
+      console.error("Failed to parse tracker JSON", e);
+    }
+  }
+  
+  if (isChecked) {
+    if (!completed.includes(itemKey)) {
+      completed.push(itemKey);
+    }
+  } else {
+    completed = completed.filter(key => key !== itemKey);
+  }
+  
+  const contentJSON = JSON.stringify({
+    date: trackerDate,
+    completed: completed
+  });
+  
+  showStatus("Syncing tracker... ⚡");
+  
+  if (existingNote) {
+    const { error } = await sb
+      .from('notes')
+      .update({ content: contentJSON })
+      .eq('id', existingNote.id);
+      
+    if (error) {
+      console.error(error);
+      showStatus("Sync failed 😕");
+    } else {
+      existingNote.content = contentJSON;
+      updateTrackerUI(completed);
+      showStatus("Saved! ✨");
+    }
+  } else {
+    const { data, error } = await sb
+      .from('notes')
+      .insert({
+        user_id: currentUser.id,
+        content: contentJSON,
+        tags: ['daily_tracker'],
+        done: false,
+        pinned: false
+      })
+      .select();
+      
+    if (error) {
+      console.error(error);
+      showStatus("Sync failed 😕");
+    } else {
+      if (data && data[0]) {
+        allNotes.push(data[0]);
+      }
+      updateTrackerUI(completed);
+      showStatus("Saved! ✨");
+    }
+  }
+}
+
+function updateTrackerUI(completed) {
+  const checkboxes = document.querySelectorAll('.tracker-checkbox');
+  checkboxes.forEach(cb => {
+    cb.checked = completed.includes(cb.dataset.key);
+  });
+  
+  const total = TRACKER_ITEMS.length;
+  const count = completed.length;
+  const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+  
+  const pctEl = document.getElementById('tracker-progress-pct');
+  const countEl = document.getElementById('tracker-progress-count');
+  const barEl = document.getElementById('tracker-progress-bar');
+  const motivationEl = document.getElementById('tracker-motivation');
+  
+  if (pctEl) pctEl.textContent = `${pct}%`;
+  if (countEl) countEl.textContent = `(${count} / ${total} tasks)`;
+  if (barEl) barEl.style.width = `${pct}%`;
+  
+  if (motivationEl) {
+    if (pct === 0) motivationEl.textContent = "Ready to smash the day? 🚀";
+    else if (pct < 30) motivationEl.textContent = "Off to a good start! 💧";
+    else if (pct < 60) motivationEl.textContent = "Halfway there, keep going! ⚡";
+    else if (pct < 90) motivationEl.textContent = "Looking fantastic, almost done! 💪";
+    else if (pct < 100) motivationEl.textContent = "Just a tiny bit more! 🏆";
+    else motivationEl.textContent = "Perfect day! You crushed it! 🎉👑";
+  }
+
+  renderWeekStrip();
+}
+
+function renderWeekStrip() {
+  const stripEl = document.getElementById('tracker-week-strip');
+  if (!stripEl) return;
+  
+  stripEl.innerHTML = '';
+  
+  const [yyyy, mm, dd] = trackerDate.split('-');
+  const baseDate = new Date(yyyy, mm - 1, dd);
+  
+  for (let i = -6; i <= 0; i++) {
+    const temp = new Date(baseDate);
+    temp.setDate(temp.getDate() + i);
+    
+    const tempStr = getLocalDateString(temp);
+    const dayName = temp.toLocaleDateString('en-US', { weekday: 'short' }).substring(0, 3);
+    const dayNum = temp.getDate();
+    
+    const dayNote = allNotes.find(n => 
+      n.tags && 
+      n.tags.includes('daily_tracker') && 
+      n.content.includes(`"date":"${tempStr}"`)
+    );
+    
+    let completedCount = 0;
+    if (dayNote) {
+      try {
+        const payload = JSON.parse(dayNote.content);
+        completedCount = (payload.completed || []).length;
+      } catch (e) {}
+    }
+    
+    const total = TRACKER_ITEMS.length;
+    const pct = total > 0 ? Math.round((completedCount / total) * 100) : 0;
+    const isActive = tempStr === trackerDate;
+    
+    const bubble = document.createElement('div');
+    bubble.className = isActive ? 'week-bubble active' : 'week-bubble';
+    bubble.dataset.date = tempStr;
+    
+    const radius = 9;
+    const circumference = 2 * Math.PI * radius;
+    const strokeDashoffset = circumference - (pct / 100) * circumference;
+    
+    bubble.innerHTML = `
+      <span class="week-day-name">${dayName}</span>
+      <span class="week-day-num">${dayNum}</span>
+      <div class="bubble-ring-container">
+        <svg width="24" height="24" class="progress-ring">
+          <circle class="progress-ring-bg" stroke="#E0E0E0" stroke-width="2" fill="transparent" r="${radius}" cx="12" cy="12"/>
+          <circle class="progress-ring__circle" stroke="${pct === 100 ? '#4CAF50' : 'var(--accent)'}" stroke-width="2" fill="transparent" r="${radius}" cx="12" cy="12"
+            style="stroke-dasharray: ${circumference} ${circumference}; stroke-dashoffset: ${strokeDashoffset}"/>
+        </svg>
+        <span class="bubble-ring-pct" style="position:absolute; font-size: 8px; font-weight:700;">${pct === 100 ? '✓' : pct + '%'}</span>
+      </div>
+    `;
+    
+    bubble.addEventListener('click', () => {
+      trackerDate = tempStr;
+      renderTrackerToday();
+    });
+    
+    stripEl.appendChild(bubble);
+  }
+}
+
+function renderTrackerToday() {
+  const dateTitle = document.getElementById('tracker-date-title');
+  if (dateTitle) {
+    dateTitle.textContent = formatDateElegant(trackerDate);
+  }
+  
+  const dayNote = allNotes.find(n => 
+    n.tags && 
+    n.tags.includes('daily_tracker') && 
+    n.content.includes(`"date":"${trackerDate}"`)
+  );
+  
+  let completed = [];
+  if (dayNote) {
+    try {
+      const payload = JSON.parse(dayNote.content);
+      completed = payload.completed || [];
+    } catch (e) {}
+  }
+  
+  updateTrackerUI(completed);
+}
+
+function calculateStreaks() {
+  const trackerNotes = allNotes.filter(n => n.tags && n.tags.includes('daily_tracker'));
+  if (trackerNotes.length === 0) return { current: 0, best: 0, monthlyRate: 0 };
+  
+  const totalTasks = TRACKER_ITEMS.length;
+  const logs = {};
+  
+  trackerNotes.forEach(n => {
+    try {
+      const payload = JSON.parse(n.content);
+      if (payload.date) {
+        const completed = payload.completed || [];
+        const pct = totalTasks > 0 ? (completed.length / totalTasks) : 0;
+        logs[payload.date] = pct;
+      }
+    } catch (e) {}
+  });
+  
+  const loggedDates = Object.keys(logs).sort();
+  if (loggedDates.length === 0) return { current: 0, best: 0, monthlyRate: 0 };
+  
+  const today = new Date();
+  const currentMonth = today.getMonth();
+  const currentYear = today.getFullYear();
+  
+  let monthCompletedTotal = 0;
+  let monthCount = 0;
+  
+  Object.entries(logs).forEach(([dateStr, pct]) => {
+    const [y, m, d] = dateStr.split('-').map(Number);
+    if (m === currentMonth + 1 && y === currentYear) {
+      monthCompletedTotal += pct;
+      monthCount++;
+    }
+  });
+  
+  const monthlyRate = monthCount > 0 ? Math.round((monthCompletedTotal / monthCount) * 100) : 0;
+
+  const isStreakDay = (dateStr) => {
+    return (logs[dateStr] || 0) >= 0.53;
+  };
+  
+  let currentStreak = 0;
+  let bestStreak = 0;
+  
+  const firstDate = new Date(loggedDates[0]);
+  const endDate = new Date();
+  
+  let tempStreak = 0;
+  const curr = new Date(firstDate);
+  
+  while (curr <= endDate) {
+    const tempStr = getLocalDateString(curr);
+    if (isStreakDay(tempStr)) {
+      tempStreak++;
+      if (tempStreak > bestStreak) {
+        bestStreak = tempStreak;
+      }
+    } else {
+      const todayStr = getLocalDateString(new Date());
+      if (tempStr !== todayStr) {
+        tempStreak = 0;
+      }
+    }
+    curr.setDate(curr.getDate() + 1);
+  }
+  
+  let activeStreak = 0;
+  const checkDate = new Date();
+  const todayStr = getLocalDateString(checkDate);
+  checkDate.setDate(checkDate.getDate() - 1);
+  const yesterdayStr = getLocalDateString(checkDate);
+  
+  if (isStreakDay(todayStr)) {
+    activeStreak = tempStreak;
+  } else if (isStreakDay(yesterdayStr)) {
+    let streakCount = 0;
+    const sc = new Date(checkDate);
+    while (true) {
+      const scStr = getLocalDateString(sc);
+      if (isStreakDay(scStr)) {
+        streakCount++;
+        sc.setDate(sc.getDate() - 1);
+      } else {
+        break;
+      }
+    }
+    activeStreak = streakCount;
+  } else {
+    activeStreak = 0;
+  }
+  
+  if (activeStreak > bestStreak) {
+    bestStreak = activeStreak;
+  }
+
+  return {
+    current: activeStreak,
+    best: bestStreak,
+    monthlyRate: monthlyRate
+  };
+}
+
+function renderWeeklyChart() {
+  const chartEl = document.getElementById('weekly-bar-chart');
+  if (!chartEl) return;
+  
+  chartEl.innerHTML = '';
+  
+  const trackerNotes = allNotes.filter(n => n.tags && n.tags.includes('daily_tracker'));
+  const totalTasks = TRACKER_ITEMS.length;
+  
+  const weekdaySums = [0, 0, 0, 0, 0, 0, 0];
+  const weekdayCounts = [0, 0, 0, 0, 0, 0, 0];
+  
+  trackerNotes.forEach(n => {
+    try {
+      const payload = JSON.parse(n.content);
+      if (payload.date) {
+        const [y, m, d] = payload.date.split('-').map(Number);
+        const dateObj = new Date(y, m - 1, d);
+        const day = dateObj.getDay();
+        const index = day === 0 ? 6 : day - 1;
+        
+        const completed = payload.completed || [];
+        weekdaySums[index] += totalTasks > 0 ? (completed.length / totalTasks) : 0;
+        weekdayCounts[index]++;
+      }
+    } catch (e) {}
+  });
+  
+  const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  
+  weekdays.forEach((day, index) => {
+    const avg = weekdayCounts[index] > 0 ? (weekdaySums[index] / weekdayCounts[index]) : 0;
+    const pct = Math.round(avg * 100);
+    
+    const col = document.createElement('div');
+    col.className = 'bar-column';
+    
+    col.innerHTML = `
+      <span class="bar-value-tooltip">${pct}%</span>
+      <div class="bar-fill-container">
+        <div class="bar-fill" style="height: ${pct}%"></div>
+      </div>
+      <span class="bar-label">${day}</span>
+    `;
+    
+    chartEl.appendChild(col);
+  });
+}
+
+function renderMonthlyHeatmap() {
+  const gridEl = document.getElementById('monthly-heatmap-grid');
+  if (!gridEl) return;
+  
+  gridEl.innerHTML = '';
+  
+  const trackerNotes = allNotes.filter(n => n.tags && n.tags.includes('daily_tracker'));
+  const totalTasks = TRACKER_ITEMS.length;
+  
+  const logs = {};
+  trackerNotes.forEach(n => {
+    try {
+      const payload = JSON.parse(n.content);
+      if (payload.date) {
+        logs[payload.date] = (payload.completed || []).length;
+      }
+    } catch (e) {}
+  });
+  
+  const today = new Date();
+  
+  for (let i = -29; i <= 0; i++) {
+    const temp = new Date(today);
+    temp.setDate(temp.getDate() + i);
+    
+    const tempStr = getLocalDateString(temp);
+    const count = logs[tempStr] || 0;
+    const pct = totalTasks > 0 ? Math.round((count / totalTasks) * 100) : 0;
+    
+    let lvl = 0;
+    if (pct > 0) {
+      if (pct <= 25) lvl = 1;
+      else if (pct <= 50) lvl = 2;
+      else if (pct <= 75) lvl = 3;
+      else lvl = 4;
+    }
+    
+    const cell = document.createElement('div');
+    cell.className = `heatmap-cell lvl-${lvl}`;
+    
+    const formattedDate = temp.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    cell.innerHTML = `
+      <div class="heatmap-cell-tooltip">${formattedDate}: ${count} / ${totalTasks} tasks (${pct}%)</div>
+    `;
+    
+    cell.addEventListener('click', () => {
+      trackerDate = tempStr;
+      const trackerTabs = document.getElementById('tracker-tabs');
+      if (trackerTabs) {
+        const todayBtn = trackerTabs.querySelector('[data-tab="today"]');
+        if (todayBtn) todayBtn.click();
+      }
+    });
+    
+    gridEl.appendChild(cell);
+  }
+}
+
+function renderCategoryBreakdown() {
+  const rowEl = document.getElementById('categories-breakdown-row');
+  if (!rowEl) return;
+  
+  rowEl.innerHTML = '';
+  
+  const trackerNotes = allNotes.filter(n => n.tags && n.tags.includes('daily_tracker'));
+  
+  const categories = [
+    { 
+      id: 'morning', 
+      label: 'Morning', 
+      icon: '🌅',
+      items: ['morning:drink-water', 'morning:mouth-wash', 'morning:brush', 'morning:sunscreen']
+    },
+    { 
+      id: 'fitness', 
+      label: 'Fitness', 
+      icon: '💪',
+      items: ['fitness:hit-gym', 'fitness:cardio', 'fitness:creatine', 'fitness:protein']
+    },
+    { 
+      id: 'productivity', 
+      label: 'Productivity', 
+      icon: '⚡',
+      items: ['productivity:dsa', 'productivity:study-ai']
+    },
+    { 
+      id: 'night', 
+      label: 'Night', 
+      icon: '🌙',
+      items: ['night:brush', 'night:mouth-wash', 'night:tablets', 'night:prep-clothes', 'night:sleep']
+    }
+  ];
+  
+  categories.forEach(cat => {
+    let completedCount = 0;
+    let loggedDays = 0;
+    
+    trackerNotes.forEach(n => {
+      try {
+        const payload = JSON.parse(n.content);
+        const completed = payload.completed || [];
+        const catCompleted = completed.filter(key => cat.items.includes(key));
+        completedCount += catCompleted.length;
+        loggedDays++;
+      } catch (e) {}
+    });
+    
+    const totalPossible = cat.items.length;
+    const avgCompleted = loggedDays > 0 ? (completedCount / loggedDays) : 0;
+    const pct = totalPossible > 0 ? Math.round((avgCompleted / totalPossible) * 100) : 0;
+    
+    const item = document.createElement('div');
+    item.className = 'category-breakdown-item';
+    
+    const radius = 24;
+    const circumference = 2 * Math.PI * radius;
+    const strokeDashoffset = circumference - (pct / 100) * circumference;
+    
+    item.innerHTML = `
+      <div style="position:relative; width:56px; height:56px; display:flex; align-items:center; justify-content:center;">
+        <svg width="56" height="56" class="progress-ring">
+          <circle class="progress-ring-bg" stroke="#E0E0E0" stroke-width="4" fill="transparent" r="${radius}" cx="28" cy="28"/>
+          <circle class="progress-ring__circle" stroke="var(--accent)" stroke-width="4" fill="transparent" r="${radius}" cx="28" cy="28"
+            style="stroke-dasharray: ${circumference} ${circumference}; stroke-dashoffset: ${strokeDashoffset}"/>
+        </svg>
+        <span style="position:absolute; font-size:16px;">${cat.icon}</span>
+      </div>
+      <span class="breakdown-label">${cat.label}</span>
+      <span class="breakdown-count">${avgCompleted.toFixed(1)} / ${totalPossible} daily</span>
+    `;
+    
+    rowEl.appendChild(item);
+  });
+}
+
+function renderTrackerInsights() {
+  const stats = calculateStreaks();
+  
+  const currEl = document.getElementById('tracker-streak-current');
+  const bestEl = document.getElementById('tracker-streak-best');
+  const rateEl = document.getElementById('tracker-monthly-rate');
+  
+  if (currEl) currEl.textContent = `${stats.current} day${stats.current !== 1 ? 's' : ''}`;
+  if (bestEl) bestEl.textContent = `${stats.best} day${stats.best !== 1 ? 's' : ''}`;
+  if (rateEl) rateEl.textContent = `${stats.monthlyRate}%`;
+  
+  renderWeeklyChart();
+  renderMonthlyHeatmap();
+  renderCategoryBreakdown();
+}
+
+function initTrackerEvents() {
+  const trackerTabs = document.getElementById('tracker-tabs');
+  if (trackerTabs) {
+    const btns = trackerTabs.querySelectorAll('.filter-btn');
+    btns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        btns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        trackerSubTab = btn.dataset.tab;
+        trackerTabs.setAttribute('data-state', trackerSubTab);
+        
+        const viewToday = document.getElementById('tracker-view-today');
+        const viewInsights = document.getElementById('tracker-view-insights');
+        
+        if (trackerSubTab === 'today') {
+          viewToday.classList.remove('hidden');
+          viewInsights.classList.add('hidden');
+          renderTrackerToday();
+        } else {
+          viewToday.classList.add('hidden');
+          viewInsights.classList.remove('hidden');
+          renderTrackerInsights();
+        }
+      });
+    });
+  }
+
+  const prevBtn = document.getElementById('prev-day-btn');
+  const nextBtn = document.getElementById('next-day-btn');
+  
+  if (prevBtn) {
+    prevBtn.addEventListener('click', () => {
+      shiftTrackerDate(-1);
+    });
+  }
+  
+  if (nextBtn) {
+    nextBtn.addEventListener('click', () => {
+      shiftTrackerDate(1);
+    });
+  }
+
+  const checkboxes = document.querySelectorAll('.tracker-checkbox');
+  checkboxes.forEach(cb => {
+    cb.addEventListener('change', async () => {
+      const itemKey = cb.dataset.key;
+      const isChecked = cb.checked;
+      await toggleTrackerItem(itemKey, isChecked);
+    });
+  });
+}
+
+// Start tracker event listeners
+initTrackerEvents();
+
 

@@ -42,6 +42,14 @@
         </svg>
         Profile
       </button>
+      <button class="side-nav-item" data-target="section-tracker">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="nav-icon">
+          <polyline points="9 11 12 14 22 4"></polyline>
+          <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+        </svg>
+        Daily Tracker
+      </button>
     </nav>
   </aside>
 
@@ -89,6 +97,7 @@
       <div class="filter-bar main-nav-liquid" id="main-tabs" role="tablist" data-state="section-notes">
         <div class="filter-glass" id="main-tabs-glass"></div>
         <button type="button" class="filter-btn active" data-target="section-notes" role="tab">Notes</button>
+        <button type="button" class="filter-btn" data-target="section-tracker" role="tab">Daily Tracker</button>
         <button type="button" class="filter-btn" data-target="section-profile" role="tab">Profile</button>
       </div>
     </div>
@@ -388,6 +397,245 @@
     </div><!-- /profile-grid -->
     </div><!-- /section-profile -->
 
+    <!-- === DAILY TRACKER SECTION === -->
+    <div id="section-tracker" class="app-section hidden">
+      <!-- Tracker sub-navigation switcher -->
+      <div class="filter-bar tracker-sub-tabs" id="tracker-tabs" role="tablist" data-state="today">
+        <div class="filter-glass" id="tracker-tabs-glass"></div>
+        <button type="button" class="filter-btn active" data-tab="today" role="tab">Today</button>
+        <button type="button" class="filter-btn" data-tab="insights" role="tab">Insights</button>
+      </div>
+
+      <!-- ─── TODAY'S TRACKER VIEW ─── -->
+      <div id="tracker-view-today" class="tracker-view">
+        <!-- Date Header Switcher -->
+        <div class="tracker-date-header">
+          <button type="button" class="date-nav-btn" id="prev-day-btn" title="Previous Day">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          </button>
+          <div class="date-title-wrapper">
+            <h2 class="current-date-title" id="tracker-date-title">Wednesday, May 20, 2026</h2>
+          </div>
+          <button type="button" class="date-nav-btn" id="next-day-btn" title="Next Day">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          </button>
+        </div>
+
+        <!-- Weekly Strip -->
+        <div class="tracker-week-strip" id="tracker-week-strip">
+          <!-- Dynamic bubbles injected via JS -->
+        </div>
+
+        <!-- Progress Card -->
+        <div class="tracker-progress-card">
+          <div class="tracker-progress-header">
+            <div>
+              <span class="tracker-progress-pct" id="tracker-progress-pct">0%</span>
+              <span class="tracker-progress-count" id="tracker-progress-count">(0 / 15 tasks)</span>
+            </div>
+            <span class="tracker-motivation" id="tracker-motivation">Ready to smash the day? 🚀</span>
+          </div>
+          <div class="tracker-progress-bar-container">
+            <div class="tracker-progress-bar" id="tracker-progress-bar" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <!-- Categorized Habit Grid -->
+        <div class="tracker-categories-grid">
+          
+          <!-- Category: Morning -->
+          <div class="tracker-category-card">
+            <div class="category-header morning">
+              <span class="category-icon">🌅</span>
+              <h4>Morning</h4>
+            </div>
+            <div class="category-divider">━━━━━━━━━━ MORNING ━━━━━━━━━━</div>
+            <div class="tracker-items-list">
+              <label class="tracker-item">
+                <input type="checkbox" class="tracker-checkbox" data-key="morning:drink-water" />
+                <span class="checkbox-custom"></span>
+                <span class="tracker-item-text">Drink water</span>
+              </label>
+              <label class="tracker-item">
+                <input type="checkbox" class="tracker-checkbox" data-key="morning:mouth-wash" />
+                <span class="checkbox-custom"></span>
+                <span class="tracker-item-text">Mouth wash</span>
+              </label>
+              <label class="tracker-item">
+                <input type="checkbox" class="tracker-checkbox" data-key="morning:brush" />
+                <span class="checkbox-custom"></span>
+                <span class="tracker-item-text">Brush</span>
+              </label>
+              <label class="tracker-item">
+                <input type="checkbox" class="tracker-checkbox" data-key="morning:sunscreen" />
+                <span class="checkbox-custom"></span>
+                <span class="tracker-item-text">Sunscreen</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Category: Fitness -->
+          <div class="tracker-category-card">
+            <div class="category-header fitness">
+              <span class="category-icon">💪</span>
+              <h4>Fitness</h4>
+            </div>
+            <div class="category-divider">━━━━━━━━━━ FITNESS ━━━━━━━━━━</div>
+            <div class="tracker-items-list">
+              <label class="tracker-item">
+                <input type="checkbox" class="tracker-checkbox" data-key="fitness:hit-gym" />
+                <span class="checkbox-custom"></span>
+                <span class="tracker-item-text">Hit gym</span>
+              </label>
+              <label class="tracker-item">
+                <input type="checkbox" class="tracker-checkbox" data-key="fitness:cardio" />
+                <span class="checkbox-custom"></span>
+                <span class="tracker-item-text">Cardio — minimum 30 mins</span>
+              </label>
+              <label class="tracker-item">
+                <input type="checkbox" class="tracker-checkbox" data-key="fitness:creatine" />
+                <span class="checkbox-custom"></span>
+                <span class="tracker-item-text">Creatine</span>
+              </label>
+              <label class="tracker-item">
+                <input type="checkbox" class="tracker-checkbox" data-key="fitness:protein" />
+                <span class="checkbox-custom"></span>
+                <span class="tracker-item-text">Protein goal — 100g+</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Category: Productivity -->
+          <div class="tracker-category-card">
+            <div class="category-header productivity">
+              <span class="category-icon">⚡</span>
+              <h4>Productivity</h4>
+            </div>
+            <div class="category-divider">━━━━━━━━━━ PRODUCTIVITY ━━━━━━━━━━</div>
+            <div class="tracker-items-list">
+              <label class="tracker-item">
+                <input type="checkbox" class="tracker-checkbox" data-key="productivity:dsa" />
+                <span class="checkbox-custom"></span>
+                <span class="tracker-item-text">DSA practice</span>
+              </label>
+              <label class="tracker-item">
+                <input type="checkbox" class="tracker-checkbox" data-key="productivity:study-ai" />
+                <span class="checkbox-custom"></span>
+                <span class="tracker-item-text">Study AI</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Category: Night -->
+          <div class="tracker-category-card">
+            <div class="category-header night">
+              <span class="category-icon">🌙</span>
+              <h4>Night</h4>
+            </div>
+            <div class="category-divider">━━━━━━━━━━ NIGHT ━━━━━━━━━━</div>
+            <div class="tracker-items-list">
+              <label class="tracker-item">
+                <input type="checkbox" class="tracker-checkbox" data-key="night:brush" />
+                <span class="checkbox-custom"></span>
+                <span class="tracker-item-text">Brush</span>
+              </label>
+              <label class="tracker-item">
+                <input type="checkbox" class="tracker-checkbox" data-key="night:mouth-wash" />
+                <span class="checkbox-custom"></span>
+                <span class="tracker-item-text">Mouth wash</span>
+              </label>
+              <label class="tracker-item">
+                <input type="checkbox" class="tracker-checkbox" data-key="night:tablets" />
+                <span class="checkbox-custom"></span>
+                <span class="tracker-item-text">Tablets</span>
+              </label>
+              <label class="tracker-item">
+                <input type="checkbox" class="tracker-checkbox" data-key="night:prep-clothes" />
+                <span class="checkbox-custom"></span>
+                <span class="tracker-item-text">Prep clothes / bag for tomorrow</span>
+              </label>
+              <label class="tracker-item">
+                <input type="checkbox" class="tracker-checkbox" data-key="night:sleep" />
+                <span class="checkbox-custom"></span>
+                <span class="tracker-item-text">Sleep at 10.30</span>
+              </label>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ─── INSIGHTS VIEW ─── -->
+      <div id="tracker-view-insights" class="tracker-view hidden">
+        <!-- Streak Stats banner -->
+        <div class="tracker-stats-grid">
+          <div class="tracker-stat-card">
+            <span class="stat-icon">🔥</span>
+            <div class="stat-info">
+              <h5 class="stat-title">Current Streak</h5>
+              <p class="stat-value" id="tracker-streak-current">0 days</p>
+            </div>
+          </div>
+          <div class="tracker-stat-card">
+            <span class="stat-icon">👑</span>
+            <div class="stat-info">
+              <h5 class="stat-title">Best Streak</h5>
+              <p class="stat-value" id="tracker-streak-best">0 days</p>
+            </div>
+          </div>
+          <div class="tracker-stat-card">
+            <span class="stat-icon">📈</span>
+            <div class="stat-info">
+              <h5 class="stat-title">Completion Rate</h5>
+              <p class="stat-value" id="tracker-monthly-rate">0%</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="insights-grid">
+          <!-- Weekly Activity bar chart -->
+          <div class="insights-card">
+            <h3>Weekly Performance</h3>
+            <p class="insights-card-subtitle">Daily completion average (Mon - Sun)</p>
+            <div class="chart-wrapper">
+              <div class="bar-chart" id="weekly-bar-chart">
+                <!-- Injected via JS -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Monthly completion heatmap grid -->
+          <div class="insights-card">
+            <h3>Monthly Consistency</h3>
+            <p class="insights-card-subtitle">Task completion heatmap (GitHub style)</p>
+            <div class="heatmap-wrapper">
+              <div class="heatmap-grid" id="monthly-heatmap-grid">
+                <!-- Injected via JS -->
+              </div>
+              <div class="heatmap-legend">
+                <span>Less</span>
+                <span class="legend-box lvl-0"></span>
+                <span class="legend-box lvl-1"></span>
+                <span class="legend-box lvl-2"></span>
+                <span class="legend-box lvl-3"></span>
+                <span class="legend-box lvl-4"></span>
+                <span>More</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Category Performance diagnostic -->
+          <div class="insights-card full-width">
+            <h3>Category Breakdown</h3>
+            <p class="insights-card-subtitle">Overall accomplishment rate per area of life</p>
+            <div class="categories-breakdown-row" id="categories-breakdown-row">
+              <!-- Injected via JS -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <footer class="app-footer">
       <div class="footer-inner">
         <div class="footer-brand">
@@ -411,6 +659,15 @@
         <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
       </svg>
       <span class="nav-label">Notes</span>
+    </button>
+
+    <button class="nav-item" data-target="section-tracker" aria-label="Daily Tracker">
+      <svg class="nav-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="9 11 12 14 22 4"></polyline>
+        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+      </svg>
+      <span class="nav-label">Tracker</span>
     </button>
 
     <button class="nav-item" data-target="section-profile" aria-label="Profile">
