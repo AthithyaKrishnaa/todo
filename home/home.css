@@ -2302,7 +2302,7 @@ button:active { transform: scale(0.95); }
   transform: translateX(0) !important;
 }
 
-.main-nav-liquid[data-state="section-tracker"] .filter-glass {
+.main-nav-liquid[data-state="section-workout"] .filter-glass {
   transform: translateX(100%) !important;
 }
 
@@ -2311,6 +2311,94 @@ button:active { transform: scale(0.95); }
 }
 
 /* ── Tracker General Views ── */
+/* Workout split page */
+.workout-view {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 0.5rem 1.25rem 2rem;
+  animation: slideIn 0.3s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+}
+
+.workout-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+.workout-day-card {
+  width: 100%;
+  min-height: 132px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 1.2rem 1.25rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow);
+  text-align: left;
+  transition: transform 0.28s cubic-bezier(0.19, 1, 0.22, 1), border-color 0.28s ease, box-shadow 0.28s ease, background 0.28s ease;
+}
+
+.workout-day-card:hover,
+.workout-day-card:focus-visible {
+  background: linear-gradient(135deg, rgba(90, 75, 255, 0.04) 0%, rgba(181, 174, 246, 0.14) 100%);
+  border-color: rgba(90, 75, 255, 0.35);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-3px);
+  outline: none;
+}
+
+.workout-day-card:active {
+  transform: scale(0.98);
+}
+
+.workout-day {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 0.08em;
+}
+
+.workout-item {
+  position: relative;
+  padding-left: 1rem;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.25;
+}
+
+.workout-item::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.62em;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent);
+  transform: translateY(-50%);
+}
+
+.workout-day-card.rest-day {
+  background: var(--accent-bg);
+  border-color: rgba(90, 75, 255, 0.2);
+}
+
+@media (min-width: 700px) {
+  .workout-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .workout-day-card.rest-day {
+    grid-column: 1 / -1;
+  }
+}
+
 .tracker-view {
   max-width: 680px;
   margin: 0 auto;

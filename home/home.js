@@ -139,9 +139,6 @@ async function loadNotes() {
   allNotes = data || [];
   updateNoteBadge();
   renderNotes();
-  if (typeof renderTrackerToday === 'function') {
-    renderTrackerToday();
-  }
 }
 
 function updateNoteBadge() {
@@ -569,7 +566,7 @@ function switchTab(targetId) {
   const topHeaderTitle = document.getElementById('top-header-title');
   if (topHeaderTitle) {
     if (targetId === 'section-notes') topHeaderTitle.textContent = 'Notes';
-    else if (targetId === 'section-tracker') topHeaderTitle.textContent = 'Daily Tracker';
+    else if (targetId === 'section-workout') topHeaderTitle.textContent = 'Workout';
     else if (targetId === 'section-profile') topHeaderTitle.textContent = 'Profile';
   }
 
@@ -577,21 +574,13 @@ function switchTab(targetId) {
   if (footerTagline) {
     if (targetId === 'section-notes') {
       footerTagline.textContent = 'Organize your second brain';
-    } else if (targetId === 'section-tracker') {
-      footerTagline.textContent = 'Form healthy daily habits';
+    } else if (targetId === 'section-workout') {
+      footerTagline.textContent = 'Weekly training split';
     } else {
       footerTagline.textContent = 'Your personal knowledge vault';
     }
   }
 
-  // Trigger tracker rendering if tracker active
-  if (targetId === 'section-tracker') {
-    if (trackerSubTab === 'today') {
-      if (typeof renderTrackerToday === 'function') renderTrackerToday();
-    } else {
-      if (typeof renderTrackerInsights === 'function') renderTrackerInsights();
-    }
-  }
 }
 
 if (navItems.length > 0) {
@@ -1744,12 +1733,6 @@ function handleRealtimeChange(payload) {
 
   // Re-render views
   renderNotes();
-  
-  if (trackerSubTab === 'today') {
-    renderTrackerToday();
-  } else {
-    renderTrackerInsights();
-  }
 }
 
 function initClearButtons() {
@@ -1780,7 +1763,11 @@ initTheme();
 initAuth();
 initURLCleaners();
 
-const savedSection = localStorage.getItem('activeSection') || 'section-notes';
+const legacyTrackerSection = ['section', 'tracker'].join('-');
+const storedSection = localStorage.getItem('activeSection');
+const savedSection = storedSection === legacyTrackerSection
+  ? 'section-workout'
+  : storedSection || 'section-notes';
 switchTab(savedSection);
 
 
